@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-dark-400: oklch(0.1448 0 0);
+  --color-dark-500: oklch(0.2044 0 0);
+}
+
+@layer base {
+  body,
+  html,
+  #root {
+    @apply flex flex-col min-h-screen;
+  }
+
+  html,
+  body {
+    @apply bg-white text-black dark:bg-dark-400 dark:text-white;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  html.dark * {
+    border-color: oklch(1 0 129.63 / 15%);
+  }
+
+  * {
+    border-color: oklch(0.9219 0 0);
+  }
+}

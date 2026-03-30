@@ -1,0 +1,32 @@
+{
+  "name": "starter-next-ts",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/next-with-server-port.mjs dev",
+    "build": "next build",
+    "start": "node scripts/next-with-server-port.mjs start",
+    "lint": "eslint",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "16.2.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-icons": "^5.6.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.1",
+    "prettier": "3.8.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
