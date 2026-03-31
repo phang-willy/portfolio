@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { MainLayout } from "@/components/layout/main-layout";
+import { Roboto, Oswald } from "next/font/google";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const roboto = Roboto({
   subsets: ["latin"],
+  variable: "--font-roboto",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const oswald = Oswald({
   subsets: ["latin"],
+  variable: "--font-oswald",
 });
 
 export const metadata: Metadata = {
-  title: "Start Next TS",
-  description: "Start Next TS",
+  title: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
+  description: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
+  icons: {
+    icon: "/logo.ico",
+  },
 };
 
 export default function RootLayout({
@@ -26,10 +30,13 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
+      className={`h-full antialiased ${roboto.variable} ${oswald.variable}`}
     >
-      <body className="min-h-full flex flex-col">
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="min-h-dvh flex flex-col relative">
+        <ThemeProvider>
+          <MainLayout>{children}</MainLayout>
+        </ThemeProvider>
       </body>
     </html>
   );

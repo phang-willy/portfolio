@@ -1,6 +1,7 @@
 "use client";
 
 import { Dropdown } from "@/components/ui/dropdown";
+import { Button } from "@/components/ui/button";
 import { useTheme } from "@/features/theme/hooks/use-theme";
 import { LuMonitorSmartphone, LuMoon, LuSun } from "react-icons/lu";
 
@@ -18,42 +19,45 @@ export const ThemeToggle = () => {
   return (
     <Dropdown
       trigger={
-        <button className="rounded-md border p-2 cursor-pointer dark:text-white dark:bg-dark-500 dark:hover:bg-gray-800 hover:bg-gray-200">
+        <Button variant="outline" size="icon">
           {icons[theme]}
-        </button>
+        </Button>
       }
     >
       {({ close }) => (
-        <div className="flex flex-col p-1 rounded-md border bg-white dark:bg-gray-900">
-          <button
+        <div className="flex flex-col p-1 rounded-md border bg-white dark:bg-dark-500">
+          <Button
             onClick={() => {
               setTheme("light");
               close();
             }}
-            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+            variant="menu-item"
+            className="gap-2 px-3 py-2"
           >
-            <LuSun /> Light
-          </button>
+            <LuSun /> Clair
+          </Button>
 
-          <button
+          <Button
             onClick={() => {
               setTheme("dark");
               close();
             }}
-            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+            variant="menu-item"
+            className="gap-2 px-3 py-2"
           >
-            <LuMoon /> Dark
-          </button>
+            <LuMoon /> Sombre
+          </Button>
 
-          <button
+          <Button
             onClick={() => {
               setTheme("system");
               close();
             }}
-            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+            variant="menu-item"
+            className="gap-2 px-3 py-2"
           >
-            <LuMonitorSmartphone /> System
-          </button>
+            <LuMonitorSmartphone /> Système
+          </Button>
         </div>
       )}
     </Dropdown>

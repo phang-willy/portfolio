@@ -1,21 +1,24 @@
-# 🚀 Starter Vite + React + TypeScript
+# 🚀 Portfolio
 
-Template prêt à l’emploi pour démarrer rapidement un projet frontend moderne avec une base propre, maintenable et scalable.
+Un espace vivant pour raconter mon parcours, partager mes projets et montrer
+ma façon de concevoir le web.
 
----
+## 🧭 Présentation du projet
 
-## ❓ Utilisation du starter
+Ce portfolio est mon terrain d'expression : un mélange de design, de code et
+d'intention. Je l'ai construit avec Next.js et TypeScript pour présenter qui je
+suis, ce que je crée, et comment j'accompagne des projets de A à Z.
 
-Ce repository est conçu pour être utilisé comme template GitHub.
+Il met en avant :
 
-🥇 Méthode recommandée (GitHub Template)
+- une section de présentation avec animations progressives
+- mes services en développement Full Stack, FrontEnd, BackEnd et E-commerce
+- mon parcours professionnel avec une timeline d'expériences
+- une galerie de projets avec interactions au survol
+- un message personnel et des points de contact rapides
 
-1. Aller sur le repository du starter
-2. Cliquer sur **“Use this template”** (en haut à droite)
-3. Sélectionner :
-   - le nom du nouveau projet
-   - la visibilité (private / public)
-4. Cliquer sur **“Create repository”**
+Mon objectif : proposer une vitrine personnelle, claire et soignée, qui reflète
+autant ma sensibilité produit que ma rigueur technique.
 
 ## 📦 Stack technique
 
@@ -188,15 +191,6 @@ Le projet inclut des workflows GitHub Actions :
 - séparation par features
 - éviter la duplication de code
 - respecter les conventions définies
-
----
-
-## 📦 Utilisation comme template
-
-Ce repository est conçu pour être utilisé comme base :
-
-- via GitHub Template
-- via clone manuel
 
 ---
 
