@@ -45,7 +45,8 @@ const getHtmlDarkClassSnapshot = () =>
 
 const getHtmlDarkClassServerSnapshot = () => false;
 
-const MARKER_LABEL = "Disponible à Paris et en Périphérie";
+const MARKER_LABEL =
+  "Disponible à Paris et sa Périphérie, en France Métropolitaine ainsi que dans tous les pays membres de l'Union Européenne";
 
 const createParisMarkerElement = () => {
   const root = document.createElement("div");
