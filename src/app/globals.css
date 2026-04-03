@@ -3,30 +3,58 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --color-main: hsl(205, 100%, 44%);
   --color-dark-400: oklch(0.1448 0 0);
   --color-dark-500: oklch(0.2044 0 0);
+  --color-border: oklch(0.9219 0 0);
+  --color-border-dark: oklch(1 0 129.63 / 15%);
+  --font-oswald: "Oswald", sans-serif;
+  --font-roboto: "Roboto", sans-serif;
+}
+
+@layer fonts {
+  body {
+    @apply font-roboto;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-oswald;
+  }
+
+  .word-break-words {
+    word-break: break-word;
+  }
 }
 
 @layer base {
-  body,
-  html,
-  #root {
-    @apply flex flex-col min-h-screen;
+  html {
+    @apply scroll-smooth;
   }
 
   html,
   body {
-    @apply bg-white text-black dark:bg-dark-400 dark:text-white;
-    transition:
-      background-color 0.3s ease,
-      color 0.3s ease;
+    @apply min-h-dvh;
+  }
+
+  body {
+    @apply flex flex-col;
+  }
+
+  html,
+  body {
+    @apply bg-white text-black dark:bg-black dark:text-white transition-colors duration-300;
   }
 
   html.dark * {
-    border-color: oklch(1 0 129.63 / 15%);
+    @apply border-border-dark;
   }
 
   * {
-    border-color: oklch(0.9219 0 0);
+    @apply border-border;
   }
 }
