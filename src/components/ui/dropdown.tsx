@@ -11,16 +11,16 @@ export const Dropdown = ({ trigger, children }: DropdownProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handlePointerDownOutside = (event: PointerEvent) => {
       if (!ref.current?.contains(event.target as Node)) {
         setOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("pointerdown", handlePointerDownOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("pointerdown", handlePointerDownOutside);
     };
   }, []);
 
