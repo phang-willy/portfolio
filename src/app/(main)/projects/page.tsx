@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: `${process.env.APP_TITLE} - Projets`,
-  description:
-    `${process.env.APP_TITLE} - Selection de projets avec contexte, stack technique et résultats.`,
+  description: `${process.env.APP_TITLE} - Selection de projets avec contexte, stack technique et résultats.`,
 };
 
 export default function ProjectsPage() {

@@ -2,7 +2,11 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import type { Theme } from "@/features/theme/types/theme.types";
-import { getSystemTheme, getStoredTheme, THEME_KEY } from "@/features/theme/utils/theme.utils";
+import {
+  getSystemTheme,
+  getStoredTheme,
+  THEME_KEY,
+} from "@/features/theme/utils/theme.utils";
 
 function subscribeToHydration() {
   return () => {};

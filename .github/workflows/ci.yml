@@ -24,13 +24,16 @@ jobs:
   quality:
     name: Lint / Type-check / Build
     runs-on: ubuntu-latest
+    env:
+      # Actions JS runtime (checkout/setup-node) — align with Node 24 before default switch
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -46,10 +49,3 @@ jobs:
 
       - name: Build
         run: npm run build
-
-      - name: Upload build artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist

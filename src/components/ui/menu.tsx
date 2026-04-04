@@ -46,9 +46,7 @@ export const Menu = ({ items }: MenuProps) => {
             <Link
               href={link.href}
               className={`text-sm xl:text-base font-medium transition-colors duration-300 ${
-                pathname === link.href
-                  ? "text-main"
-                  : "hover:text-main"
+                pathname === link.href ? "text-main" : "hover:text-main"
               }`}
             >
               {link.label}
