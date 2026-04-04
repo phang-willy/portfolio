@@ -7,6 +7,8 @@ const allowedDevOrigins = (env.ALLOWED_DEV_ORIGINS ?? "")
   .filter(Boolean);
 
 const nextConfig: NextConfig = {
+  output: "export",
+  images: { unoptimized: true },
   reactCompiler: true,
   allowedDevOrigins: allowedDevOrigins,
   transpilePackages: ["maplibre-gl"],
