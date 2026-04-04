@@ -180,15 +180,16 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
               : "opacity-0 translate-x-8"
           }`}
         >
-          <Image
-            src="/profile.webp"
-            alt="PHANG Willy"
-            width={350}
-            height={350}
-            priority
-            loading="eager"
-            className="rounded-4xl h-auto w-auto max-w-full object-cover aspect-square md:aspect-auto"
-          />
+          <div className="relative aspect-square w-full max-w-[350px] md:aspect-auto md:h-[350px] md:w-[350px] md:shrink-0">
+            <Image
+              src="/profile.webp"
+              alt="PHANG Willy"
+              fill
+              priority
+              sizes="(max-width: 768px) min(100vw, 350px), 350px"
+              className="rounded-4xl object-cover"
+            />
+          </div>
         </div>
 
         <div

@@ -14,7 +14,25 @@ const oswald = Oswald({
   variable: "--font-oswald",
 });
 
+function getMetadataBase(): URL {
+  const fromEnv =
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    process.env.SITE_URL?.trim();
+  if (fromEnv) {
+    try {
+      return new URL(fromEnv);
+    } catch {
+      // ignore invalid URL
+    }
+  }
+  if (process.env.VERCEL_URL) {
+    return new URL(`https://${process.env.VERCEL_URL}`);
+  }
+  return new URL("http://localhost:3000");
+}
+
 export const metadata: Metadata = {
+  metadataBase: getMetadataBase(),
   title: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
   description: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
   icons: {
