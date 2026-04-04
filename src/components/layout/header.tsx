@@ -75,14 +75,17 @@ export const Header = () => {
         <div className="grid grid-cols-1">
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2">
-              <Link href="/">
+              <Link
+                href="/"
+                className="relative block size-8 shrink-0 overflow-hidden rounded-full"
+              >
                 <Image
                   src="/profile.webp"
                   alt="PHANG Willy - Développeur Full Stack"
-                  className="rounded-full w-8 h-8 object-cover"
-                  width={500}
-                  height={500}
+                  fill
+                  sizes="32px"
                   loading="eager"
+                  className="object-cover"
                 />
                 <span className="sr-only">Accueil</span>
               </Link>

@@ -1,0 +1,25 @@
+{
+  "links": [
+    {
+      "order": 1,
+      "id": "github",
+      "url": "https://github.com/phang-willy",
+      "label": "GitHub",
+      "icon": "github"
+    },
+    {
+      "order": 2,
+      "id": "linkedin",
+      "url": "https://linkedin.com/in/phang-willy",
+      "label": "LinkedIn",
+      "icon": "linkedin"
+    },
+    {
+      "order": 3,
+      "id": "cv",
+      "url": "/CV-PHANG-Willy.pdf",
+      "label": "CV",
+      "icon": "cv"
+    }
+  ]
+}

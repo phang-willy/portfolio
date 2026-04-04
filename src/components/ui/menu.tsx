@@ -32,13 +32,17 @@ export const Menu = ({ items }: MenuProps) => {
       {items.map((link) => (
         <li key={`${link.type}-${link.href}`}>
           {link.type === "link-image" ? (
-            <Link href={link.href}>
+            <Link
+              href={link.href}
+              className="relative block size-10 shrink-0 overflow-hidden rounded-full"
+            >
               <Image
                 src={link.imageSrc}
                 alt={link.imageAlt}
-                className="rounded-full w-10 h-10 object-cover"
-                width={500}
-                height={500}
+                fill
+                sizes="40px"
+                loading="eager"
+                className="object-cover"
               />
               <span className="sr-only">{link.srLabel}</span>
             </Link>
