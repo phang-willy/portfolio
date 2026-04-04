@@ -91,12 +91,16 @@ jobs:
           echo "tag=$NEXT_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Update package.json version
-        run: npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+        run: npm version ${{ steps.version.outputs.version }} --no-git-tag-version --allow-same-version
 
       - name: Commit release version
         run: |
           git add package.json package-lock.json
-          git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
+          if git diff --staged --quiet; then
+            echo "No package version changes; skipping commit"
+          else
+            git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
+          fi
 
       - name: Create Git tag
         run: git tag ${{ steps.version.outputs.tag }}
