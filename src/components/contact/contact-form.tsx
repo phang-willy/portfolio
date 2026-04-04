@@ -12,6 +12,7 @@ import type { ZodError } from "zod";
 import { LuLoaderCircle, LuRefreshCw } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
 import { CONTACT_GENERIC_USER_FACING_MESSAGE } from "@/lib/contact-public-message";
+import { getContactApiUrl } from "@/lib/contact-api-url";
 import {
   contactSubmissionBodySchema,
   normalizeCaptchaInput,
@@ -175,7 +176,7 @@ export function ContactForm({ className }: ContactFormProps) {
       return next;
     });
     try {
-      const res = await fetch("/api/contact/captcha");
+      const res = await fetch(getContactApiUrl("/api/contact/captcha"));
       const data = (await res.json()) as {
         code?: string;
         captchaToken?: string;
@@ -217,7 +218,7 @@ export function ContactForm({ className }: ContactFormProps) {
 
     const run = async () => {
       try {
-        const res = await fetch("/api/contact");
+        const res = await fetch(getContactApiUrl("/api/contact"));
         const data = (await res.json()) as {
           canSubmit?: boolean;
           message?: string;
@@ -317,7 +318,7 @@ export function ContactForm({ className }: ContactFormProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/contact", {
+      const response = await fetch(getContactApiUrl("/api/contact"), {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(parsedLocal.data),
