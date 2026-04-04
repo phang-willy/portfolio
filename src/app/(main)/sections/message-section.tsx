@@ -108,14 +108,16 @@ export function MessageSection() {
                   : "opacity-0 translate-y-6"
             }`}
           >
-            <Image
-              src="/profile.webp"
-              alt="PHANG Willy - Développeur Full Stack"
-              width={500}
-              height={500}
-              loading="lazy"
-              className="rounded-full object-cover w-16 h-16"
-            />
+            <span className="relative block size-16 shrink-0 overflow-hidden rounded-full">
+              <Image
+                src="/profile.webp"
+                alt="PHANG Willy - Développeur Full Stack"
+                fill
+                sizes="64px"
+                loading="lazy"
+                className="object-cover"
+              />
+            </span>
             <div className="text-left">
               <p className="text-xl font-semibold">Willy PHANG</p>
               <p className="text-sm text-gray-500">Développeur Full Stack</p>

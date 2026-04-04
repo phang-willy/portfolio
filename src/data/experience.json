@@ -1,0 +1,31 @@
+{
+  "experiences": [
+    {
+      "id": "dit-2",
+      "role": "Développeur Full Stack",
+      "company": "DIT",
+      "contractType": "Contrat en Alternance",
+      "summary": "Développement d'applications de créances et de refurbushing",
+      "startYear": "2023",
+      "endYear": "2025"
+    },
+    {
+      "id": "dit-1",
+      "role": "Développeur WordPress/WooCommerce",
+      "company": "DIT",
+      "contractType": "Contrat en Alternance",
+      "summary": "Développement WordPress/WooCommerce d'événements annuels de conférences et de formations dentaires",
+      "startYear": "2022",
+      "endYear": "2023"
+    },
+    {
+      "id": "logistib",
+      "role": "Intégrateur Web et Webmaster",
+      "company": "Logistib",
+      "contractType": "Contrat en Alternance",
+      "summary": "Intégration de sites web et création de thèmes WordPress/WooCommerce, Shopify et Prestashop",
+      "startYear": "2020",
+      "endYear": "2022"
+    }
+  ]
+}
