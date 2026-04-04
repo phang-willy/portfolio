@@ -15,7 +15,10 @@ type AboutSectionProps = {
   repositories: number | null;
 };
 
-export function AboutSection({ contributions, repositories }: AboutSectionProps) {
+export function AboutSection({
+  contributions,
+  repositories,
+}: AboutSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const visibleMap = useAppearSequence({
     sectionRef,
@@ -36,7 +39,9 @@ export function AboutSection({ contributions, repositories }: AboutSectionProps)
         <h2>
           <span
             className={`border-3 border-main px-6 py-3 rounded-full transition-all ${APPEAR_DURATION_CLASS} ease-out inline-block ${
-              visibleMap.heading ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+              visibleMap.heading
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 -translate-x-8"
             }`}
           >
             À propos
@@ -44,19 +49,25 @@ export function AboutSection({ contributions, repositories }: AboutSectionProps)
         </h2>
         <div
           className={`transition-all ${APPEAR_DURATION_CLASS} ease-out ${
-            visibleMap.text ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+            visibleMap.text
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 -translate-x-8"
           }`}
         >
           <p className="text-lg xl:text-3xl leading-10">
             Développer n&apos;est pas seulement un métier
           </p>
-          <p className="text-lg xl:text-3xl leading-10">C&apos;est ma passion.</p>
+          <p className="text-lg xl:text-3xl leading-10">
+            C&apos;est ma passion.
+          </p>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
         <div
           className={`md:col-span-9 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
-            visibleMap.map ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+            visibleMap.map
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 -translate-x-8"
           }`}
         >
           <ParisMap />

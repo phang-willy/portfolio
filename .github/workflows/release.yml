@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+# Actions JS runtime (checkout/setup-node) — align with Node 24 before default switch
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: true
@@ -19,12 +23,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
           cache: "npm"

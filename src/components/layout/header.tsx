@@ -99,21 +99,23 @@ export const Header = () => {
           </div>
 
           <ul className="grid grid-cols-1">
-            {menuLinks.map((link) => (
+            {menuLinks.map((link) =>
               link.type === "link" ? (
                 <li key={`mobile-${link.type}-${link.href}`}>
                   <Link
                     href={link.href}
                     className={`text-sm xl:text-base font-medium transition-colors duration-300 block p-4 ${
-                      pathname === link.href ? "bg-main text-white" : "hover:bg-main hover:text-white"
+                      pathname === link.href
+                        ? "bg-main text-white"
+                        : "hover:bg-main hover:text-white"
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {link.label}
                   </Link>
                 </li>
-              ) : null
-            ))}
+              ) : null,
+            )}
           </ul>
         </div>
       </aside>

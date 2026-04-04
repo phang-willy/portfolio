@@ -5,7 +5,9 @@ import process from "node:process";
 
 const mode = process.argv[2];
 if (!mode) {
-  console.error("Usage: node scripts/next-with-server-port.mjs <dev|start> [args...]");
+  console.error(
+    "Usage: node scripts/next-with-server-port.mjs <dev|start> [args...]",
+  );
   process.exit(1);
 }
 
@@ -35,12 +37,16 @@ const loadEnvFile = (fileName) => {
 loadEnvFile(".env");
 loadEnvFile(".env.exemple");
 
-const port =
-  process.env.SERVER_PORT ??
-  process.env.PORT ??
-  "3000";
+const port = process.env.SERVER_PORT ?? process.env.PORT ?? "3000";
 
-const nextBin = path.join(process.cwd(), "node_modules", "next", "dist", "bin", "next");
+const nextBin = path.join(
+  process.cwd(),
+  "node_modules",
+  "next",
+  "dist",
+  "bin",
+  "next",
+);
 
 const child = spawn(
   process.execPath,
@@ -48,10 +54,9 @@ const child = spawn(
   {
     stdio: "inherit",
     env: process.env,
-  }
+  },
 );
 
 child.on("exit", (code) => {
   process.exit(code ?? 0);
 });
-

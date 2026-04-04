@@ -60,17 +60,20 @@ export const HorizontalAutoScroll = ({
     clearResumeTimer();
   }, [clearResumeTimer]);
 
-  const endDrag = useCallback((pointerId: number) => {
-    const containerElement = containerRef.current;
-    if (!containerElement) return;
-    dragPointerId.current = null;
-    try {
-      containerElement.releasePointerCapture(pointerId);
-    } catch {
-      // ignore
-    }
-    scheduleResume();
-  }, [scheduleResume]);
+  const endDrag = useCallback(
+    (pointerId: number) => {
+      const containerElement = containerRef.current;
+      if (!containerElement) return;
+      dragPointerId.current = null;
+      try {
+        containerElement.releasePointerCapture(pointerId);
+      } catch {
+        // ignore
+      }
+      scheduleResume();
+    },
+    [scheduleResume],
+  );
 
   useEffect(() => {
     const containerElement = containerRef.current;
@@ -80,7 +83,10 @@ export const HorizontalAutoScroll = ({
     lastTsRef.current = performance.now();
 
     const animateFrame = (timestampMs: number) => {
-      const deltaSeconds = Math.min((timestampMs - lastTsRef.current) / 1000, 0.05);
+      const deltaSeconds = Math.min(
+        (timestampMs - lastTsRef.current) / 1000,
+        0.05,
+      );
       lastTsRef.current = timestampMs;
 
       const isMouseDragging = dragPointerId.current !== null;
@@ -180,10 +186,7 @@ export const HorizontalAutoScroll = ({
       onPointerCancel={onPointerCancel}
       onLostPointerCapture={onLostPointerCapture}
     >
-      <div
-        ref={innerRef}
-        className="flex w-max items-stretch"
-      >
+      <div ref={innerRef} className="flex w-max items-stretch">
         {children({ duplicated: false })}
         {children({ duplicated: true })}
       </div>
