@@ -30,8 +30,8 @@ export function useAppearSequence({
   const scrollDirectionRef = useRef<"up" | "down">("down");
   const pageLoadedRef = useRef(false);
   const isInViewRef = useRef(false);
-  const [visibleMap, setVisibleMap] = useState<Record<string, boolean>>(
-    () => buildVisibilityMap(keys, false),
+  const [visibleMap, setVisibleMap] = useState<Record<string, boolean>>(() =>
+    buildVisibilityMap(keys, false),
   );
 
   const clearAnimationTimeouts = useCallback(() => {
@@ -49,7 +49,9 @@ export function useAppearSequence({
     const isDesktop = window.matchMedia("(min-width: 768px)").matches;
     const baseOrder = isDesktop ? desktopOrder : mobileOrder;
     const sequence =
-      scrollDirectionRef.current === "up" ? [...baseOrder].reverse() : baseOrder;
+      scrollDirectionRef.current === "up"
+        ? [...baseOrder].reverse()
+        : baseOrder;
 
     setVisibleMap(buildVisibilityMap(keys, false));
 

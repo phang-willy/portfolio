@@ -7,10 +7,10 @@ const allowedDevOrigins = (env.ALLOWED_DEV_ORIGINS ?? "")
   .filter(Boolean);
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
   allowedDevOrigins: allowedDevOrigins,
   transpilePackages: ["maplibre-gl"],
+  poweredByHeader: false,
 };
 
 export default nextConfig;

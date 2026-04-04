@@ -43,7 +43,8 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
         setVisibleExperienceCards((previous) => {
           const next = { ...previous };
           for (const entry of entries) {
-            const indexAttr = (entry.target as HTMLElement).dataset.experienceIndex;
+            const indexAttr = (entry.target as HTMLElement).dataset
+              .experienceIndex;
             if (!indexAttr) continue;
             const index = Number(indexAttr);
             next[index] = entry.isIntersecting;
@@ -69,7 +70,9 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
     >
       <div
         className={`container mx-auto p-4 grid grid-cols-1 gap-8 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
-          visibleMap.heading ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+          visibleMap.heading
+            ? "opacity-100 translate-x-0"
+            : "opacity-0 -translate-x-8"
         }`}
       >
         <div className="flex flex-col gap-8">
@@ -82,7 +85,9 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 justify-between gap-8 items-baseline">
           <h3
             className={`text-5xl font-bold leading-tight transition-all ${APPEAR_DURATION_CLASS} ease-out ${
-              visibleMap.title ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+              visibleMap.title
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 -translate-x-8"
             }`}
           >
             Un aperçu de mon parcours
@@ -115,9 +120,7 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
                   : index % 2 === 0
                     ? "opacity-0 -translate-x-8"
                     : "opacity-0 translate-x-8"
-              } ${
-                index !== experiences.length - 1 ? "border-b" : ""
-              }`}
+              } ${index !== experiences.length - 1 ? "border-b" : ""}`}
             >
               <div className="order-2 md:order-1 flex flex-col gap-4">
                 <h4 className="text-2xl font-bold leading-tight">

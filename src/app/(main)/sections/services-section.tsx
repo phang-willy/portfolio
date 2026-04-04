@@ -26,7 +26,10 @@ export function ServicesSection({ services }: ServicesSectionProps) {
     Record<number, boolean>
   >({});
 
-  const orderedBlocks = useMemo(() => ["heading", "description", "contact-button"], []);
+  const orderedBlocks = useMemo(
+    () => ["heading", "description", "contact-button"],
+    [],
+  );
 
   const visibleMap = useAppearSequence({
     sectionRef,
@@ -43,7 +46,8 @@ export function ServicesSection({ services }: ServicesSectionProps) {
         setVisibleServiceCards((previous) => {
           const next = { ...previous };
           for (const entry of entries) {
-            const indexAttr = (entry.target as HTMLElement).dataset.serviceIndex;
+            const indexAttr = (entry.target as HTMLElement).dataset
+              .serviceIndex;
             if (!indexAttr) continue;
             const index = Number(indexAttr);
             next[index] = entry.isIntersecting;
@@ -69,7 +73,9 @@ export function ServicesSection({ services }: ServicesSectionProps) {
     >
       <div
         className={`flex flex-col gap-8 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
-          visibleMap.heading ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+          visibleMap.heading
+            ? "opacity-100 translate-x-0"
+            : "opacity-0 -translate-x-8"
         }`}
       >
         <h2>
@@ -82,7 +88,9 @@ export function ServicesSection({ services }: ServicesSectionProps) {
         <div className="md:col-span-5 flex flex-col gap-8">
           <h2
             className={`text-5xl font-bold leading-14 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
-              visibleMap.heading ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+              visibleMap.heading
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 -translate-x-8"
             }`}
           >
             <span>Des services pensés</span>
