@@ -12,7 +12,10 @@ function isExplicitDev(): boolean {
 }
 
 /** Fenêtres d’au plus ~1 an : l’API GitHub refuse un intervalle plus long sur `contributionsCollection`. */
-function contributionYearChunks(createdAt: Date, until: Date): Array<{ from: string; to: string }> {
+function contributionYearChunks(
+  createdAt: Date,
+  until: Date,
+): Array<{ from: string; to: string }> {
   const chunks: Array<{ from: string; to: string }> = [];
   const startY = createdAt.getUTCFullYear();
   const endY = until.getUTCFullYear();
@@ -20,7 +23,8 @@ function contributionYearChunks(createdAt: Date, until: Date): Array<{ from: str
   for (let y = startY; y <= endY; y++) {
     const from =
       y === startY ? createdAt : new Date(Date.UTC(y, 0, 1, 0, 0, 0, 0));
-    const to = y === endY ? until : new Date(Date.UTC(y, 11, 31, 23, 59, 59, 999));
+    const to =
+      y === endY ? until : new Date(Date.UTC(y, 11, 31, 23, 59, 59, 999));
     if (from.getTime() > to.getTime()) continue;
     chunks.push({ from: from.toISOString(), to: to.toISOString() });
   }
@@ -31,7 +35,9 @@ async function githubGraphql<T>(
   token: string,
   query: string,
   variables?: Record<string, unknown>,
-): Promise<{ ok: true; data: T } | { ok: false; errors?: string; http?: string }> {
+): Promise<
+  { ok: true; data: T } | { ok: false; errors?: string; http?: string }
+> {
   const response = await fetch(GITHUB_GRAPHQL, {
     method: "POST",
     headers: {
@@ -54,7 +60,9 @@ async function githubGraphql<T>(
   if (responsePayload.errors?.length) {
     return {
       ok: false,
-      errors: responsePayload.errors.map((graphqlError) => graphqlError.message ?? "?").join(" | "),
+      errors: responsePayload.errors
+        .map((graphqlError) => graphqlError.message ?? "?")
+        .join(" | "),
     };
   }
 
@@ -122,7 +130,9 @@ export async function getGithubStats(): Promise<GithubStats | null> {
   }
 
   const createdAtRaw = viewer?.createdAt;
-  const createdAt = createdAtRaw ? new Date(createdAtRaw) : new Date(Date.UTC(2008, 0, 1));
+  const createdAt = createdAtRaw
+    ? new Date(createdAtRaw)
+    : new Date(Date.UTC(2008, 0, 1));
   if (Number.isNaN(createdAt.getTime())) {
     if (isExplicitDev()) {
       console.error("[github] getGithubStats — createdAt invalide.");
@@ -192,7 +202,9 @@ export async function logGithubEnvStatus(): Promise<void> {
   const dev = isExplicitDev();
 
   if (dev) {
-    console.info(`${tag} vérification de la configuration (mode développement)`);
+    console.info(
+      `${tag} vérification de la configuration (mode développement)`,
+    );
   }
 
   const token = process.env.GITHUB_TOKEN?.trim();
@@ -208,7 +220,9 @@ export async function logGithubEnvStatus(): Promise<void> {
   }
 
   if (dev && !username) {
-    console.warn(`${tag} GITHUB_USERNAME est absent : le lien profil utilisera le fallback côté page.`);
+    console.warn(
+      `${tag} GITHUB_USERNAME est absent : le lien profil utilisera le fallback côté page.`,
+    );
   }
 
   const query = /* GraphQL */ `
@@ -253,7 +267,9 @@ export async function logGithubEnvStatus(): Promise<void> {
       if (dev) {
         console.error(
           `${tag} erreurs GraphQL :`,
-          graphqlPayload.errors.map((graphqlError) => graphqlError.message).join(" | "),
+          graphqlPayload.errors
+            .map((graphqlError) => graphqlError.message)
+            .join(" | "),
         );
       } else {
         console.warn(`${tag} les stats ne sont pas disponibles.`);
@@ -264,7 +280,9 @@ export async function logGithubEnvStatus(): Promise<void> {
     const login = graphqlPayload.data?.viewer?.login;
     if (!login) {
       if (dev) {
-        console.error(`${tag} pas de viewer.login (token invalide ou révoqué ?).`);
+        console.error(
+          `${tag} pas de viewer.login (token invalide ou révoqué ?).`,
+        );
       } else {
         console.warn(`${tag} les stats ne sont pas disponibles.`);
       }
@@ -283,7 +301,9 @@ export async function logGithubEnvStatus(): Promise<void> {
     }
 
     if (dev) {
-      console.info(`${tag} OK — compte API : "${login}"${username ? ` (GITHUB_USERNAME aligné)` : ""}.`);
+      console.info(
+        `${tag} OK — compte API : "${login}"${username ? ` (GITHUB_USERNAME aligné)` : ""}.`,
+      );
     }
   } catch (err) {
     if (dev) {
