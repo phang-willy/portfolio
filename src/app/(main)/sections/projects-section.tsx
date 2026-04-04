@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { ProjectCard } from "@/app/(main)/sections/project-card";
 import { LuArrowRight } from "react-icons/lu";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -120,34 +120,22 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {projects.map((project, index) => (
-          <article
+          <ProjectCard
             key={project.title}
-            ref={(node) => {
+            imageSrc={project.imageSrc}
+            imageAlt={project.imageAlt}
+            title={project.title}
+            description={project.description}
+            cardRef={(node) => {
               projectCardRefs.current[index] = node;
             }}
-            data-project-index={index}
-            className={`group relative aspect-square overflow-hidden rounded-3xl transition-all ${APPEAR_DURATION_CLASS} ease-out ${
+            dataProjectIndex={index}
+            visibilityClass={
               visibleProjectCards[index]
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 -translate-x-8"
-            }`}
-          >
-            <Image
-              src={project.imageSrc}
-              alt={project.imageAlt}
-              width={500}
-              height={500}
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/80 transition-colors duration-300 md:bg-black/70 group-hover:bg-black/90 group-focus-within:bg-black/90" />
-            <div className="absolute inset-0 flex flex-col justify-end gap-4 p-6 text-white opacity-100 translate-y-0 transition-all duration-300 md:opacity-0 md:translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0">
-              <h4 className="text-2xl font-bold leading-tight">
-                {project.title}
-              </h4>
-              <p className="leading-7 text-white">{project.description}</p>
-            </div>
-          </article>
+            }
+          />
         ))}
       </div>
       <footer className="flex justify-center">

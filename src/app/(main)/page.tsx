@@ -18,86 +18,50 @@ import {
   type ProjectItem,
 } from "@/app/(main)/sections/projects-section";
 import { MessageSection } from "@/app/(main)/sections/message-section";
+import experienceData from "@/data/experience.json";
+import linkData from "@/data/link.json";
+import projectsData from "@/data/project.json";
+import serviceData from "@/data/service.json";
 
 async function Home() {
-  const githubLogin = process.env.GITHUB_USERNAME?.trim() ?? "phang-willy";
   const githubStats = await getGithubStats();
 
-  const socialLinks: Array<SocialLink> = [
-    {
-      href: `https://github.com/${githubLogin}`,
-      label: "GitHub",
-      icon: "github",
-    },
-    {
-      href: "https://linkedin.com/in/phang-willy",
-      label: "LinkedIn",
-      icon: "linkedin",
-    },
-    { href: "/CV-PHANG-Willy.pdf", label: "CV", icon: "cv" },
-  ];
+  const socialLinks: Array<SocialLink> = [...linkData.links]
+    .sort((a, b) => a.order - b.order)
+    .map((link): SocialLink => ({
+      href: link.url,
+      label: link.label,
+      icon: link.icon as SocialLink["icon"],
+    }));
 
-  const services: Array<ServiceItem> = [
-    {
-      title: "Développement Full Stack",
-      description:
-        "Je conçois et développe des applications web et mobile robustes, de l'architecture backend à l'expérience utilisateur, avec un fort focus sur la performance et la maintenabilité.",
-    },
-    {
-      title: "Développement FrontEnd",
-      description:
-        "Je crée des interfaces modernes, accessibles et réactives, pensées pour offrir une expérience utilisateur fluide et cohérente sur tous les appareils.",
-    },
-    {
-      title: "Développement BackEnd",
-      description:
-        "Je développe des APIs et services backend fiables, sécurisés et évolutifs, conçus pour supporter la croissance produit et des intégrations durables.",
-    },
-    {
-      title: "Développement E-commerce",
-      description:
-        "Je conçois et optimise des boutiques en ligne sur WordPress/WooCommerce et Shopify, avec des parcours d'achat fluides, des thèmes sur mesure et des intégrations adaptées à vos objectifs business.",
-    },
-  ];
+  const services: Array<ServiceItem> = [...serviceData.services]
+    .sort((a, b) => a.order - b.order)
+    .map(({ title, description }) => ({ title, description }));
 
-  const experiences: Array<ExperienceItem> = [
-    {
-      role: "Développeur Full Stack",
-      company: "DIT",
-      contractType: "Contrat en Alternance",
-      summary: "Développement d'applications de créances et de refurbushing",
-      startYear: "2023",
-      endYear: "2025",
-    },
-    {
-      role: "Développeur WordPress/WooCommerce",
-      company: "DIT",
-      contractType: "Contrat en Alternance",
-      summary:
-        "Développement WordPress/WooCommerce d'événements annuels de conférences et de formations dentaires",
-      startYear: "2022",
-      endYear: "2023",
-    },
-    {
-      role: "Intégrateur Web et Webmaster",
-      company: "Logistib",
-      contractType: "Contrat en Alternance",
-      summary:
-        "Intégration de sites web et création de thèmes WordPress/WooCommerce, Shopify et Prestashop",
-      startYear: "2020",
-      endYear: "2022",
-    },
-  ];
+  const experiences: Array<ExperienceItem> = [...experienceData.experiences]
+    .sort((a, b) => Number(b.startYear) - Number(a.startYear))
+    .map(({ role, company, contractType, summary, startYear, endYear }) => ({
+      role,
+      company,
+      contractType,
+      summary,
+      startYear,
+      endYear,
+    }));
 
-  const projects: Array<ProjectItem> = [
-    {
-      imageSrc: "/project/twitch-watchlist.webp",
-      imageAlt: "Extension Chrome - Twitch Watchlist",
-      title: "Extension Chrome - Twitch Watchlist",
-      description:
-        "Une Extension Chrome permettant de gérer sa liste de watchlist sur Twitch, avec une interface moderne et intuitive.",
-    },
-  ];
+  const projects: Array<ProjectItem> = [...projectsData.projects]
+    .sort((a, b) => {
+      const byUpdated = b.updatedAt.localeCompare(a.updatedAt);
+      if (byUpdated !== 0) return byUpdated;
+      return b.createdAt.localeCompare(a.createdAt);
+    })
+    .slice(0, 4)
+    .map((project) => ({
+      imageSrc: project.image,
+      imageAlt: project.imageAlt,
+      title: project.name,
+      description: project.description,
+    }));
 
   return (
     <>

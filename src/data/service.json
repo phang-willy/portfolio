@@ -1,0 +1,28 @@
+{
+  "services": [
+    {
+      "order": 1,
+      "id": "development-full-stack",
+      "title": "Développement Full Stack",
+      "description": "Je conçois et développe des applications web et mobile robustes, de l'architecture backend à l'expérience utilisateur, avec un fort focus sur la performance et la maintenabilité."
+    },
+    {
+      "order": 2,
+      "id": "development-frontend",
+      "title": "Développement FrontEnd",
+      "description": "Je crée des interfaces modernes, accessibles et réactives, pensées pour offrir une expérience utilisateur fluide et cohérente sur tous les appareils."
+    },
+    {
+      "order": 3,
+      "id": "development-backend",
+      "title": "Développement BackEnd",
+      "description": "Je développe des APIs et services backend fiables, sécurisés et évolutifs, conçus pour supporter la croissance produit et des intégrations durables."
+    },
+    {
+      "order": 4,
+      "id": "development-ecommerce",
+      "title": "Développement E-commerce",
+      "description": "Je conçois et optimise des boutiques en ligne sur WordPress/WooCommerce et Shopify, avec des parcours d'achat fluides, des thèmes sur mesure et des intégrations adaptées à vos objectifs business."
+    }
+  ]
+}
