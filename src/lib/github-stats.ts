@@ -2,6 +2,13 @@ import { unstable_noStore as noStore } from "next/cache";
 
 const GITHUB_GRAPHQL = "https://api.github.com/graphql";
 
+const isDev = process.env.NODE_ENV === "development";
+
+/** En prod / export statique : pas de noStore pour permettre le prérendu au build. */
+function noStoreIfDev(): void {
+  if (isDev) noStore();
+}
+
 export type GithubStats = {
   contributionsAllTime: number;
   repositoriesAffiliated: number;
@@ -45,7 +52,7 @@ async function githubGraphql<T>(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ query, variables }),
-    cache: "no-store",
+    cache: isDev ? "no-store" : "force-cache",
   });
 
   if (!response.ok) {
@@ -74,7 +81,7 @@ async function githubGraphql<T>(
 }
 
 export async function getGithubStats(): Promise<GithubStats | null> {
-  noStore();
+  noStoreIfDev();
 
   const token = process.env.GITHUB_TOKEN?.trim();
   if (!token) return null;
@@ -241,7 +248,7 @@ export async function logGithubEnvStatus(): Promise<void> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ query }),
-      cache: "no-store",
+      cache: isDev ? "no-store" : "force-cache",
     });
 
     if (!response.ok) {

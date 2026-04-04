@@ -208,6 +208,12 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
                     href={socialLink.href}
                     target="_blank"
                     rel="noopener noreferrer"
+                    prefetch={
+                      socialLink.href.startsWith("http") ||
+                      socialLink.href.endsWith(".pdf")
+                        ? false
+                        : undefined
+                    }
                     className="flex items-center gap-2 bg-main hover:bg-main/80 transition-colors duration-200 text-white md:px-4 md:py-2 rounded-md aspect-square md:aspect-auto"
                     aria-label={socialLink.label}
                   >

@@ -33,7 +33,7 @@ export function ProjectCard({
   dataProjectIndex,
   dataRevealIndex,
 }: ProjectCardProps) {
-  const shellClass = `group relative aspect-square overflow-hidden rounded-3xl transition-all ${APPEAR_DURATION_CLASS} ease-out ${visibilityClass}`;
+  const shellClass = `bg-gray-200 dark:bg-gray-800 group relative aspect-square overflow-hidden rounded-3xl transition-all ${APPEAR_DURATION_CLASS} ease-out ${visibilityClass}`;
   const delayStyle =
     transitionDelayMs !== undefined
       ? ({ transitionDelay: `${transitionDelayMs}ms` } as const)
