@@ -29,14 +29,17 @@ jobs:
           echo "Commits to validate:"
           echo "$COMMITS"
 
-          echo "$COMMITS" | while IFS= read -r message; do
+          # Regex dans une variable : sinon bash interprète le ")" de [^)] comme fin de [[ ... ]]
+          re='^(feat|fix|chore|docs|refactor|remove)(\([^)]+\))?:\ .+'
+
+          while IFS= read -r message; do
             [ -z "$message" ] && continue
 
-            if [[ ! "$message" =~ ^(feat|fix|chore|docs|refactor|remove):\ .+ && ! "$message" =~ ^[iI]nit.* ]]; then
+            if [[ ! "$message" =~ $re ]] && [[ ! "$message" =~ ^[iI]nit.* ]]; then
               echo "❌ Invalid commit message: $message"
-              echo "Expected format: feat: ..., fix: ..., chore: ..., docs: ..., refactor: ..."
+              echo "Expected format: feat: ..., fix: ..., chore: ..., chore(scope): ..., docs: ..., refactor: ..."
               exit 1
             fi
-          done
+          done <<< "$COMMITS"
 
           echo "✅ All commit messages are valid"
