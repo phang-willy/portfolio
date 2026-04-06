@@ -16,8 +16,7 @@ const oswald = Oswald({
 
 function getMetadataBase(): URL {
   const fromEnv =
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-    process.env.SITE_URL?.trim();
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() || process.env.SITE_URL?.trim();
   if (fromEnv) {
     try {
       return new URL(fromEnv);

@@ -35,7 +35,6 @@ type ContactApiResponse =
     };
 
 type ServiceCheckState =
-  | { phase: "loading" }
   | { phase: "ready" }
   | { phase: "blocked"; message: string; reason?: string };
 
@@ -144,7 +143,7 @@ type ContactFormProps = {
 export function ContactForm({ className }: ContactFormProps) {
   const baseId = useId();
   const [serviceCheck, setServiceCheck] = useState<ServiceCheckState>({
-    phase: "loading",
+    phase: "ready",
   });
   const [values, setValues] = useState<ContactFormValues>(emptyValues);
   const [fieldErrors, setFieldErrors] = useState<
@@ -382,10 +381,7 @@ export function ContactForm({ className }: ContactFormProps) {
   const inputClassName =
     "w-full rounded-md border border-border bg-white px-3 py-2 text-base text-black shadow-sm transition-[box-shadow,colors] duration-200 placeholder:text-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-dark-500 dark:text-white dark:border-border-dark dark:placeholder:text-white/40 dark:focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:opacity-60";
 
-  const fieldsLocked =
-    serviceCheck.phase === "loading" ||
-    serviceCheck.phase === "blocked" ||
-    isSubmitting;
+  const fieldsLocked = serviceCheck.phase === "blocked" || isSubmitting;
 
   const submissionDraft = useMemo(
     () => ({
@@ -424,20 +420,6 @@ export function ContactForm({ className }: ContactFormProps) {
 
   return (
     <div className={className}>
-      {serviceCheck.phase === "loading" ? (
-        <p
-          className="mb-6 flex items-center gap-2 text-sm text-black/70 dark:text-white/70"
-          role="status"
-          aria-live="polite"
-        >
-          <LuLoaderCircle
-            className="size-4 shrink-0 animate-spin text-main"
-            aria-hidden
-          />
-          Vérification du service de contact…
-        </p>
-      ) : null}
-
       {serviceCheck.phase === "blocked" ? (
         <p
           className={`mb-6 rounded-md border px-4 py-3 text-sm ${blockedBannerClass}`}
@@ -644,15 +626,7 @@ export function ContactForm({ className }: ContactFormProps) {
             }
             className="gap-2"
           >
-            {serviceCheck.phase === "loading" ? (
-              <>
-                <LuLoaderCircle
-                  className="size-4 shrink-0 animate-spin"
-                  aria-hidden
-                />
-                <span>Vérification…</span>
-              </>
-            ) : isSubmitting ? (
+            {isSubmitting ? (
               <>
                 <LuLoaderCircle
                   className="size-4 shrink-0 animate-spin"

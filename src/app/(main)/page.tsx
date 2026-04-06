@@ -28,11 +28,13 @@ async function Home() {
 
   const socialLinks: Array<SocialLink> = [...linkData.links]
     .sort((a, b) => a.order - b.order)
-    .map((link): SocialLink => ({
-      href: link.url,
-      label: link.label,
-      icon: link.icon as SocialLink["icon"],
-    }));
+    .map(
+      (link): SocialLink => ({
+        href: link.url,
+        label: link.label,
+        icon: link.icon as SocialLink["icon"],
+      }),
+    );
 
   const services: Array<ServiceItem> = [...serviceData.services]
     .sort((a, b) => a.order - b.order)

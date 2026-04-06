@@ -25,8 +25,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
   );
 
   const stacksCount = sortedStacks.length;
-  const linkCount =
-    (externalUrl ? 1 : 0) + (githubUrl ? 1 : 0);
+  const linkCount = (externalUrl ? 1 : 0) + (githubUrl ? 1 : 0);
 
   /** 0 back, 1 thumb, 2 name, 3 titre Stacks, 4.. chips, +1 titre Liens, +links, +info */
   const blockCount = 6 + stacksCount + linkCount;
@@ -39,9 +38,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
   const idxLinksHeading = 4 + stacksCount;
   const baseLinkItems = 5 + stacksCount;
   const idxLinkExternal = externalUrl ? baseLinkItems : -1;
-  const idxLinkGithub = githubUrl
-    ? baseLinkItems + (externalUrl ? 1 : 0)
-    : -1;
+  const idxLinkGithub = githubUrl ? baseLinkItems + (externalUrl ? 1 : 0) : -1;
   const idxInfo = 5 + stacksCount + linkCount;
 
   return (

@@ -10,12 +10,7 @@
         "url": "https://github.com/phang-willy/twitch-watchlist",
         "github": "https://github.com/phang-willy/twitch-watchlist"
       },
-      "stacks": [
-        "React",
-        "TypeScript",
-        "Tailwind CSS",
-        "Next.js"
-      ],
+      "stacks": ["React", "TypeScript", "Tailwind CSS", "Next.js"],
       "status": "active",
       "createdAt": "2026-03-23",
       "updatedAt": "2026-03-25"
@@ -55,12 +50,7 @@
         "url": "https://phangwilly.com/",
         "github": "https://github.com/phang-willy/portfolio"
       },
-      "stacks": [
-        "Next.js",
-        "TypeScript",
-        "Tailwind CSS",
-        "React"
-      ],
+      "stacks": ["Next.js", "TypeScript", "Tailwind CSS", "React"],
       "status": "active",
       "createdAt": "2026-03-30",
       "updatedAt": "2026-04-04"
@@ -74,13 +64,7 @@
       "links": {
         "github": "https://github.com/Matiss2702/airtable-cuisine"
       },
-      "stacks": [
-        "Airtable",
-        "TypeScript",
-        "Tailwind CSS",
-        "Next.js",
-        "Ollama"
-      ],
+      "stacks": ["Airtable", "TypeScript", "Tailwind CSS", "Next.js", "Ollama"],
       "status": "active",
       "createdAt": "2025-04-08",
       "updatedAt": "2025-06-14"
