@@ -75,7 +75,7 @@ export const fr = {
     intro:
       "Développeur Full Stack, j'accompagne vos projets de la conception à la mise en production, avec des solutions fiables, performantes et adaptées à votre activité.",
     contactCta: "Me contacter",
-    learnMore: "En savoir plus",
+    learnMoreForService: "Me contacter concernant : {service}",
   },
   experiences: {
     badge: "Expériences",

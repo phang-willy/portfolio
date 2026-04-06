@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Script from "next/script";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { MainLayout } from "@/components/layout/main-layout";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
-import { getRequestLocale } from "@/features/i18n/lib/request-locale";
 import { Roboto, Oswald } from "next/font/google";
 
 const roboto = Roboto({
@@ -32,38 +32,36 @@ function getMetadataBase(): URL {
   return new URL("http://localhost:3000");
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale();
-  return {
-    metadataBase: getMetadataBase(),
+export const metadata: Metadata = {
+  metadataBase: getMetadataBase(),
+  title: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
+  description: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
+  icons: {
+    icon: "/logo.ico",
+  },
+  openGraph: {
     title: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
     description: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
-    icons: {
-      icon: "/logo.ico",
-    },
-    openGraph: {
-      title: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
-      description: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
-      ...openGraphLocaleFields(locale),
-    },
-  };
-}
+    ...openGraphLocaleFields("fr"),
+  },
+};
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getRequestLocale();
-  const htmlLang = locale === "en" ? "en" : "fr";
-
   return (
     <html
-      lang={htmlLang}
+      lang="fr"
       data-scroll-behavior="smooth"
       className={`h-full antialiased ${roboto.variable} ${oswald.variable}`}
+      suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col relative">
+        <Script id="pathname-html-lang" strategy="beforeInteractive">
+          {`(()=>{var p=location.pathname;var en=p==='/en'||p.startsWith('/en/');document.documentElement.lang=en?'en':'fr';})()`}
+        </Script>
         <ThemeProvider>
           <MainLayout>{children}</MainLayout>
         </ThemeProvider>

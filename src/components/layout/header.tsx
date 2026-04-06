@@ -104,6 +104,7 @@ export const Header = () => {
                   fill
                   sizes="32px"
                   loading="eager"
+                  fetchPriority="high"
                   className="object-cover"
                 />
                 <span className="sr-only">{t.nav.homeSr}</span>
