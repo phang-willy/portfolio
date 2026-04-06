@@ -1,28 +1,44 @@
 "use client";
 
+import { LanguageToggle } from "@/components/language-toggle";
 import { ThemeToggle } from "@/features/theme/components/theme-toggle";
 import { Menu, type MenuItem } from "@/components/ui/menu";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/features/i18n/hooks/use-i18n";
+import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { LuMenu, LuX } from "react-icons/lu";
 
 export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const menuLinks: MenuItem[] = [
-    {
-      type: "link-image",
-      href: "/",
-      imageSrc: "/profile.webp",
-      imageAlt: "PHANG Willy - Développeur Full Stack",
-      srLabel: "Accueil",
-    },
-    { type: "link", href: "/projects", label: "Projets" },
-    { type: "link", href: "/contact", label: "Contact" },
-  ];
+  const { locale, t } = useI18n();
+
+  const menuLinks: MenuItem[] = useMemo(
+    () => [
+      {
+        type: "link-image",
+        href: buildLocalizedPathname("/", locale),
+        imageSrc: "/profile.webp",
+        imageAlt: t.message.profileAlt,
+        srLabel: t.nav.homeSr,
+      },
+      {
+        type: "link",
+        href: buildLocalizedPathname("/projects", locale),
+        label: t.nav.projects,
+      },
+      {
+        type: "link",
+        href: buildLocalizedPathname("/contact", locale),
+        label: t.nav.contact,
+      },
+    ],
+    [locale, t.message.profileAlt, t.nav],
+  );
 
   return (
     <header className="sticky top-0 z-60 border-b bg-white dark:bg-black">
@@ -40,14 +56,17 @@ export const Header = () => {
               size="icon"
               onClick={() => setIsMobileMenuOpen(true)}
               className="relative z-50"
-              aria-label="Ouvrir le menu"
+              aria-label={t.nav.openMenu}
             >
               <LuMenu className="w-4 h-4" />
-              <span className="sr-only">Menu</span>
+              <span className="sr-only">{t.nav.menuSr}</span>
             </Button>
           </div>
 
           <ul className="flex items-center gap-4">
+            <li>
+              <LanguageToggle />
+            </li>
             <li>
               <ThemeToggle />
             </li>
@@ -76,28 +95,28 @@ export const Header = () => {
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2">
               <Link
-                href="/"
+                href={buildLocalizedPathname("/", locale)}
                 className="relative block size-8 shrink-0 overflow-hidden rounded-full"
               >
                 <Image
                   src="/profile.webp"
-                  alt="PHANG Willy - Développeur Full Stack"
+                  alt={t.message.profileAlt}
                   fill
                   sizes="32px"
                   loading="eager"
                   className="object-cover"
                 />
-                <span className="sr-only">Accueil</span>
+                <span className="sr-only">{t.nav.homeSr}</span>
               </Link>
             </div>
             <Button
               variant="outline"
               size="icon"
               onClick={() => setIsMobileMenuOpen(false)}
-              aria-label="Fermer le menu"
+              aria-label={t.nav.closeMenu}
             >
               <LuX className="w-4 h-4" />
-              <span className="sr-only">Fermer le menu</span>
+              <span className="sr-only">{t.nav.closeMenuSr}</span>
             </Button>
           </div>
 

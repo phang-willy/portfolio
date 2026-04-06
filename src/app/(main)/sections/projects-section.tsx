@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { ProjectCard } from "@/app/(main)/sections/project-card";
+import { useI18n } from "@/features/i18n/hooks/use-i18n";
+import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
 import { LuArrowRight } from "react-icons/lu";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -23,6 +25,8 @@ type ProjectsSectionProps = {
 };
 
 export function ProjectsSection({ projects }: ProjectsSectionProps) {
+  const { locale, t } = useI18n();
+  const projectsHref = buildLocalizedPathname("/projects", locale);
   const sectionRef = useRef<HTMLElement>(null);
   const projectCardRefs = useRef<Array<HTMLElement | null>>([]);
   const [visibleProjectCards, setVisibleProjectCards] = useState<
@@ -84,7 +88,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         >
           <h2>
             <span className="border-3 border-main px-6 py-3 rounded-full">
-              Projets
+              {t.projects.badge}
             </span>
           </h2>
         </div>
@@ -96,7 +100,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                 : "opacity-0 -translate-x-8"
             }`}
           >
-            Explorer mes projets
+            {t.projects.title}
           </h3>
           <p
             className={`text-lg text-gray-500 leading-8 max-w-xl justify-self-end transition-all ${APPEAR_DURATION_CLASS} ease-out ${
@@ -105,7 +109,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                 : "opacity-0 -translate-x-8"
             }`}
           >
-            Découvrez mes projets avec leur contexte, les technologies utilisées
+            {t.projects.description}
           </p>
         </div>
       </div>
@@ -115,7 +119,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         }`}
       >
         <p className="text-center text-gray-500 leading-8">
-          Passer votre souris sur un projet pour en savoir plus.
+          {t.projects.hoverHint}
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -140,11 +144,11 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       </div>
       <footer className="flex justify-center">
         <Link
-          href="/projects"
+          href={projectsHref}
           className="group bg-main text-white px-8 py-4 rounded-full hover:bg-main/80 focus:bg-main/80 transition-colors duration-200 flex items-center gap-8 w-auto"
         >
           <LuArrowRight className="w-8 h-8 transition-transform duration-200 group-hover:translate-x-1 group-focus:translate-x-1" />
-          <span>Voir tous les projets</span>
+          <span>{t.projects.seeAll}</span>
         </Link>
       </footer>
     </section>

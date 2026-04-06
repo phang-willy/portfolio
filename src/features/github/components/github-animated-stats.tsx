@@ -6,6 +6,10 @@ import { APPEAR_DURATION_CLASS } from "@/features/animations/constants/appear";
 type GithubAnimatedStatsProps = {
   contributions: number | null;
   repositories: number | null;
+  labels: {
+    contributions: string;
+    repositories: string;
+  };
 };
 
 function useAnimatedCount(
@@ -97,6 +101,7 @@ function StatBlock({
 export function GithubAnimatedStats({
   contributions,
   repositories,
+  labels,
 }: GithubAnimatedStatsProps) {
   const cardRefs = useRef<Array<HTMLElement | null>>([]);
   const [visibleCards, setVisibleCards] = useState<Record<number, boolean>>({});
@@ -137,11 +142,11 @@ export function GithubAnimatedStats({
     <div className="grid grid-cols-1 gap-16 items-center justify-center">
       {[
         {
-          label: "Contributions sur GitHub",
+          label: labels.contributions,
           targetValue: contributions,
         },
         {
-          label: "Repositories (création & collaboration)",
+          label: labels.repositories,
           targetValue: repositories,
         },
       ].map((stat, index) => (

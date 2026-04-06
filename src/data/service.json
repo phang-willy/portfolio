@@ -3,26 +3,58 @@
     {
       "order": 1,
       "id": "development-full-stack",
-      "title": "Développement Full Stack",
-      "description": "Je conçois et développe des applications web et mobile robustes, de l'architecture backend à l'expérience utilisateur, avec un fort focus sur la performance et la maintenabilité."
+      "language": {
+        "fr": {
+          "title": "Développement Full Stack",
+          "description": "Je conçois et développe des applications web et mobile robustes, de l'architecture backend à l'expérience utilisateur, avec un fort focus sur la performance et la maintenabilité."
+        },
+        "en": {
+          "title": "Full Stack development",
+          "description": "I design and build robust web and mobile applications—from backend architecture to user experience—with a strong focus on performance and maintainability."
+        }
+      }
     },
     {
       "order": 2,
       "id": "development-frontend",
-      "title": "Développement FrontEnd",
-      "description": "Je crée des interfaces modernes, accessibles et réactives, pensées pour offrir une expérience utilisateur fluide et cohérente sur tous les appareils."
+      "language": {
+        "fr": {
+          "title": "Développement FrontEnd",
+          "description": "Je crée des interfaces modernes, accessibles et réactives, pensées pour offrir une expérience utilisateur fluide et cohérente sur tous les appareils."
+        },
+        "en": {
+          "title": "Front-end development",
+          "description": "I build modern, accessible, responsive interfaces aimed at a smooth, consistent user experience across all devices."
+        }
+      }
     },
     {
       "order": 3,
       "id": "development-backend",
-      "title": "Développement BackEnd",
-      "description": "Je développe des APIs et services backend fiables, sécurisés et évolutifs, conçus pour supporter la croissance produit et des intégrations durables."
+      "language": {
+        "fr": {
+          "title": "Développement BackEnd",
+          "description": "Je développe des APIs et services backend fiables, sécurisés et évolutifs, conçus pour supporter la croissance produit et des intégrations durables."
+        },
+        "en": {
+          "title": "Back-end development",
+          "description": "I develop reliable, secure, scalable APIs and backend services designed to support product growth and long-term integrations."
+        }
+      }
     },
     {
       "order": 4,
       "id": "development-ecommerce",
-      "title": "Développement E-commerce",
-      "description": "Je conçois et optimise des boutiques en ligne sur WordPress/WooCommerce et Shopify, avec des parcours d'achat fluides, des thèmes sur mesure et des intégrations adaptées à vos objectifs business."
+      "language": {
+        "fr": {
+          "title": "Développement E-commerce",
+          "description": "Je conçois et optimise des boutiques en ligne sur WordPress/WooCommerce et Shopify, avec des parcours d'achat fluides, des thèmes sur mesure et des intégrations adaptées à vos objectifs business."
+        },
+        "en": {
+          "title": "E-commerce development",
+          "description": "I design and optimize online stores on WordPress/WooCommerce and Shopify, with smooth checkout flows, custom themes, and integrations aligned with your business goals."
+        }
+      }
     }
   ]
 }
