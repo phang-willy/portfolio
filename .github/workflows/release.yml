@@ -99,7 +99,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No package version changes; skipping commit"
           else
-            git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
+            git commit -m "chore: release ${{ steps.version.outputs.tag }}"
           fi
 
       - name: Create Git tag
