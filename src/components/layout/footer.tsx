@@ -1,11 +1,6 @@
-import { Menu, type MenuItem } from "@/components/ui/menu";
+import { FooterNav } from "@/components/layout/footer-nav";
 
-export const Footer = () => {
-  const menuLinks: MenuItem[] = [
-    { type: "link", href: "/legals", label: "Mentions légales" },
-    { type: "link", href: "/contact", label: "Contact" },
-  ];
-
+export function Footer() {
   return (
     <footer className="border-t bg-black text-white">
       <div className="container mx-auto p-4">
@@ -13,11 +8,9 @@ export const Footer = () => {
           <p className="text-sm xl:text-base">
             &copy; {new Date().getFullYear()} - PHANG Willy
           </p>
-          <ul className="flex flex-col items-center gap-4 xl:flex-row xl:gap-6">
-            <Menu items={menuLinks} />
-          </ul>
+          <FooterNav />
         </div>
       </div>
     </footer>
   );
-};
+}

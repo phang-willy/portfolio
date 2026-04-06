@@ -2,30 +2,60 @@
   "experiences": [
     {
       "id": "dit-2",
-      "role": "Développeur Full Stack",
-      "company": "DIT",
-      "contractType": "Contrat en Alternance",
-      "summary": "Développement d'applications de créances et de refurbushing",
       "startYear": "2023",
-      "endYear": "2025"
+      "endYear": "2025",
+      "language": {
+        "fr": {
+          "role": "Développeur Full Stack",
+          "company": "DIT",
+          "contractType": "Contrat en Alternance",
+          "summary": "Développement d'applications de créances et de refurbushing"
+        },
+        "en": {
+          "role": "Full Stack Developer",
+          "company": "DIT",
+          "contractType": "Work-study contract",
+          "summary": "Development of receivables and refurbishing applications"
+        }
+      }
     },
     {
       "id": "dit-1",
-      "role": "Développeur WordPress/WooCommerce",
-      "company": "DIT",
-      "contractType": "Contrat en Alternance",
-      "summary": "Développement WordPress/WooCommerce d'événements annuels de conférences et de formations dentaires",
       "startYear": "2022",
-      "endYear": "2023"
+      "endYear": "2023",
+      "language": {
+        "fr": {
+          "role": "Développeur WordPress/WooCommerce",
+          "company": "DIT",
+          "contractType": "Contrat en Alternance",
+          "summary": "Développement WordPress/WooCommerce d'événements annuels de conférences et de formations dentaires"
+        },
+        "en": {
+          "role": "WordPress/WooCommerce Developer",
+          "company": "DIT",
+          "contractType": "Work-study contract",
+          "summary": "WordPress/WooCommerce development for annual dental conference and training events"
+        }
+      }
     },
     {
       "id": "logistib",
-      "role": "Intégrateur Web et Webmaster",
-      "company": "Logistib",
-      "contractType": "Contrat en Alternance",
-      "summary": "Intégration de sites web et création de thèmes WordPress/WooCommerce, Shopify et Prestashop",
       "startYear": "2020",
-      "endYear": "2022"
+      "endYear": "2022",
+      "language": {
+        "fr": {
+          "role": "Intégrateur Web et Webmaster",
+          "company": "Logistib",
+          "contractType": "Contrat en Alternance",
+          "summary": "Intégration de sites web et création de thèmes WordPress/WooCommerce, Shopify et Prestashop"
+        },
+        "en": {
+          "role": "Web integrator & webmaster",
+          "company": "Logistib",
+          "contractType": "Work-study contract",
+          "summary": "Website integration and custom theme development on WordPress/WooCommerce, Shopify, and PrestaShop"
+        }
+      }
     }
   ]
 }

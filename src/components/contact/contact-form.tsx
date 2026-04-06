@@ -11,7 +11,7 @@ import {
 import type { ZodError } from "zod";
 import { LuLoaderCircle, LuRefreshCw } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
-import { CONTACT_GENERIC_USER_FACING_MESSAGE } from "@/lib/contact-public-message";
+import { useI18n } from "@/features/i18n/hooks/use-i18n";
 import { getContactApiUrl } from "@/lib/contact-api-url";
 import {
   contactSubmissionBodySchema,
@@ -35,7 +35,6 @@ type ContactApiResponse =
     };
 
 type ServiceCheckState =
-  | { phase: "loading" }
   | { phase: "ready" }
   | { phase: "blocked"; message: string; reason?: string };
 
@@ -48,64 +47,6 @@ const emptyValues: ContactFormValues = {
   title: "",
   message: "",
 };
-
-const fieldConfig: Array<{
-  key: keyof ContactFormValues;
-  label: string;
-  type: "text" | "email" | "tel" | "textarea";
-  autoComplete?: string;
-  required: boolean;
-}> = [
-  {
-    key: "firstName",
-    label: "Prénom",
-    type: "text",
-    autoComplete: "given-name",
-    required: true,
-  },
-  {
-    key: "lastName",
-    label: "Nom",
-    type: "text",
-    autoComplete: "family-name",
-    required: true,
-  },
-  {
-    key: "email",
-    label: "Adresse email",
-    type: "email",
-    autoComplete: "email",
-    required: true,
-  },
-  {
-    key: "phone",
-    label: "Téléphone",
-    type: "tel",
-    autoComplete: "tel",
-    required: true,
-  },
-  {
-    key: "company",
-    label: "Entreprise",
-    type: "text",
-    autoComplete: "organization",
-    required: false,
-  },
-  {
-    key: "title",
-    label: "Titre",
-    type: "text",
-    autoComplete: "organization-title",
-    required: true,
-  },
-  {
-    key: "message",
-    label: "Message",
-    type: "textarea",
-    autoComplete: "off",
-    required: true,
-  },
-];
 
 function issuesToFieldErrors(
   issues: ContactApiIssue[],
@@ -142,9 +83,66 @@ type ContactFormProps = {
 };
 
 export function ContactForm({ className }: ContactFormProps) {
+  const { t } = useI18n();
   const baseId = useId();
+
+  const fieldConfig = useMemo(
+    () =>
+      [
+        {
+          key: "firstName" as const,
+          label: t.contactForm.fields.firstName,
+          type: "text" as const,
+          autoComplete: "given-name",
+          required: true,
+        },
+        {
+          key: "lastName" as const,
+          label: t.contactForm.fields.lastName,
+          type: "text" as const,
+          autoComplete: "family-name",
+          required: true,
+        },
+        {
+          key: "email" as const,
+          label: t.contactForm.fields.email,
+          type: "email" as const,
+          autoComplete: "email",
+          required: true,
+        },
+        {
+          key: "phone" as const,
+          label: t.contactForm.fields.phone,
+          type: "tel" as const,
+          autoComplete: "tel",
+          required: true,
+        },
+        {
+          key: "company" as const,
+          label: t.contactForm.fields.company,
+          type: "text" as const,
+          autoComplete: "organization",
+          required: false,
+        },
+        {
+          key: "title" as const,
+          label: t.contactForm.fields.title,
+          type: "text" as const,
+          autoComplete: "organization-title",
+          required: true,
+        },
+        {
+          key: "message" as const,
+          label: t.contactForm.fields.message,
+          type: "textarea" as const,
+          autoComplete: "off",
+          required: true,
+        },
+      ] as const,
+    [t],
+  );
   const [serviceCheck, setServiceCheck] = useState<ServiceCheckState>({
-    phase: "loading",
+    phase: "ready",
   });
   const [values, setValues] = useState<ContactFormValues>(emptyValues);
   const [fieldErrors, setFieldErrors] = useState<
@@ -187,17 +185,14 @@ export function ContactForm({ className }: ContactFormProps) {
         setCaptchaDisplay("");
         setCaptchaToken("");
         setCaptchaFetchError(
-          data.message ??
-            "Trop de demandes de code. Patientez un instant puis réessayez.",
+          data.message ?? t.contactForm.errors.rateLimitCaptcha,
         );
         return;
       }
       if (!res.ok || !data.code || !data.captchaToken) {
         setCaptchaDisplay("");
         setCaptchaToken("");
-        setCaptchaFetchError(
-          "Impossible de charger le code de vérification. Réessayez ou actualisez la page.",
-        );
+        setCaptchaFetchError(t.contactForm.errors.captchaLoad);
         return;
       }
       setCaptchaDisplay(data.code);
@@ -205,13 +200,11 @@ export function ContactForm({ className }: ContactFormProps) {
     } catch {
       setCaptchaDisplay("");
       setCaptchaToken("");
-      setCaptchaFetchError(
-        "Impossible de charger le code de vérification. Réessayez ou actualisez la page.",
-      );
+      setCaptchaFetchError(t.contactForm.errors.captchaLoad);
     } finally {
       setCaptchaLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -231,9 +224,7 @@ export function ContactForm({ className }: ContactFormProps) {
         if (res.status === 429) {
           setServiceCheck({
             phase: "blocked",
-            message:
-              data.message ??
-              "Trop de vérifications du service. Patientez puis rechargez la page.",
+            message: data.message ?? t.contactForm.errors.rateLimitHealthcheck,
             reason: "RATE_LIMITED",
           });
           return;
@@ -243,7 +234,7 @@ export function ContactForm({ className }: ContactFormProps) {
         } else {
           setServiceCheck({
             phase: "blocked",
-            message: data.message ?? CONTACT_GENERIC_USER_FACING_MESSAGE,
+            message: data.message ?? t.contactForm.errors.unavailableGeneric,
             reason: data.reason,
           });
         }
@@ -251,7 +242,7 @@ export function ContactForm({ className }: ContactFormProps) {
         if (!cancelled) {
           setServiceCheck({
             phase: "blocked",
-            message: CONTACT_GENERIC_USER_FACING_MESSAGE,
+            message: t.contactForm.errors.unavailableGeneric,
             reason: "NETWORK",
           });
         }
@@ -262,7 +253,7 @@ export function ContactForm({ className }: ContactFormProps) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (serviceCheck.phase !== "ready") {
@@ -305,9 +296,7 @@ export function ContactForm({ className }: ContactFormProps) {
     }
 
     if (!captchaToken) {
-      setCaptchaFetchError(
-        "Code de vérification indisponible. Utilisez « Nouveau code » ou rechargez la page.",
-      );
+      setCaptchaFetchError(t.contactForm.errors.captchaMissing);
       return;
     }
 
@@ -328,7 +317,7 @@ export function ContactForm({ className }: ContactFormProps) {
       try {
         payload = (await response.json()) as ContactApiResponse;
       } catch {
-        setFormError("Réponse du serveur invalide. Réessayez plus tard.");
+        setFormError(t.contactForm.errors.invalidServerResponse);
         return;
       }
 
@@ -349,7 +338,7 @@ export function ContactForm({ className }: ContactFormProps) {
         if (payload.ok === false && payload.error === "CONTACT_UNAVAILABLE") {
           setServiceCheck({
             phase: "blocked",
-            message: payload.message ?? CONTACT_GENERIC_USER_FACING_MESSAGE,
+            message: payload.message ?? t.contactForm.errors.unavailableGeneric,
             reason: payload.reason,
           });
           return;
@@ -358,7 +347,7 @@ export function ContactForm({ className }: ContactFormProps) {
         const message =
           payload.ok === false && payload.message
             ? payload.message
-            : "Une erreur est survenue. Réessayez plus tard.";
+            : t.contactForm.errors.genericSubmit;
         setFormError(message);
         return;
       }
@@ -366,14 +355,12 @@ export function ContactForm({ className }: ContactFormProps) {
       setValues(emptyValues);
       setCaptchaInput("");
       void fetchCaptcha();
-      setSuccessMessage("Votre message a bien été envoyé. Merci !");
+      setSuccessMessage(t.contactForm.success);
       requestAnimationFrame(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
     } catch {
-      setFormError(
-        "Impossible de contacter le serveur. Vérifiez votre connexion.",
-      );
+      setFormError(t.contactForm.errors.network);
     } finally {
       setIsSubmitting(false);
     }
@@ -382,10 +369,7 @@ export function ContactForm({ className }: ContactFormProps) {
   const inputClassName =
     "w-full rounded-md border border-border bg-white px-3 py-2 text-base text-black shadow-sm transition-[box-shadow,colors] duration-200 placeholder:text-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-dark-500 dark:text-white dark:border-border-dark dark:placeholder:text-white/40 dark:focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:opacity-60";
 
-  const fieldsLocked =
-    serviceCheck.phase === "loading" ||
-    serviceCheck.phase === "blocked" ||
-    isSubmitting;
+  const fieldsLocked = serviceCheck.phase === "blocked" || isSubmitting;
 
   const submissionDraft = useMemo(
     () => ({
@@ -424,20 +408,6 @@ export function ContactForm({ className }: ContactFormProps) {
 
   return (
     <div className={className}>
-      {serviceCheck.phase === "loading" ? (
-        <p
-          className="mb-6 flex items-center gap-2 text-sm text-black/70 dark:text-white/70"
-          role="status"
-          aria-live="polite"
-        >
-          <LuLoaderCircle
-            className="size-4 shrink-0 animate-spin text-main"
-            aria-hidden
-          />
-          Vérification du service de contact…
-        </p>
-      ) : null}
-
       {serviceCheck.phase === "blocked" ? (
         <p
           className={`mb-6 rounded-md border px-4 py-3 text-sm ${blockedBannerClass}`}
@@ -484,7 +454,7 @@ export function ContactForm({ className }: ContactFormProps) {
                   </span>
                 ) : (
                   <span className="text-black/50 dark:text-white/50 font-normal text-xs ml-1">
-                    (facultatif)
+                    {t.contactForm.optional}
                   </span>
                 )}
               </label>
@@ -533,7 +503,7 @@ export function ContactForm({ className }: ContactFormProps) {
         <div className="flex flex-col gap-3 rounded-md border border-border bg-black/2 p-4 dark:bg-white/3">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <label htmlFor={captchaId} className="text-sm font-medium">
-              Recopiez le code ci-dessous
+              {t.contactForm.captchaLabel}
               <span className="text-main" aria-hidden>
                 {" "}
                 *
@@ -548,13 +518,13 @@ export function ContactForm({ className }: ContactFormProps) {
               }
               onClick={() => void fetchCaptcha()}
               className="gap-1.5 shrink-0"
-              aria-label="Générer un nouveau code"
+              aria-label={t.contactForm.newCodeAria}
             >
               <LuRefreshCw
                 className={`size-3.5 shrink-0 ${captchaLoading ? "animate-spin" : ""}`}
                 aria-hidden
               />
-              Nouveau code
+              {t.contactForm.newCode}
             </Button>
           </div>
 
@@ -566,7 +536,7 @@ export function ContactForm({ className }: ContactFormProps) {
                 className="text-main underline underline-offset-2 hover:opacity-90"
                 onClick={() => void fetchCaptcha()}
               >
-                Réessayer
+                {t.contactForm.retry}
               </button>
             </p>
           ) : null}
@@ -581,7 +551,7 @@ export function ContactForm({ className }: ContactFormProps) {
                   className="size-4 animate-spin text-main"
                   aria-hidden
                 />
-                Génération du code…
+                {t.contactForm.captchaGenerating}
               </span>
             ) : captchaDisplay ? (
               captchaDisplay
@@ -618,7 +588,7 @@ export function ContactForm({ className }: ContactFormProps) {
             aria-required
             disabled={fieldsLocked}
             className={inputClassName}
-            placeholder="Recopiez le code (les espaces saisis sont ignorés)"
+            placeholder={t.contactForm.captchaPlaceholder}
           />
           {fieldErrors.captcha ? (
             <p
@@ -638,38 +608,28 @@ export function ContactForm({ className }: ContactFormProps) {
             disabled={submitDisabled}
             aria-busy={isSubmitting}
             title={
-              submitBlockedHint
-                ? "Remplissez tous les champs obligatoires et recopiez le code pour activer l'envoi."
-                : undefined
+              submitBlockedHint ? t.contactForm.submitHintBlocked : undefined
             }
             className="gap-2"
           >
-            {serviceCheck.phase === "loading" ? (
+            {isSubmitting ? (
               <>
                 <LuLoaderCircle
                   className="size-4 shrink-0 animate-spin"
                   aria-hidden
                 />
-                <span>Vérification…</span>
-              </>
-            ) : isSubmitting ? (
-              <>
-                <LuLoaderCircle
-                  className="size-4 shrink-0 animate-spin"
-                  aria-hidden
-                />
-                <span>Envoi en cours…</span>
+                <span>{t.contactForm.submitSending}</span>
               </>
             ) : serviceCheck.phase === "blocked" ? (
-              "Indisponible"
+              t.contactForm.submitUnavailable
             ) : (
-              "Envoyer"
+              t.contactForm.submit
             )}
           </Button>
           <p className="text-sm text-black/60 dark:text-white/60">
             {submitBlockedHint
-              ? "Complétez tous les champs obligatoires et le code : le bouton d'envoi s'activera automatiquement."
-              : "Les champs marqués d'un astérisque sont obligatoires."}
+              ? t.contactForm.submitHintFooter
+              : t.contactForm.submitHintRequired}
           </p>
         </div>
       </form>

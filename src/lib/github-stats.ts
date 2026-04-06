@@ -12,7 +12,81 @@ function noStoreIfDev(): void {
 export type GithubStats = {
   contributionsAllTime: number;
   repositoriesAffiliated: number;
+  currentStreakDays: number;
+  longestStreakDays: number;
 };
+
+function utcTodayIsoDate(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function addUtcDays(isoDate: string, deltaDays: number): string {
+  const ms = Date.parse(`${isoDate}T12:00:00.000Z`) + deltaDays * 86_400_000;
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
+/** Jours avec au moins une contribution, à partir du calendrier agrégé. */
+function activeContributionDays(dayTotals: Map<string, number>): Set<string> {
+  const active = new Set<string>();
+  for (const [date, count] of dayTotals) {
+    if (count > 0) active.add(date);
+  }
+  return active;
+}
+
+function longestStreakDaysFromActive(active: Set<string>): number {
+  const sorted = [...active].sort();
+  if (sorted.length === 0) return 0;
+  let best = 1;
+  let run = 1;
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = sorted[i - 1];
+    const cur = sorted[i];
+    if (prev && cur && cur === addUtcDays(prev, 1)) {
+      run++;
+      best = Math.max(best, run);
+    } else {
+      run = 1;
+    }
+  }
+  return best;
+}
+
+/**
+ * Série en cours (UTC) : si le jour courant n’a pas encore de contribution,
+ * on peut encore prolonger la série depuis hier (comportement proche du graphe GitHub).
+ */
+function currentStreakDaysFromActive(active: Set<string>): number {
+  const today = utcTodayIsoDate();
+  let d = active.has(today) ? today : addUtcDays(today, -1);
+  let streak = 0;
+  while (active.has(d)) {
+    streak++;
+    d = addUtcDays(d, -1);
+  }
+  return streak;
+}
+
+function mergeContributionCalendarDays(
+  into: Map<string, number>,
+  weeks:
+    | Array<{
+        contributionDays?: Array<{
+          date?: string;
+          contributionCount?: number;
+        }>;
+      }>
+    | undefined,
+): void {
+  for (const week of weeks ?? []) {
+    for (const day of week.contributionDays ?? []) {
+      const date = day.date;
+      if (!date) continue;
+      const count = day.contributionCount ?? 0;
+      into.set(date, (into.get(date) ?? 0) + count);
+    }
+  }
+}
 
 function isExplicitDev(): boolean {
   return process.env.NODE_ENV === "development";
@@ -156,6 +230,12 @@ export async function getGithubStats(): Promise<GithubStats | null> {
         contributionsCollection(from: $from, to: $to) {
           contributionCalendar {
             totalContributions
+            weeks {
+              contributionDays {
+                date
+                contributionCount
+              }
+            }
           }
         }
       }
@@ -165,7 +245,15 @@ export async function getGithubStats(): Promise<GithubStats | null> {
   type ContributionsChunkData = {
     viewer?: {
       contributionsCollection?: {
-        contributionCalendar?: { totalContributions?: number };
+        contributionCalendar?: {
+          totalContributions?: number;
+          weeks?: Array<{
+            contributionDays?: Array<{
+              date?: string;
+              contributionCount?: number;
+            }>;
+          }>;
+        };
       };
     } | null;
   };
@@ -176,6 +264,7 @@ export async function getGithubStats(): Promise<GithubStats | null> {
     ),
   );
 
+  const contributionsByDay = new Map<string, number>();
   let contributionsAllTime = 0;
   for (let i = 0; i < contributionChunkResponses.length; i++) {
     const chunkResponse = contributionChunkResponses[i];
@@ -188,15 +277,25 @@ export async function getGithubStats(): Promise<GithubStats | null> {
       }
       return null;
     }
-    const contributionsForChunk =
-      chunkResponse.data.viewer?.contributionsCollection?.contributionCalendar
-        ?.totalContributions ?? 0;
+    const calendar =
+      chunkResponse.data.viewer?.contributionsCollection?.contributionCalendar;
+    const contributionsForChunk = calendar?.totalContributions ?? 0;
     contributionsAllTime += contributionsForChunk;
+    mergeContributionCalendarDays(contributionsByDay, calendar?.weeks);
   }
+
+  const activeDays = activeContributionDays(contributionsByDay);
+  const currentStreakDays = currentStreakDaysFromActive(activeDays);
+  const longestStreakDays = longestStreakDaysFromActive(activeDays);
 
   const repositoriesAffiliated = viewer?.repositories?.totalCount ?? 0;
 
-  return { contributionsAllTime, repositoriesAffiliated };
+  return {
+    contributionsAllTime,
+    repositoriesAffiliated,
+    currentStreakDays,
+    longestStreakDays,
+  };
 }
 
 /**

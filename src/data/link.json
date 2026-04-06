@@ -3,23 +3,47 @@
     {
       "order": 1,
       "id": "github",
-      "url": "https://github.com/phang-willy",
-      "label": "GitHub",
-      "icon": "github"
+      "icon": "github",
+      "language": {
+        "fr": {
+          "url": "https://github.com/phang-willy",
+          "label": "GitHub"
+        },
+        "en": {
+          "url": "https://github.com/phang-willy",
+          "label": "GitHub"
+        }
+      }
     },
     {
       "order": 2,
       "id": "linkedin",
-      "url": "https://linkedin.com/in/phang-willy",
-      "label": "LinkedIn",
-      "icon": "linkedin"
+      "icon": "linkedin",
+      "language": {
+        "fr": {
+          "url": "https://linkedin.com/in/phang-willy",
+          "label": "LinkedIn"
+        },
+        "en": {
+          "url": "https://linkedin.com/in/phang-willy",
+          "label": "LinkedIn"
+        }
+      }
     },
     {
       "order": 3,
       "id": "cv",
-      "url": "/CV-PHANG-Willy.pdf",
-      "label": "CV",
-      "icon": "cv"
+      "icon": "cv",
+      "language": {
+        "fr": {
+          "url": "/CV-PHANG-Willy.pdf",
+          "label": "CV"
+        },
+        "en": {
+          "url": "/CV-PHANG-WILLY-EN.pdf",
+          "label": "Resume"
+        }
+      }
     }
   ]
 }

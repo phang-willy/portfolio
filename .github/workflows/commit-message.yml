@@ -32,7 +32,7 @@ jobs:
           echo "$COMMITS" | while IFS= read -r message; do
             [ -z "$message" ] && continue
 
-            if [[ ! "$message" =~ ^(feat|fix|chore|docs|refactor):\ .+ && ! "$message" =~ ^[iI]nit.* ]]; then
+            if [[ ! "$message" =~ ^(feat|fix|chore|docs|refactor|remove):\ .+ && ! "$message" =~ ^[iI]nit.* ]]; then
               echo "❌ Invalid commit message: $message"
               echo "Expected format: feat: ..., fix: ..., chore: ..., docs: ..., refactor: ..."
               exit 1

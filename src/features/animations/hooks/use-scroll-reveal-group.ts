@@ -1,6 +1,9 @@
 "use client";
 
-import { APPEAR_DURATION_CLASS, PROJECT_CARD_STAGGER_MS } from "@/features/animations/constants/appear";
+import {
+  APPEAR_DURATION_CLASS,
+  PROJECT_CARD_STAGGER_MS,
+} from "@/features/animations/constants/appear";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -17,9 +20,9 @@ const REVEAL_ATTR = "data-reveal-index";
 
 export function useScrollRevealGroup(blockCount: number) {
   const blockRefs = useRef<Array<HTMLElement | null>>([]);
-  const hideTimeoutsRef = useRef<
-    Record<number, ReturnType<typeof setTimeout>>
-  >({});
+  const hideTimeoutsRef = useRef<Record<number, ReturnType<typeof setTimeout>>>(
+    {},
+  );
   const scrollYHistory = useRef({ prev: 0, current: 0 });
   const [blockState, setBlockState] = useState<Record<number, BlockAnimState>>(
     {},
@@ -126,9 +129,7 @@ export function useScrollRevealGroup(blockCount: number) {
       const visible = state?.visible ?? false;
       const entryFromBottom = state?.entryFromBottom ?? true;
       if (!visible) return 0;
-      const staggerIndex = entryFromBottom
-        ? index
-        : blockCount - 1 - index;
+      const staggerIndex = entryFromBottom ? index : blockCount - 1 - index;
       return staggerIndex * PROJECT_CARD_STAGGER_MS;
     },
     [blockCount, blockState],

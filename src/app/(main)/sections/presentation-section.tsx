@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BsFileEarmarkFill, BsGithub, BsLinkedin } from "react-icons/bs";
 import type { IconType } from "react-icons";
+import { useI18n } from "@/features/i18n/hooks/use-i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export type SocialLink = {
@@ -28,6 +29,7 @@ const SOCIAL_ICONS: Record<SocialLink["icon"], IconType> = {
 };
 
 export function PresentationSection({ socialLinks }: PresentationSectionProps) {
+  const { t } = useI18n();
   const sectionRef = useRef<HTMLElement>(null);
   const timeoutsRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
   const scrollDirectionRef = useRef<"up" | "down">("down");
@@ -156,8 +158,8 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
           <h1 className="text-5xl xl:text-[10rem] uppercase w-full whitespace-nowrap font-bold">
             <span className="sr-only">PHANG Willy</span>
             <div className="flex flex-col gap-2">
-              <span>Développeur</span>
-              <span>Full Stack</span>
+              <span>{t.presentation.titleLine1}</span>
+              <span>{t.presentation.titleLine2}</span>
             </div>
           </h1>
         </div>
@@ -169,8 +171,8 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
               : "opacity-0 -translate-x-8 md:translate-x-8"
           }`}
         >
-          <p>Bonjour, je suis Willy PHANG</p>
-          <p>Passionné par le développement web !</p>
+          <p>{t.presentation.greeting1}</p>
+          <p>{t.presentation.greeting2}</p>
         </div>
 
         <div
@@ -183,7 +185,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
           <div className="relative aspect-square w-full max-w-[350px] md:aspect-auto md:h-[350px] md:w-[350px] md:shrink-0">
             <Image
               src="/profile.webp"
-              alt="PHANG Willy"
+              alt={t.presentation.profileImageAlt}
               fill
               priority
               sizes="(max-width: 768px) min(100vw, 350px), 350px"
@@ -199,7 +201,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
               : "opacity-0 -translate-x-8"
           }`}
         >
-          <ul className="mt-2 grid grid-cols-4 gap-4 md:mt-0 md:grid-cols-12 md:gap-6">
+          <ul className="grid grid-cols-4 gap-4 md:grid-cols-12 md:gap-6">
             {socialLinks.map((socialLink) => {
               const Icon = SOCIAL_ICONS[socialLink.icon];
               return (
@@ -214,11 +216,13 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
                         ? false
                         : undefined
                     }
-                    className="flex items-center gap-2 bg-main hover:bg-main/80 transition-colors duration-200 text-white md:px-4 md:py-2 rounded-md aspect-square md:aspect-auto"
+                    className="flex flex-col pt-3 pb-2 md:flex-row items-center gap-2 bg-main hover:bg-main/80 transition-colors duration-200 text-white md:px-4 md:py-2 rounded-md aspect-square md:aspect-auto"
                     aria-label={socialLink.label}
                   >
                     <Icon className="h-8 w-8 md:w-6 md:h-6 mx-auto md:mx-0" />
-                    <span className="hidden md:inline">{socialLink.label}</span>
+                    <span className="block text-xs md:text-base md:inline">
+                      {socialLink.label}
+                    </span>
                   </Link>
                 </li>
               );

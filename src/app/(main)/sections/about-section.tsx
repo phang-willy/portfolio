@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/features/i18n/hooks/use-i18n";
 import { useRef } from "react";
 import { GithubAnimatedStats } from "@/features/github/components/github-animated-stats";
 import { ParisMap } from "@/features/map/components/paris-map";
@@ -13,12 +14,17 @@ import { useAppearSequence } from "@/features/animations/hooks/use-appear-sequen
 type AboutSectionProps = {
   contributions: number | null;
   repositories: number | null;
+  currentStreak: number | null;
+  longestStreak: number | null;
 };
 
 export function AboutSection({
   contributions,
   repositories,
+  currentStreak,
+  longestStreak,
 }: AboutSectionProps) {
+  const { t } = useI18n();
   const sectionRef = useRef<HTMLElement>(null);
   const visibleMap = useAppearSequence({
     sectionRef,
@@ -44,7 +50,7 @@ export function AboutSection({
                 : "opacity-0 -translate-x-8"
             }`}
           >
-            À propos
+            {t.about.badge}
           </span>
         </h2>
         <div
@@ -54,12 +60,8 @@ export function AboutSection({
               : "opacity-0 -translate-x-8"
           }`}
         >
-          <p className="text-lg xl:text-3xl leading-10">
-            Développer n&apos;est pas seulement un métier
-          </p>
-          <p className="text-lg xl:text-3xl leading-10">
-            C&apos;est ma passion.
-          </p>
+          <p className="text-lg xl:text-3xl leading-10">{t.about.line1}</p>
+          <p className="text-lg xl:text-3xl leading-10">{t.about.line2}</p>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
@@ -76,6 +78,9 @@ export function AboutSection({
           <GithubAnimatedStats
             contributions={contributions}
             repositories={repositories}
+            currentStreak={currentStreak}
+            longestStreak={longestStreak}
+            labels={t.githubStats}
           />
         </div>
       </div>

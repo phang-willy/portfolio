@@ -4,8 +4,10 @@ import Link from "next/link";
 import { LuArrowLeft, LuExternalLink } from "react-icons/lu";
 import { useMemo } from "react";
 import { ProjectImage } from "@/components/project-image";
+import { useI18n } from "@/features/i18n/hooks/use-i18n";
+import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
 import { useScrollRevealGroup } from "@/features/animations/hooks/use-scroll-reveal-group";
-import { formatDateDdMmYyyy } from "@/lib/date-format";
+import { formatDateForLocale } from "@/lib/date-format";
 import type { ProjectRecord } from "@/lib/projects";
 
 type ProjectDetailContentProps = {
@@ -13,20 +15,23 @@ type ProjectDetailContentProps = {
 };
 
 export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
+  const { locale, t } = useI18n();
+  const projectsIndexHref = buildLocalizedPathname("/projects", locale);
+  const collatorLocale = locale === "en" ? "en" : "fr";
+
   const externalUrl = project.links.url;
   const githubUrl = project.links.github;
 
   const sortedStacks = useMemo(
     () =>
       [...project.stacks].sort((a, b) =>
-        a.localeCompare(b, "fr", { sensitivity: "base" }),
+        a.localeCompare(b, collatorLocale, { sensitivity: "base" }),
       ),
-    [project.stacks],
+    [collatorLocale, project.stacks],
   );
 
   const stacksCount = sortedStacks.length;
-  const linkCount =
-    (externalUrl ? 1 : 0) + (githubUrl ? 1 : 0);
+  const linkCount = (externalUrl ? 1 : 0) + (githubUrl ? 1 : 0);
 
   /** 0 back, 1 thumb, 2 name, 3 titre Stacks, 4.. chips, +1 titre Liens, +links, +info */
   const blockCount = 6 + stacksCount + linkCount;
@@ -39,9 +44,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
   const idxLinksHeading = 4 + stacksCount;
   const baseLinkItems = 5 + stacksCount;
   const idxLinkExternal = externalUrl ? baseLinkItems : -1;
-  const idxLinkGithub = githubUrl
-    ? baseLinkItems + (externalUrl ? 1 : 0)
-    : -1;
+  const idxLinkGithub = githubUrl ? baseLinkItems + (externalUrl ? 1 : 0) : -1;
   const idxInfo = 5 + stacksCount + linkCount;
 
   return (
@@ -55,11 +58,11 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
           data-reveal-index={0}
         >
           <Link
-            href="/projects"
+            href={projectsIndexHref}
             className="inline-flex items-center gap-2 text-white px-4 py-2 rounded-full transition-colors w-fit bg-main hover:bg-main/80 focus-visible:bg-main/80"
           >
             <LuArrowLeft className="size-4" aria-hidden />
-            Retour aux projets
+            {t.projectDetail.backToProjects}
           </Link>
         </section>
 
@@ -104,7 +107,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
             className={getBlockShellClassName(idxStacksHeading)}
             data-reveal-index={idxStacksHeading}
           >
-            <h2 className="text-xl font-semibold">Stacks</h2>
+            <h2 className="text-xl font-semibold">{t.projectDetail.stacks}</h2>
           </div>
           <ul className="flex list-none flex-wrap gap-2 p-0">
             {sortedStacks.map((stack, i) => (
@@ -131,7 +134,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
             className={getBlockShellClassName(idxLinksHeading)}
             data-reveal-index={idxLinksHeading}
           >
-            <h2 className="text-xl font-semibold">Liens</h2>
+            <h2 className="text-xl font-semibold">{t.projectDetail.links}</h2>
           </div>
           <ul className="flex list-none flex-col gap-2 p-0 sm:flex-row sm:flex-wrap sm:gap-6">
             {externalUrl ? (
@@ -147,7 +150,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-main hover:text-main/80 focus-visible:text-main/80 transition-colors"
                 >
-                  <span>Site / démo</span>
+                  <span>{t.projectDetail.siteDemo}</span>
                   <LuExternalLink className="size-4" aria-hidden />
                 </a>
               </li>
@@ -165,7 +168,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-main hover:text-main/80 focus-visible:text-main/80 transition-colors"
                 >
-                  <span>Code source</span>
+                  <span>{t.projectDetail.sourceCode}</span>
                   <LuExternalLink className="size-4" aria-hidden />
                 </a>
               </li>
@@ -180,13 +183,17 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
           className={getBlockShellClassName(idxInfo, "grid grid-cols-1 gap-4")}
           data-reveal-index={idxInfo}
         >
-          <h2 className="text-xl font-semibold">Informations</h2>
+          <h2 className="text-xl font-semibold">
+            {t.projectDetail.information}
+          </h2>
           <div className="flex flex-col gap-2">
             <p className="text-sm text-muted-foreground">
-              Création : {formatDateDdMmYyyy(project.createdAt)}
+              {t.projectDetail.created}{" "}
+              {formatDateForLocale(project.createdAt, locale)}
             </p>
             <p className="text-sm text-muted-foreground">
-              Dernière mise à jour : {formatDateDdMmYyyy(project.updatedAt)}
+              {t.projectDetail.updated}{" "}
+              {formatDateForLocale(project.updatedAt, locale)}
             </p>
           </div>
         </section>
