@@ -77,7 +77,7 @@ export const en: Dictionary = {
     intro:
       "As a Full Stack developer, I support your projects from design to production with reliable, performant solutions tailored to your business.",
     contactCta: "Contact me",
-    learnMore: "Learn more",
+    learnMoreForService: "Contact me about {service}",
   },
   experiences: {
     badge: "Experience",

@@ -149,8 +149,16 @@ export function ServicesSection({ services }: ServicesSectionProps) {
                   href={contactHref}
                   className="group bg-main text-white px-8 py-4 rounded-full hover:bg-main/80 focus:bg-main/80 transition-colors duration-200 flex items-center gap-8 w-auto"
                 >
-                  <LuArrowRight className="w-8 h-8 transition-transform duration-200 group-hover:translate-x-1 group-focus:translate-x-1" />
-                  <span>{t.services.learnMore}</span>
+                  <LuArrowRight
+                    className="w-8 h-8 shrink-0 transition-transform duration-200 group-hover:translate-x-1 group-focus:translate-x-1"
+                    aria-hidden
+                  />
+                  <span className="text-left leading-snug">
+                    {t.services.learnMoreForService.replace(
+                      "{service}",
+                      service.title,
+                    )}
+                  </span>
                 </Link>
               </article>
             ))}

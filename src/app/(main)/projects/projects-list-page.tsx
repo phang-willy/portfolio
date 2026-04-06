@@ -1,13 +1,12 @@
 import { ProjectsPageGrid } from "@/app/(main)/projects/projects-page-grid";
+import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { projectRecordForLocale } from "@/features/i18n/lib/localized-site-data";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
-import { getRequestLocale } from "@/features/i18n/lib/request-locale";
 import { getProjectsByCreatedAtDesc } from "@/lib/projects";
 import type { Metadata } from "next";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale();
+export function buildProjectsListMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
     title: `${process.env.APP_TITLE} - ${d.meta.projectsTitle}`,
@@ -20,8 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function ProjectsListPage() {
-  const locale = await getRequestLocale();
+export function ProjectsListPage({ locale }: { locale: AppLocale }) {
   const projects = getProjectsByCreatedAtDesc().map((p) =>
     projectRecordForLocale(p, locale),
   );

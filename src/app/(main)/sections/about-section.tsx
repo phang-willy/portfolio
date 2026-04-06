@@ -1,15 +1,29 @@
 "use client";
 
 import { useI18n } from "@/features/i18n/hooks/use-i18n";
+import dynamic from "next/dynamic";
 import { useRef } from "react";
 import { GithubAnimatedStats } from "@/features/github/components/github-animated-stats";
-import { ParisMap } from "@/features/map/components/paris-map";
 import {
   APPEAR_DURATION_CLASS,
   APPEAR_STAGGER_MS,
   APPEAR_THRESHOLD,
 } from "@/features/animations/constants/appear";
 import { useAppearSequence } from "@/features/animations/hooks/use-appear-sequence";
+
+const ParisMap = dynamic(
+  () =>
+    import("@/features/map/components/paris-map").then((mod) => mod.ParisMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="h-[min(50vh,420px)] w-full animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-800 md:h-[min(55vh,480px)]"
+        aria-hidden
+      />
+    ),
+  },
+);
 
 type AboutSectionProps = {
   contributions: number | null;
