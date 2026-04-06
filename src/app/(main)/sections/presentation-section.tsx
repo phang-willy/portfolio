@@ -201,7 +201,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
               : "opacity-0 -translate-x-8"
           }`}
         >
-          <ul className="mt-2 grid grid-cols-4 gap-4 md:mt-0 md:grid-cols-12 md:gap-6">
+          <ul className="grid grid-cols-4 gap-4 md:grid-cols-12 md:gap-6">
             {socialLinks.map((socialLink) => {
               const Icon = SOCIAL_ICONS[socialLink.icon];
               return (
@@ -216,11 +216,13 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
                         ? false
                         : undefined
                     }
-                    className="flex items-center gap-2 bg-main hover:bg-main/80 transition-colors duration-200 text-white md:px-4 md:py-2 rounded-md aspect-square md:aspect-auto"
+                    className="flex flex-col pt-3 pb-2 md:flex-row items-center gap-2 bg-main hover:bg-main/80 transition-colors duration-200 text-white md:px-4 md:py-2 rounded-md aspect-square md:aspect-auto"
                     aria-label={socialLink.label}
                   >
                     <Icon className="h-8 w-8 md:w-6 md:h-6 mx-auto md:mx-0" />
-                    <span className="hidden md:inline">{socialLink.label}</span>
+                    <span className="block text-xs md:text-base md:inline">
+                      {socialLink.label}
+                    </span>
                   </Link>
                 </li>
               );

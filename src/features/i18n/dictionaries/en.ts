@@ -67,6 +67,8 @@ export const en: Dictionary = {
   githubStats: {
     contributions: "GitHub contributions",
     repositories: "Repositories (created & collaboration)",
+    currentStreak: "Current streak",
+    longestStreak: "Longest streak",
   },
   services: {
     badge: "Services",

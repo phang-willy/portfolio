@@ -53,7 +53,7 @@ export function experiencesForLocale(locale: AppLocale): Array<ExperienceItem> {
 
 function experienceEntryToItem(
   e: ExperienceEntry,
-  locale: AppLocale
+  locale: AppLocale,
 ): ExperienceItem {
   const tr = e.language[locale];
   return {
@@ -69,7 +69,7 @@ function experienceEntryToItem(
 /** Projet avec champs affichés selon la locale (même enregistrement, champs surchargés). */
 export function projectRecordForLocale(
   project: RawProjectRecord,
-  locale: AppLocale
+  locale: AppLocale,
 ): ProjectRecord {
   const tr = project.language[locale];
   return {
@@ -82,7 +82,7 @@ export function projectRecordForLocale(
 
 export function projectItemsForLocale(
   projects: Array<RawProjectRecord>,
-  locale: AppLocale
+  locale: AppLocale,
 ): Array<ProjectItem> {
   return projects.map((project) => {
     const view = projectRecordForLocale(project, locale);

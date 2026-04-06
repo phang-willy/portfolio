@@ -65,6 +65,8 @@ export const fr = {
   githubStats: {
     contributions: "Contributions sur GitHub",
     repositories: "Repositories (création & collaboration)",
+    currentStreak: "Série actuelle",
+    longestStreak: "Plus longue série",
   },
   services: {
     badge: "Services",

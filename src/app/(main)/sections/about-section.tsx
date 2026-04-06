@@ -14,11 +14,15 @@ import { useAppearSequence } from "@/features/animations/hooks/use-appear-sequen
 type AboutSectionProps = {
   contributions: number | null;
   repositories: number | null;
+  currentStreak: number | null;
+  longestStreak: number | null;
 };
 
 export function AboutSection({
   contributions,
   repositories,
+  currentStreak,
+  longestStreak,
 }: AboutSectionProps) {
   const { t } = useI18n();
   const sectionRef = useRef<HTMLElement>(null);
@@ -74,6 +78,8 @@ export function AboutSection({
           <GithubAnimatedStats
             contributions={contributions}
             repositories={repositories}
+            currentStreak={currentStreak}
+            longestStreak={longestStreak}
             labels={t.githubStats}
           />
         </div>

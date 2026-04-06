@@ -7,7 +7,10 @@ export function formatDateDdMmYyyy(isoDate: string): string {
 }
 
 /** FR : JJ/MM/AAAA — EN : MM/JJ/AAAA (pages projet en anglais). */
-export function formatDateForLocale(isoDate: string, locale: AppLocale): string {
+export function formatDateForLocale(
+  isoDate: string,
+  locale: AppLocale,
+): string {
   const [year, month, day] = isoDate.split("-");
   if (!year || !month || !day) return isoDate;
   if (locale === "en") {

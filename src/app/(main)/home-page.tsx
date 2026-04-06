@@ -59,6 +59,8 @@ export default async function HomePage() {
       <AboutSection
         contributions={githubStats?.contributionsAllTime ?? null}
         repositories={githubStats?.repositoriesAffiliated ?? null}
+        currentStreak={githubStats?.currentStreakDays ?? null}
+        longestStreak={githubStats?.longestStreakDays ?? null}
       />
       <ServicesSection services={services} />
       <ExperiencesSection experiences={experiences} />
