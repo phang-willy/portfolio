@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-main: hsl(205, 100%, 44%);
+  --color-main: hsl(205, 100%, 29%);
   --color-dark-400: oklch(0.1448 0 0);
   --color-dark-500: oklch(0.2044 0 0);
   --color-border: oklch(0.9219 0 0);

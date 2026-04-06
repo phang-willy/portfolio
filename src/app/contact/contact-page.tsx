@@ -1,13 +1,12 @@
 import { ContactForm } from "@/components/contact/contact-form";
+import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
-import { getRequestLocale } from "@/features/i18n/lib/request-locale";
 import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale();
+export function buildContactMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
     title: `${process.env.APP_TITLE} - ${d.meta.contactTitle}`,
@@ -20,8 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function ContactPage() {
-  const locale = await getRequestLocale();
+export function ContactPage({ locale }: { locale: AppLocale }) {
   const d = getDictionary(locale);
   const legalsHref = buildLocalizedPathname("/legals", locale);
 

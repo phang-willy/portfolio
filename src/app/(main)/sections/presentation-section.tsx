@@ -187,8 +187,10 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
               src="/profile.webp"
               alt={t.presentation.profileImageAlt}
               fill
-              priority
-              sizes="(max-width: 768px) min(100vw, 350px), 350px"
+              preload
+              loading="eager"
+              fetchPriority="high"
+              sizes="(max-width: 767px) min(100vw - 2rem, 350px), 350px"
               className="rounded-4xl object-cover"
             />
           </div>
