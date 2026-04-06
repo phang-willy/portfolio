@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/features/i18n/hooks/use-i18n";
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import type { StyleSpecification } from "maplibre-gl";
 import maplibregl from "maplibre-gl";
@@ -45,10 +46,7 @@ const getHtmlDarkClassSnapshot = () =>
 
 const getHtmlDarkClassServerSnapshot = () => false;
 
-const MARKER_LABEL =
-  "Disponible à Paris et sa Périphérie, en France Métropolitaine ainsi que dans tous les pays membres de l'Union Européenne";
-
-const createParisMarkerElement = () => {
+const createParisMarkerElement = (availabilityLabel: string) => {
   const root = document.createElement("div");
   root.className =
     "flex w-max max-w-[min(260px,85vw)] flex-col items-center pointer-events-none select-none";
@@ -56,7 +54,7 @@ const createParisMarkerElement = () => {
   const bubble = document.createElement("div");
   bubble.className =
     "mb-1 rounded-lg border border-main bg-white/95 px-3 py-2 text-center text-xs font-semibold text-black shadow-md backdrop-blur-sm dark:bg-dark-500/95 dark:text-white sm:text-sm";
-  bubble.textContent = MARKER_LABEL;
+  bubble.textContent = availabilityLabel;
 
   const pin = document.createElement("div");
   pin.className = "text-main drop-shadow-md";
@@ -69,6 +67,8 @@ const createParisMarkerElement = () => {
 };
 
 export const ParisMap = () => {
+  const { t } = useI18n();
+  const availabilityLabel = t.about.mapAvailability;
   const containerRef = useRef<HTMLDivElement>(null);
   const isDark = useSyncExternalStore(
     subscribeHtmlDarkClass,
@@ -98,7 +98,7 @@ export const ParisMap = () => {
 
     const addMarker = () => {
       new maplibregl.Marker({
-        element: createParisMarkerElement(),
+        element: createParisMarkerElement(availabilityLabel),
         anchor: "bottom",
       })
         .setLngLat(PARIS_CENTER)
@@ -114,7 +114,7 @@ export const ParisMap = () => {
     return () => {
       map.remove();
     };
-  }, [isDark]);
+  }, [isDark, availabilityLabel]);
 
   return (
     <div className="relative w-full">
@@ -122,7 +122,7 @@ export const ParisMap = () => {
         ref={containerRef}
         className="h-[min(50vh,420px)] w-full md:h-[min(55vh,480px)]"
         role="img"
-        aria-label="Disponible dans Paris et Périphérie"
+        aria-label={availabilityLabel}
       />
     </div>
   );

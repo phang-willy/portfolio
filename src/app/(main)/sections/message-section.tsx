@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import { useI18n } from "@/features/i18n/hooks/use-i18n";
 import { LuQuote } from "react-icons/lu";
 import { useEffect, useRef, useState } from "react";
 import { APPEAR_DURATION_CLASS } from "@/features/animations/constants/appear";
 
 export function MessageSection() {
+  const { t } = useI18n();
   const sectionRef = useRef<HTMLElement>(null);
   const scrollDirectionRef = useRef<"up" | "down">("down");
   const [isVisible, setIsVisible] = useState(false);
@@ -70,12 +72,9 @@ export function MessageSection() {
                   : "opacity-0 -translate-x-8"
               }`}
             >
-              Si vous êtes arrivé.e jusqu&apos;ici, merci pour votre temps.
+              {t.message.quote1a}
               <br />
-              J&apos;aime construire des produits utiles, performants et
-              soignés, avec la même exigence, qu&apos;il s&apos;agisse d&apos;un
-              site vitrine, d&apos;une application métier ou d&apos;une
-              plateforme e-commerce.
+              {t.message.quote1b}
             </p>
             <p
               className={`text-lg md:text-2xl leading-relaxed italic word-break-words transition-all ${APPEAR_DURATION_CLASS} ease-out ${
@@ -84,8 +83,7 @@ export function MessageSection() {
                   : "opacity-0 translate-x-8"
               }`}
             >
-              Mon objectif est simple : vous aider à transformer une idée en
-              solution concrète, durable et agréable à utiliser.
+              {t.message.quote2}
             </p>
             <p
               className={`text-lg md:text-2xl leading-relaxed italic word-break-words transition-all ${APPEAR_DURATION_CLASS} ease-out ${
@@ -94,8 +92,7 @@ export function MessageSection() {
                   : "opacity-0 -translate-x-8"
               }`}
             >
-              Si mon approche vous parle, ce sera un plaisir d&apos;échanger sur
-              votre projet.
+              {t.message.quote3}
             </p>
           </div>
           <div className="mx-auto h-px w-full max-w-2xl bg-gray-300" />
@@ -111,7 +108,7 @@ export function MessageSection() {
             <span className="relative block size-16 shrink-0 overflow-hidden rounded-full">
               <Image
                 src="/profile.webp"
-                alt="PHANG Willy - Développeur Full Stack"
+                alt={t.message.profileAlt}
                 fill
                 sizes="64px"
                 loading="lazy"
@@ -119,8 +116,8 @@ export function MessageSection() {
               />
             </span>
             <div className="text-left">
-              <p className="text-xl font-semibold">Willy PHANG</p>
-              <p className="text-sm text-gray-500">Développeur Full Stack</p>
+              <p className="text-xl font-semibold">{t.message.name}</p>
+              <p className="text-sm text-gray-500">{t.message.role}</p>
             </div>
           </div>
         </div>
