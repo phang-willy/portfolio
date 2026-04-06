@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/features/i18n/hooks/use-i18n";
 import { useEffect, useRef, useState } from "react";
 import {
   APPEAR_DURATION_CLASS,
@@ -22,6 +23,7 @@ type ExperiencesSectionProps = {
 };
 
 export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
+  const { t } = useI18n();
   const sectionRef = useRef<HTMLElement>(null);
   const experienceCardRefs = useRef<Array<HTMLElement | null>>([]);
   const [visibleExperienceCards, setVisibleExperienceCards] = useState<
@@ -78,7 +80,7 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
         <div className="flex flex-col gap-8">
           <h2>
             <span className="border-3 border-main px-6 py-3 rounded-full">
-              Expériences
+              {t.experiences.badge}
             </span>
           </h2>
         </div>
@@ -90,7 +92,7 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
                 : "opacity-0 -translate-x-8"
             }`}
           >
-            Un aperçu de mon parcours
+            {t.experiences.title}
           </h3>
           <p
             className={`text-lg text-gray-500 leading-8 max-w-xl justify-self-end transition-all ${APPEAR_DURATION_CLASS} ease-out ${
@@ -99,7 +101,7 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
                 : "opacity-0 -translate-x-8"
             }`}
           >
-            Un résumé des étapes marquantes de mon parcours de développeur.
+            {t.experiences.description}
           </p>
         </div>
       </div>

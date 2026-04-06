@@ -2,10 +2,7 @@
   "projects": [
     {
       "id": "twitch-watchlist",
-      "name": "Twitch Watchlist",
-      "description": "Extension Chrome permettant de gérer sa liste de watchlist sur Twitch, avec une interface moderne et intuitive.",
       "image": "/project/twitch-watchlist.webp",
-      "imageAlt": "Twitch Watchlist",
       "links": {
         "url": "https://github.com/phang-willy/twitch-watchlist",
         "github": "https://github.com/phang-willy/twitch-watchlist"
@@ -13,14 +10,23 @@
       "stacks": ["React", "TypeScript", "Tailwind CSS", "Next.js"],
       "status": "active",
       "createdAt": "2026-03-23",
-      "updatedAt": "2026-03-25"
+      "updatedAt": "2026-03-25",
+      "language": {
+        "fr": {
+          "name": "Twitch Watchlist",
+          "description": "Extension Chrome permettant de gérer sa liste de watchlist sur Twitch, avec une interface moderne et intuitive.",
+          "imageAlt": "Twitch Watchlist"
+        },
+        "en": {
+          "name": "Twitch Watchlist",
+          "description": "Chrome extension to manage your Twitch watchlist with a modern, intuitive interface.",
+          "imageAlt": "Twitch Watchlist"
+        }
+      }
     },
     {
       "id": "geolock",
-      "name": "Geolock",
-      "description": "Application de géolocalisation et suivi en temps réel de véhicules",
       "image": "/project/geolock.webp",
-      "imageAlt": "Geolock",
       "links": {
         "url": "https://geolock.haillouy.fr/",
         "github": "https://github.com/Matiss2702/geolock"
@@ -38,14 +44,23 @@
       ],
       "status": "active",
       "createdAt": "2025-04-20",
-      "updatedAt": "2026-03-01"
+      "updatedAt": "2026-03-01",
+      "language": {
+        "fr": {
+          "name": "Geolock",
+          "description": "Application de géolocalisation et suivi en temps réel de véhicules",
+          "imageAlt": "Geolock"
+        },
+        "en": {
+          "name": "Geolock",
+          "description": "Geolocation app with real-time vehicle tracking",
+          "imageAlt": "Geolock"
+        }
+      }
     },
     {
       "id": "portfolio",
-      "name": "Portfolio",
-      "description": "Portfolio personnel permettant de présenter mes projets et mes compétences.",
       "image": "/project/portfolio.webp",
-      "imageAlt": "Portfolio",
       "links": {
         "url": "https://phangwilly.com/",
         "github": "https://github.com/phang-willy/portfolio"
@@ -53,28 +68,53 @@
       "stacks": ["Next.js", "TypeScript", "Tailwind CSS", "React"],
       "status": "active",
       "createdAt": "2026-03-30",
-      "updatedAt": "2026-04-04"
+      "updatedAt": "2026-04-04",
+      "language": {
+        "fr": {
+          "name": "Portfolio",
+          "description": "Portfolio personnel permettant de présenter mes projets et mes compétences.",
+          "imageAlt": "Portfolio"
+        },
+        "en": {
+          "name": "Portfolio",
+          "description": "Personal portfolio to showcase my projects and skills.",
+          "imageAlt": "Portfolio"
+        }
+      }
     },
     {
       "id": "ia-cooking-assistant",
-      "name": "IA Cooking Assistant",
-      "description": "Application de cuisine assistée par IA, permettant de générer des recettes de cuisine en fonction des ingrédients disponibles et des préférences de l'utilisateur.",
       "image": "/project-image-fallback.webp",
-      "imageAlt": "IA Cooking Assistant",
       "links": {
         "github": "https://github.com/Matiss2702/airtable-cuisine"
       },
-      "stacks": ["Airtable", "TypeScript", "Tailwind CSS", "Next.js", "Ollama"],
+      "stacks": [
+        "Airtable",
+        "TypeScript",
+        "Tailwind CSS",
+        "Next.js",
+        "Ollama",
+        "IA"
+      ],
       "status": "active",
       "createdAt": "2025-04-08",
-      "updatedAt": "2025-06-14"
+      "updatedAt": "2025-06-14",
+      "language": {
+        "fr": {
+          "name": "IA Cooking Assistant",
+          "description": "Application de cuisine assistée par IA, permettant de générer des recettes de cuisine en fonction des ingrédients disponibles et des préférences de l'utilisateur.",
+          "imageAlt": "IA Cooking Assistant"
+        },
+        "en": {
+          "name": "AI Cooking Assistant",
+          "description": "AI-assisted cooking app that generates recipes based on available ingredients and user preferences.",
+          "imageAlt": "AI Cooking Assistant"
+        }
+      }
     },
     {
       "id": "parisii-optique",
-      "name": "Parisii Optique",
-      "description": "Site web et thème custom de la boutique Parisii Optique, intégré sur WordPress et WooCommerce.",
       "image": "/project/parisii-optique.webp",
-      "imageAlt": "Parisii Optique",
       "links": {
         "url": "https://parisii-optique.fr/",
         "github": "https://github.com/phang-willy/parisii-optique"
@@ -89,7 +129,19 @@
       ],
       "status": "active",
       "createdAt": "2025-10-18",
-      "updatedAt": "2026-03-05"
+      "updatedAt": "2026-03-05",
+      "language": {
+        "fr": {
+          "name": "Parisii Optique",
+          "description": "Site web et thème custom de la boutique Parisii Optique, intégré sur WordPress et WooCommerce.",
+          "imageAlt": "Parisii Optique"
+        },
+        "en": {
+          "name": "Parisii Optique",
+          "description": "Custom website and theme for the Parisii Optique store, built on WordPress and WooCommerce.",
+          "imageAlt": "Parisii Optique"
+        }
+      }
     }
   ]
 }

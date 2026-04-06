@@ -6,6 +6,14 @@ import { APPEAR_DURATION_CLASS } from "@/features/animations/constants/appear";
 type GithubAnimatedStatsProps = {
   contributions: number | null;
   repositories: number | null;
+  currentStreak: number | null;
+  longestStreak: number | null;
+  labels: {
+    contributions: string;
+    repositories: string;
+    currentStreak: string;
+    longestStreak: string;
+  };
 };
 
 function useAnimatedCount(
@@ -60,18 +68,20 @@ function StatBlock({
   targetValue,
   isInViewport,
   fromLeft,
+  showPlus,
 }: {
   label: string;
   targetValue: number | null;
   isInViewport: boolean;
   fromLeft: boolean;
+  showPlus: boolean;
 }) {
   const animatedValue = useAnimatedCount(targetValue, isInViewport);
   const showPlaceholder = targetValue === null;
 
   return (
     <article
-      className={`flex flex-col gap-2 border rounded-lg p-4 h-full justify-center transition-all ${APPEAR_DURATION_CLASS} ease-out ${
+      className={`flex flex-col gap-4 border rounded-lg p-4 h-full justify-center transition-all ${APPEAR_DURATION_CLASS} ease-out ${
         isInViewport
           ? "opacity-100 translate-x-0"
           : fromLeft
@@ -79,12 +89,12 @@ function StatBlock({
             : "opacity-0 translate-x-8"
       }`}
     >
-      <p className="text-5xl font-bold tabular-nums">
+      <p className="text-4xl font-bold tabular-nums">
         {showPlaceholder ? (
           <span className="text-gray-600">—</span>
         ) : (
           <>
-            <span>+</span>
+            {showPlus ? <span>+</span> : null}
             <span>{isInViewport ? (animatedValue ?? 0) : 0}</span>
           </>
         )}
@@ -97,6 +107,9 @@ function StatBlock({
 export function GithubAnimatedStats({
   contributions,
   repositories,
+  currentStreak,
+  longestStreak,
+  labels,
 }: GithubAnimatedStatsProps) {
   const cardRefs = useRef<Array<HTMLElement | null>>([]);
   const [visibleCards, setVisibleCards] = useState<Record<number, boolean>>({});
@@ -133,18 +146,32 @@ export function GithubAnimatedStats({
     return () => observer.disconnect();
   }, []);
 
+  const stats = [
+    {
+      label: labels.contributions,
+      targetValue: contributions,
+      showPlus: true,
+    },
+    {
+      label: labels.repositories,
+      targetValue: repositories,
+      showPlus: true,
+    },
+    {
+      label: labels.currentStreak,
+      targetValue: currentStreak,
+      showPlus: false,
+    },
+    {
+      label: labels.longestStreak,
+      targetValue: longestStreak,
+      showPlus: false,
+    },
+  ] as const;
+
   return (
-    <div className="grid grid-cols-1 gap-16 items-center justify-center">
-      {[
-        {
-          label: "Contributions sur GitHub",
-          targetValue: contributions,
-        },
-        {
-          label: "Repositories (création & collaboration)",
-          targetValue: repositories,
-        },
-      ].map((stat, index) => (
+    <div className="grid grid-cols-1 gap-4 items-center justify-center">
+      {stats.map((stat, index) => (
         <div
           key={stat.label}
           ref={(node) => {
@@ -157,6 +184,7 @@ export function GithubAnimatedStats({
             targetValue={stat.targetValue}
             isInViewport={Boolean(visibleCards[index])}
             fromLeft={isDesktop ? false : index % 2 === 0}
+            showPlus={stat.showPlus}
           />
         </div>
       ))}

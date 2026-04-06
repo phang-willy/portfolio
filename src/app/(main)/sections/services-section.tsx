@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useI18n } from "@/features/i18n/hooks/use-i18n";
+import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
 import { LuArrowRight } from "react-icons/lu";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -20,6 +22,8 @@ type ServicesSectionProps = {
 };
 
 export function ServicesSection({ services }: ServicesSectionProps) {
+  const { locale, t } = useI18n();
+  const contactHref = buildLocalizedPathname("/contact", locale);
   const sectionRef = useRef<HTMLElement>(null);
   const serviceCardRefs = useRef<Array<HTMLElement | null>>([]);
   const [visibleServiceCards, setVisibleServiceCards] = useState<
@@ -80,7 +84,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
       >
         <h2>
           <span className="border-3 border-main px-6 py-3 rounded-full">
-            Services
+            {t.services.badge}
           </span>
         </h2>
       </div>
@@ -93,9 +97,9 @@ export function ServicesSection({ services }: ServicesSectionProps) {
                 : "opacity-0 -translate-x-8"
             }`}
           >
-            <span>Des services pensés</span>
+            <span>{t.services.titleLine1}</span>
             <br />
-            <span>pour vos objectifs</span>
+            <span>{t.services.titleLine2}</span>
           </h2>
           <p
             className={`text-lg text-gray-500 leading-8 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
@@ -104,9 +108,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
                 : "opacity-0 -translate-x-8"
             }`}
           >
-            Développeur Full Stack, j&apos;accompagne vos projets de la
-            conception à la mise en production, avec des solutions fiables,
-            performantes et adaptées à votre activité.
+            {t.services.intro}
           </p>
           <div
             className={`transition-all ${APPEAR_DURATION_CLASS} ease-out ${
@@ -116,10 +118,10 @@ export function ServicesSection({ services }: ServicesSectionProps) {
             }`}
           >
             <Link
-              href="/contact"
+              href={contactHref}
               className="bg-main text-white px-8 py-4 rounded-full hover:bg-main/80 focus:bg-main/80 transition-colors duration-200 w-full md:w-auto block"
             >
-              Me contacter
+              {t.services.contactCta}
             </Link>
           </div>
         </div>
@@ -144,11 +146,11 @@ export function ServicesSection({ services }: ServicesSectionProps) {
                   <p className="text-lg leading-8">{service.description}</p>
                 </div>
                 <Link
-                  href="/contact"
+                  href={contactHref}
                   className="group bg-main text-white px-8 py-4 rounded-full hover:bg-main/80 focus:bg-main/80 transition-colors duration-200 flex items-center gap-8 w-auto"
                 >
                   <LuArrowRight className="w-8 h-8 transition-transform duration-200 group-hover:translate-x-1 group-focus:translate-x-1" />
-                  <span>En savoir plus</span>
+                  <span>{t.services.learnMore}</span>
                 </Link>
               </article>
             ))}
