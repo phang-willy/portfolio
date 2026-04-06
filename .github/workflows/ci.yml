@@ -13,8 +13,6 @@ on:
       - dev
       - pre-prod
       - main
-    paths-ignore:
-      - "**.md"
 
 concurrency:
   group: ci-${{ github.ref }}
