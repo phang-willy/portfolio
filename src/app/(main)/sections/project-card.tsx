@@ -44,9 +44,8 @@ export function ProjectCard({
       <ProjectImage
         src={imageSrc}
         alt={imageAlt}
-        width={500}
-        height={500}
-        loading="lazy"
+        fill
+        sizes="(max-width: 767px) min(100vw - 2rem, 560px), 280px"
         className="absolute inset-0 h-full w-full object-contain"
       />
       <div className="absolute inset-0 bg-black/70 transition-colors duration-300 md:bg-black/70 group-hover:bg-black/80   group-focus-visible:bg-black/80" />

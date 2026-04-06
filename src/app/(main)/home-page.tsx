@@ -8,6 +8,7 @@ import {
 import { ProjectsSection } from "@/app/(main)/sections/projects-section";
 import { ServicesSection } from "@/app/(main)/sections/services-section";
 import { StacksSection } from "@/app/(main)/sections/stacks-section";
+import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import {
   experiencesForLocale,
@@ -16,13 +17,11 @@ import {
   socialLinksForLocale,
 } from "@/features/i18n/lib/localized-site-data";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
-import { getRequestLocale } from "@/features/i18n/lib/request-locale";
 import projectsData from "@/data/project.json";
 import { getGithubStats } from "@/lib/github-stats";
 import type { Metadata } from "next";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale();
+export function buildHomeMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
     title: `${process.env.APP_TITLE} - ${d.meta.homeTitle}`,
@@ -35,9 +34,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function HomePage() {
+export async function HomePage({ locale }: { locale: AppLocale }) {
   const githubStats = await getGithubStats();
-  const locale = await getRequestLocale();
 
   const socialLinks: Array<SocialLink> = socialLinksForLocale(locale);
 

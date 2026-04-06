@@ -1,9 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { LOCALE_COOKIE_NAME } from "@/features/i18n/lib/locale-cookie";
-import { getLocaleFromPathname } from "@/features/i18n/lib/pathname-locale";
 import { resolveRootLocalePreference } from "@/features/i18n/lib/resolve-root-locale-preference";
-import { APP_LOCALE_HEADER } from "@/features/i18n/lib/request-locale";
 
 function applySecurityHeaders(res: NextResponse, request: NextRequest) {
   res.headers.set("X-Content-Type-Options", "nosniff");
@@ -38,13 +36,7 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  const appLocale = getLocaleFromPathname(pathname);
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set(APP_LOCALE_HEADER, appLocale);
-
-  const res = NextResponse.next({
-    request: { headers: requestHeaders },
-  });
+  const res = NextResponse.next();
   applySecurityHeaders(res, request);
   return res;
 }

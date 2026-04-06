@@ -81,7 +81,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
             alt={project.imageAlt}
             fill
             priority
-            sizes="100vw"
+            sizes="(max-width: 1280px) 100vw, min(100vw, 1200px)"
             className="object-contain"
           />
           <div className="absolute inset-0 bg-black/35 rounded-3xl" />

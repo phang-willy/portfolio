@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Dropdown } from "@/components/ui/dropdown";
 import { Button } from "@/components/ui/button";
 import type { AppLocale } from "@/features/i18n/config/locales";
@@ -9,35 +10,34 @@ import {
   buildLocalizedPathname,
   stripEnglishPrefix,
 } from "@/features/i18n/lib/pathname-locale";
-import ReactCountryFlag from "react-country-flag";
 import { useRouter } from "next/navigation";
-import type { CSSProperties } from "react";
 
-/** Codes ISO 3166-1 alpha-2 pour les drapeaux (anglais → GB). */
-const COUNTRY_CODE_BY_LOCALE: Record<AppLocale, string> = {
-  fr: "FR",
-  en: "GB",
+const FLAG_SRC: Record<AppLocale, string> = {
+  fr: "/flags/fr.svg",
+  en: "/flags/gb.svg",
 };
 
+/** SVG locaux : les drapeaux emoji ne s’affichent pas sur Chrome/Edge Windows (Segoe UI). */
 function LocaleFlag({
   locale,
-  style,
+  size,
 }: {
   locale: AppLocale;
-  style?: CSSProperties;
+  size: "md" | "sm";
 }) {
+  const { w, h } = size === "md" ? { w: 22, h: 15 } : { w: 18, h: 12 };
+  const box =
+    size === "md" ? "h-[15px] w-[22px]" : "h-[12px] w-[18px]";
   return (
-    <ReactCountryFlag
-      svg
-      countryCode={COUNTRY_CODE_BY_LOCALE[locale]}
+    <Image
+      src={FLAG_SRC[locale]}
       alt=""
+      width={w}
+      height={h}
+      unoptimized
+      draggable={false}
       aria-hidden
-      className="inline-block shrink-0 rounded-sm object-cover"
-      style={{
-        display: "inline-block",
-        verticalAlign: "middle",
-        ...style,
-      }}
+      className={`max-w-none shrink-0 object-cover ${box}`}
     />
   );
 }
@@ -62,10 +62,7 @@ export const LanguageToggle = () => {
           aria-label={t.language.triggerAria}
           title={t.language.triggerAria}
         >
-          <LocaleFlag
-            locale={locale}
-            style={{ width: "1.375rem", height: "1.03125rem" }}
-          />
+          <LocaleFlag locale={locale} size="md" />
           <span className="sr-only">
             {locale === "fr" ? t.language.srCurrentFr : t.language.srCurrentEn}
           </span>
@@ -83,10 +80,7 @@ export const LanguageToggle = () => {
             className="gap-2 px-3 py-2"
             aria-current={locale === "fr" ? "true" : undefined}
           >
-            <LocaleFlag
-              locale="fr"
-              style={{ width: "1.125rem", height: "0.84375rem" }}
-            />
+            <LocaleFlag locale="fr" size="sm" />
             {t.language.french}
             <span className="sr-only">{t.language.srSwitchToFrench}</span>
           </Button>
@@ -99,10 +93,7 @@ export const LanguageToggle = () => {
             className="gap-2 px-3 py-2"
             aria-current={locale === "en" ? "true" : undefined}
           >
-            <LocaleFlag
-              locale="en"
-              style={{ width: "1.125rem", height: "0.84375rem" }}
-            />
+            <LocaleFlag locale="en" size="sm" />
             {t.language.english}
             <span className="sr-only">{t.language.srSwitchToEnglish}</span>
           </Button>

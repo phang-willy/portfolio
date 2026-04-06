@@ -7,7 +7,11 @@ const allowedDevOrigins = (env.ALLOWED_DEV_ORIGINS ?? "")
   .filter(Boolean);
 
 const nextConfig: NextConfig = {
-  images: { unoptimized: true },
+  /** Redimensionnement Sharp ; le build prod utilise `next build --webpack` (package.json) pour `browserslist`. */
+  images: {
+    deviceSizes: [384, 640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
   reactCompiler: true,
   allowedDevOrigins: allowedDevOrigins,
   transpilePackages: ["maplibre-gl"],
