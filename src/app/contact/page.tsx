@@ -18,7 +18,7 @@ export default function ContactPage() {
           ci-dessous : je réponds dès que possible.
         </p>
         <p className="mt-3 text-sm text-black/60 dark:text-white/60">
-          En envoyant ce formulaire, tu acceptes le traitement des données
+          En envoyant ce formulaire, vous acceptez le traitement des données
           indiquées dans les{" "}
           <Link
             href="/legals"

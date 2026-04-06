@@ -9,11 +9,8 @@ type ProjectsPageGridProps = {
 };
 
 export function ProjectsPageGrid({ projects }: ProjectsPageGridProps) {
-  const {
-    setBlockRef,
-    getVisibilityClass,
-    getTransitionDelayMs,
-  } = useScrollRevealGroup(projects.length);
+  const { setBlockRef, getVisibilityClass, getTransitionDelayMs } =
+    useScrollRevealGroup(projects.length);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

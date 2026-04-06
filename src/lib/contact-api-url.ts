@@ -1,12 +1,18 @@
 /**
- * Origine du backend contact (ex. https://api.tondomaine.com).
- * En production statique, définir NEXT_PUBLIC_CONTACT_API_ORIGIN pour que le
- * formulaire appelle ton PHP sur le sous-domaine. Les chemins restent /api/contact
- * et /api/contact/captcha (adapter le routage côté PHP si besoin).
+ * URL des endpoints contact.
+ *
+ * - **Développement** (`next dev`) : chemins relatifs `/api/...` sur la même origine
+ *   (localhost, IP locale, etc.). `NEXT_PUBLIC_CONTACT_API_ORIGIN` est ignoré pour
+ *   éviter d’appeler la prod avec un `.env` partagé.
+ * - **Production** : si `NEXT_PUBLIC_CONTACT_API_ORIGIN` est défini (build), préfixe
+ *   absolu ; sinon chemins relatifs (même hôte que le site, ex. Next complet sur Vercel).
  */
 export function getContactApiUrl(
   path: "/api/contact" | "/api/contact/captcha",
 ): string {
+  if (process.env.NODE_ENV === "development") {
+    return path;
+  }
   const origin = process.env.NEXT_PUBLIC_CONTACT_API_ORIGIN?.replace(/\/$/, "");
   if (origin) {
     return `${origin}${path}`;
