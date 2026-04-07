@@ -10,8 +10,8 @@ export type ProjectCardProps = {
   imageAlt: string;
   title: string;
   description: string;
-  /** Si défini, la carte entière est un lien vers cette URL (ex. `/projects/{id}`). */
-  href?: string;
+  /** La carte entière est un lien vers cette URL (ex. `/projects/{id}`). */
+  href: string;
   visibilityClass: string;
   /** Délai CSS pour l’apparition en cascade (ms). */
   transitionDelayMs?: number;
@@ -33,7 +33,7 @@ export function ProjectCard({
   dataProjectIndex,
   dataRevealIndex,
 }: ProjectCardProps) {
-  const shellClass = `bg-gray-200 dark:bg-gray-800 group relative aspect-square overflow-hidden rounded-3xl transition-all ${APPEAR_DURATION_CLASS} ease-out ${visibilityClass}`;
+  const shellClass = `bg-gray-200 dark:bg-gray-800 group relative aspect-square overflow-hidden rounded-3xl transition-all ${APPEAR_DURATION_CLASS} ease-out ${visibilityClass} border`;
   const delayStyle =
     transitionDelayMs !== undefined
       ? ({ transitionDelay: `${transitionDelayMs}ms` } as const)
@@ -56,30 +56,16 @@ export function ProjectCard({
     </>
   );
 
-  if (href) {
-    return (
-      <Link
-        href={href}
-        ref={cardRef as Ref<HTMLAnchorElement>}
-        data-project-index={dataProjectIndex}
-        data-reveal-index={dataRevealIndex}
-        style={delayStyle}
-        className={`${shellClass} block outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-main`}
-      >
-        {inner}
-      </Link>
-    );
-  }
-
   return (
-    <article
-      ref={cardRef}
+    <Link
+      href={href}
+      ref={cardRef as Ref<HTMLAnchorElement>}
       data-project-index={dataProjectIndex}
       data-reveal-index={dataRevealIndex}
       style={delayStyle}
-      className={shellClass}
+      className={`${shellClass} block outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 focus-visible:ring-main`}
     >
       {inner}
-    </article>
+    </Link>
   );
 }

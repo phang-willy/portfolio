@@ -191,6 +191,37 @@ Pour le **formulaire de contact** : **`npm run dev`** utilise les routes **`/api
 
 ---
 
+## 🗂️ Données projets via branche `content` (sans rebuild du code)
+
+Le portfolio peut charger les projets depuis un JSON distant au runtime, pour éviter de merger dans `main` à chaque mise à jour de contenu.
+
+### Variable utilisée
+
+- **`PROJECTS_JSON_URL`** : URL RAW du fichier JSON des projets (ex: branche `content`).
+
+Exemple :
+
+```env
+PROJECTS_JSON_URL=https://raw.githubusercontent.com/phang-willy/portfolio/content/data/project.json
+```
+
+### Fonctionnement
+
+- si **`PROJECTS_JSON_URL`** est défini et valide, l’app lit ce JSON (revalidation ISR: ~5 min) ;
+- si l’URL est absente/invalide/indisponible, fallback automatique vers **`src/data/project.json`** ;
+- le code continue donc de fonctionner même si la source distante échoue.
+
+### Workflow conseillé
+
+1. créer/mettre à jour une branche **`content`** ;
+2. y modifier **`data/project.json`** ;
+3. pousser la branche `content` ;
+4. attendre la fenêtre de revalidation (ou redéployer pour prise en compte immédiate côté cache).
+
+Pour les changements de **contenu uniquement** (même schéma JSON), pas besoin de PR vers `main`.
+
+---
+
 ## 🔧 Particularités du build et du déploiement
 
 ### Export statique (`output: "export"`)

@@ -17,8 +17,8 @@ import {
   socialLinksForLocale,
 } from "@/features/i18n/lib/localized-site-data";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
-import projectsData from "@/data/project.json";
 import { getGithubStats } from "@/lib/github-stats";
+import { getProjectsByUpdatedAtDesc } from "@/lib/projects";
 import type { Metadata } from "next";
 
 export function buildHomeMetadata(locale: AppLocale): Metadata {
@@ -43,11 +43,7 @@ export async function HomePage({ locale }: { locale: AppLocale }) {
 
   const experiences = experiencesForLocale(locale);
 
-  const sortedProjects = [...projectsData.projects].sort((a, b) => {
-    const byUpdated = b.updatedAt.localeCompare(a.updatedAt);
-    if (byUpdated !== 0) return byUpdated;
-    return b.createdAt.localeCompare(a.createdAt);
-  });
+  const sortedProjects = await getProjectsByUpdatedAtDesc();
   const projects = projectItemsForLocale(sortedProjects.slice(0, 4), locale);
 
   return (

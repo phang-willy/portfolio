@@ -51,8 +51,8 @@ export const en: Dictionary = {
     srSelectSystem: "Use system theme",
   },
   presentation: {
-    titleLine1: "Developer",
-    titleLine2: "Full Stack",
+    titleLine1: "Full Stack",
+    titleLine2: "Developer",
     greeting1: "Hello, I'm Willy PHANG",
     greeting2: "Passionate about web development!",
     profileImageAlt: "PHANG Willy",

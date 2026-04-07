@@ -21,6 +21,14 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
 
   const externalUrl = project.links.url;
   const githubUrl = project.links.github;
+  const linkItems = [
+    externalUrl
+      ? { href: externalUrl, label: t.projectDetail.siteDemo }
+      : undefined,
+    githubUrl
+      ? { href: githubUrl, label: t.projectDetail.sourceCode }
+      : undefined,
+  ].filter((item): item is { href: string; label: string } => Boolean(item));
 
   const sortedStacks = useMemo(
     () =>
@@ -31,7 +39,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
   );
 
   const stacksCount = sortedStacks.length;
-  const linkCount = (externalUrl ? 1 : 0) + (githubUrl ? 1 : 0);
+  const linkCount = linkItems.length;
 
   /** 0 back, 1 thumb, 2 name, 3 titre Stacks, 4.. chips, +1 titre Liens, +links, +info */
   const blockCount = 6 + stacksCount + linkCount;
@@ -42,9 +50,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
   const idxStacksHeading = 3;
   const idxStackChip = (i: number) => 4 + i;
   const idxLinksHeading = 4 + stacksCount;
-  const baseLinkItems = 5 + stacksCount;
-  const idxLinkExternal = externalUrl ? baseLinkItems : -1;
-  const idxLinkGithub = githubUrl ? baseLinkItems + (externalUrl ? 1 : 0) : -1;
+  const idxLinkItem = (i: number) => 5 + stacksCount + i;
   const idxInfo = 5 + stacksCount + linkCount;
 
   return (
@@ -137,42 +143,25 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
             <h2 className="text-xl font-semibold">{t.projectDetail.links}</h2>
           </div>
           <ul className="flex list-none flex-col gap-2 p-0 sm:flex-row sm:flex-wrap sm:gap-6">
-            {externalUrl ? (
+            {linkItems.map((item, i) => (
               <li
-                ref={setBlockRef(idxLinkExternal)}
-                style={getBlockStyle(idxLinkExternal)}
-                className={getBlockShellClassName(idxLinkExternal)}
-                data-reveal-index={idxLinkExternal}
+                key={item.href}
+                ref={setBlockRef(idxLinkItem(i))}
+                style={getBlockStyle(idxLinkItem(i))}
+                className={getBlockShellClassName(idxLinkItem(i))}
+                data-reveal-index={idxLinkItem(i)}
               >
                 <a
-                  href={externalUrl}
+                  href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-main hover:text-main/80 focus-visible:text-main/80 transition-colors"
+                  className="inline-flex items-center gap-2 bg-main hover:bg-main/80 focus-visible:bg-main/80 transition-colors text-white px-4 py-1.5 text-sm rounded-full"
                 >
-                  <span>{t.projectDetail.siteDemo}</span>
+                  <span>{item.label}</span>
                   <LuExternalLink className="size-4" aria-hidden />
                 </a>
               </li>
-            ) : null}
-            {githubUrl ? (
-              <li
-                ref={setBlockRef(idxLinkGithub)}
-                style={getBlockStyle(idxLinkGithub)}
-                className={getBlockShellClassName(idxLinkGithub)}
-                data-reveal-index={idxLinkGithub}
-              >
-                <a
-                  href={githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-main hover:text-main/80 focus-visible:text-main/80 transition-colors"
-                >
-                  <span>{t.projectDetail.sourceCode}</span>
-                  <LuExternalLink className="size-4" aria-hidden />
-                </a>
-              </li>
-            ) : null}
+            ))}
           </ul>
         </section>
 

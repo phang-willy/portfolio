@@ -170,7 +170,7 @@ export function GithubAnimatedStats({
   ] as const;
 
   return (
-    <div className="grid grid-cols-1 gap-4 items-center justify-center">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-4 items-center justify-center">
       {stats.map((stat, index) => (
         <div
           key={stat.label}

@@ -14,8 +14,8 @@ type ProjectPageParams = {
 
 type ProjectPageProps = ProjectPageParams & { locale: AppLocale };
 
-export function generateStaticParams() {
-  return getProjectsByCreatedAtDesc().map((p) => ({ id: p.id }));
+export async function generateStaticParams() {
+  return (await getProjectsByCreatedAtDesc()).map((p) => ({ id: p.id }));
 }
 
 export async function generateProjectMetadata({
@@ -23,7 +23,7 @@ export async function generateProjectMetadata({
   locale,
 }: ProjectPageProps): Promise<Metadata> {
   const { id } = await params;
-  const raw = getProjectById(id);
+  const raw = await getProjectById(id);
   const d = getDictionary(locale);
 
   if (!raw) {
@@ -50,7 +50,7 @@ export async function generateProjectMetadata({
 
 export async function ProjectDetailPage({ params, locale }: ProjectPageProps) {
   const { id } = await params;
-  const raw = getProjectById(id);
+  const raw = await getProjectById(id);
   if (!raw) notFound();
 
   const project = projectRecordForLocale(raw, locale);

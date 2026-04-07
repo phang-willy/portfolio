@@ -14,6 +14,7 @@ import {
 import { useAppearSequence } from "@/features/animations/hooks/use-appear-sequence";
 
 export type ProjectItem = {
+  id: string;
   imageSrc: string;
   imageAlt: string;
   title: string;
@@ -87,12 +88,12 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
           }`}
         >
           <h2>
-            <span className="border-3 border-main px-6 py-3 rounded-full">
+            <span className="bg-main transition-colors duration-200 text-white px-6 py-3 rounded-full">
               {t.projects.badge}
             </span>
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 justify-between items-baseline gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 justify-between items-baseline gap-8">
           <h3
             className={`text-5xl font-bold leading-tight transition-all ${APPEAR_DURATION_CLASS} ease-out ${
               visibleMap.title
@@ -103,7 +104,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
             {t.projects.title}
           </h3>
           <p
-            className={`text-lg text-gray-500 leading-8 max-w-xl justify-self-end transition-all ${APPEAR_DURATION_CLASS} ease-out ${
+            className={`text-lg text-gray-500 leading-8 max-w-xl xl:justify-self-end transition-all ${APPEAR_DURATION_CLASS} ease-out ${
               visibleMap.description
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 -translate-x-8"
@@ -122,7 +123,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
           {t.projects.hoverHint}
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
         {projects.map((project, index) => (
           <ProjectCard
             key={project.title}
@@ -130,6 +131,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
             imageAlt={project.imageAlt}
             title={project.title}
             description={project.description}
+            href={buildLocalizedPathname(`/projects/${project.id}`, locale)}
             cardRef={(node) => {
               projectCardRefs.current[index] = node;
             }}
