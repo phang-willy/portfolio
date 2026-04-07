@@ -83,13 +83,13 @@ export function ServicesSection({ services }: ServicesSectionProps) {
         }`}
       >
         <h2>
-          <span className="border-3 border-main px-6 py-3 rounded-full">
+          <span className="bg-main transition-colors duration-200 text-white px-6 py-3 rounded-full">
             {t.services.badge}
           </span>
         </h2>
       </div>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
-        <div className="md:col-span-5 flex flex-col gap-8">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
+        <div className="md:col-span-6 xl:col-span-5 flex flex-col gap-8">
           <h2
             className={`text-5xl font-bold leading-14 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
               visibleMap.heading
@@ -125,8 +125,8 @@ export function ServicesSection({ services }: ServicesSectionProps) {
             </Link>
           </div>
         </div>
-        <div className="md:col-span-7">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="md:col-span-6 xl:col-span-7">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-8">
             {services.map((service, index) => (
               <article
                 key={service.title}
@@ -134,13 +134,14 @@ export function ServicesSection({ services }: ServicesSectionProps) {
                   serviceCardRefs.current[index] = node;
                 }}
                 data-service-index={index}
-                className={`border rounded-lg p-8 aspect-square flex flex-col justify-between gap-8 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
+                className={`border rounded-lg p-8 flex flex-col justify-between gap-8 h-full transition-all ${APPEAR_DURATION_CLASS} ease-out ${
                   visibleServiceCards[index]
                     ? "opacity-100 translate-x-0"
                     : "opacity-0 -translate-x-8"
                 }`}
+                style={{ minHeight: 0 }}
               >
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8 flex-1">
                   <span className="w-1/5 h-0.5 border bg-border"></span>
                   <h3 className="text-2xl font-bold">{service.title}</h3>
                   <p className="text-lg leading-8">{service.description}</p>

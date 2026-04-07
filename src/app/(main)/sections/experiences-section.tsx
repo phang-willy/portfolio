@@ -79,12 +79,12 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
       >
         <div className="flex flex-col gap-8">
           <h2>
-            <span className="border-3 border-main px-6 py-3 rounded-full">
+            <span className="bg-main transition-colors duration-200 text-white px-6 py-3 rounded-full">
               {t.experiences.badge}
             </span>
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 justify-between gap-8 items-baseline">
+        <div className="grid grid-cols-1 xl:grid-cols-2 justify-between gap-8 items-baseline">
           <h3
             className={`text-5xl font-bold leading-tight transition-all ${APPEAR_DURATION_CLASS} ease-out ${
               visibleMap.title
@@ -95,7 +95,7 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
             {t.experiences.title}
           </h3>
           <p
-            className={`text-lg text-gray-500 leading-8 max-w-xl justify-self-end transition-all ${APPEAR_DURATION_CLASS} ease-out ${
+            className={`text-lg text-gray-500 leading-8 max-w-xl xl:justify-self-end transition-all ${APPEAR_DURATION_CLASS} ease-out ${
               visibleMap.description
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 -translate-x-8"
