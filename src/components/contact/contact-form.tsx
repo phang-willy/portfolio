@@ -83,7 +83,7 @@ type ContactFormProps = {
 };
 
 export function ContactForm({ className }: ContactFormProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const baseId = useId();
 
   const fieldConfig = useMemo(
@@ -284,6 +284,7 @@ export function ContactForm({ className }: ContactFormProps) {
       ...values,
       captcha: captchaInput,
       captchaToken,
+      locale,
     };
     const parsedLocal = contactSubmissionBodySchema.safeParse(submissionBody);
     if (!parsedLocal.success) {
@@ -376,8 +377,9 @@ export function ContactForm({ className }: ContactFormProps) {
       ...values,
       captcha: normalizeCaptchaInput(captchaInput),
       captchaToken,
+      locale,
     }),
-    [values, captchaInput, captchaToken],
+    [values, captchaInput, captchaToken, locale],
   );
 
   const isFormComplete = useMemo(() => {
