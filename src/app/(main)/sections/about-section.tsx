@@ -58,7 +58,7 @@ export function AboutSection({
       <div className="flex flex-col gap-8">
         <h2>
           <span
-            className={`border-3 border-main px-6 py-3 rounded-full transition-all ${APPEAR_DURATION_CLASS} ease-out inline-block ${
+            className={`bg-main transition-colors duration-200 text-white px-6 py-3 rounded-full ${APPEAR_DURATION_CLASS} ease-out inline-block ${
               visibleMap.heading
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 -translate-x-8"
@@ -80,7 +80,7 @@ export function AboutSection({
       </div>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
         <div
-          className={`md:col-span-9 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
+          className={`col-span-12 xl:col-span-8 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
             visibleMap.map
               ? "opacity-100 translate-x-0"
               : "opacity-0 -translate-x-8"
@@ -88,7 +88,7 @@ export function AboutSection({
         >
           <ParisMap />
         </div>
-        <div className="md:col-span-3 grid grid-cols-1 gap-4">
+        <div className="col-span-12 xl:col-span-4 grid grid-cols-1 gap-4">
           <GithubAnimatedStats
             contributions={contributions}
             repositories={repositories}

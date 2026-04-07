@@ -149,13 +149,13 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
     >
       <div className="flex grow flex-col gap-8 pt-2 md:grid md:h-full md:grid-cols-4 md:grid-rows-2 md:gap-x-8 md:gap-y-6 md:pt-8 xl:pt-8 xl:gap-x-8 xl:gap-y-6">
         <div
-          className={`order-1 md:col-span-3 md:col-start-1 md:row-start-1 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
+          className={`order-1 md:col-span-2 xl:col-span-3 md:col-start-1 md:row-start-1 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
             visibleBlocks.title
               ? "opacity-100 translate-x-0"
               : "opacity-0 -translate-x-8"
           }`}
         >
-          <h1 className="text-5xl xl:text-[10rem] uppercase w-full whitespace-nowrap font-bold">
+          <h1 className="text-5xl md:text-7xl xl:text-[10rem] uppercase w-full whitespace-nowrap font-bold">
             <span className="sr-only">PHANG Willy</span>
             <div className="flex flex-col gap-2">
               <span>{t.presentation.titleLine1}</span>
@@ -190,24 +190,24 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
               preload
               loading="eager"
               fetchPriority="high"
-              sizes="(max-width: 767px) min(100vw - 2rem, 350px), 350px"
+              sizes="(max-width: 767px) min(100vw - 2rem, 350px), 350px border"
               className="rounded-4xl object-cover"
             />
           </div>
         </div>
 
         <div
-          className={`order-4 md:col-span-3 md:col-start-1 md:row-start-2 md:self-end transition-all ${APPEAR_DURATION_CLASS} ease-out ${
+          className={`order-4 md:col-span-2 xl:col-span-3 md:col-start-1 md:row-start-2 md:self-end transition-all ${APPEAR_DURATION_CLASS} ease-out ${
             visibleBlocks.links
               ? "opacity-100 translate-x-0"
               : "opacity-0 -translate-x-8"
           }`}
         >
-          <ul className="grid grid-cols-4 gap-4 md:grid-cols-12 md:gap-6">
+          <ul className="grid grid-cols-4 gap-4 xl:grid-cols-12 xl:gap-6">
             {socialLinks.map((socialLink) => {
               const Icon = SOCIAL_ICONS[socialLink.icon];
               return (
-                <li key={socialLink.label} className="col-span-1 md:col-span-2">
+                <li key={socialLink.label} className="col-span-1 xl:col-span-2">
                   <Link
                     href={socialLink.href}
                     target="_blank"
@@ -218,11 +218,11 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
                         ? false
                         : undefined
                     }
-                    className="flex flex-col pt-3 pb-2 md:flex-row items-center gap-2 bg-main hover:bg-main/80 transition-colors duration-200 text-white md:px-4 md:py-2 rounded-md aspect-square md:aspect-auto"
+                    className="flex flex-col justify-center pt-3 pb-2 xl:flex-row items-center xl:justify-start gap-2 bg-main hover:bg-main/80 transition-colors duration-200 text-white xl:px-4 xl:py-2 rounded-full aspect-square xl:aspect-auto"
                     aria-label={socialLink.label}
                   >
-                    <Icon className="h-8 w-8 md:w-6 md:h-6 mx-auto md:mx-0" />
-                    <span className="block text-xs md:text-base md:inline">
+                    <Icon className="h-8 w-8 xl:w-6 xl:h-6 mx-auto xl:mx-0" />
+                    <span className="block text-xs xl:text-base xl:inline">
                       {socialLink.label}
                     </span>
                   </Link>

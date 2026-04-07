@@ -19,8 +19,8 @@ export function buildProjectsListMetadata(locale: AppLocale): Metadata {
   };
 }
 
-export function ProjectsListPage({ locale }: { locale: AppLocale }) {
-  const projects = getProjectsByCreatedAtDesc().map((p) =>
+export async function ProjectsListPage({ locale }: { locale: AppLocale }) {
+  const projects = (await getProjectsByCreatedAtDesc()).map((p) =>
     projectRecordForLocale(p, locale),
   );
   const d = getDictionary(locale);
