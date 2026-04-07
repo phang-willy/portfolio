@@ -14,7 +14,7 @@ const CONFIG_REASON_HINTS: Record<string, string> = {
   "CONTACT_TO_EMAIL is not configured.":
     "la variable d'environnement CONTACT_TO_EMAIL (adresse qui reçoit les messages du formulaire) n'est pas définie ou est vide.",
   "BREVO_CONTACT_USER_TEMPLATE_ID is missing or invalid.":
-    "la variable BREVO_CONTACT_USER_TEMPLATE_ID est absente ou n'est pas un nombre entier valide (identifiant du template Brevo de confirmation visiteur).",
+    "définir BREVO_CONTACT_FR_USER_TEMPLATE_ID (recommandé) ou, à défaut, BREVO_CONTACT_USER_TEMPLATE_ID (ancien nom) : identifiant entier du template Brevo de confirmation visiteur en français. Optionnel : BREVO_CONTACT_EN_USER_TEMPLATE_ID pour la page /en/contact.",
   "BREVO_CONTACT_FALLBACK_TEMPLATE_ID is set but CONTACT_FALLBACK_EMAIL is missing.":
     "BREVO_CONTACT_FALLBACK_TEMPLATE_ID est renseigné mais CONTACT_FALLBACK_EMAIL est manquant : les deux doivent être définis ensemble pour la copie par template.",
   "BREVO_SENDER_EMAIL is not configured.":
