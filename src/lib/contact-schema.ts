@@ -49,6 +49,8 @@ export const contactFormSchema = z.object({
 export type ContactFormPayload = z.infer<typeof contactFormSchema>;
 
 export const contactSubmissionBodySchema = contactFormSchema.extend({
+  /** Langue de la page contact (`/contact` → fr, `/en/contact` → en). Défaut côté serveur : fr si absent. */
+  locale: z.enum(["fr", "en"]).optional(),
   captcha: z.preprocess(
     (val) => (typeof val === "string" ? normalizeCaptchaInput(val) : val),
     z.string().min(1, "Recopiez le code affiché."),
