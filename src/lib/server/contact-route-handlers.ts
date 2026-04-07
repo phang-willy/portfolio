@@ -37,6 +37,7 @@ import {
   BrevoRequestError,
   getBrevoSenderFromEnv,
 } from "@/lib/brevo";
+import type { AppLocale } from "@/features/i18n/config/locales";
 
 type ValidationIssue = { path: string[]; message: string };
 
@@ -66,6 +67,7 @@ function getContactRuntimeConfig():
       ok: true;
       adminEmail: string;
       userTemplateId: number;
+      userTemplateIdEn: number | null;
       adminTemplateId: number | null;
       fallbackEmail: string | null;
       fallbackTemplateId: number | null;
@@ -76,15 +78,19 @@ function getContactRuntimeConfig():
     return { ok: false, reason: "CONTACT_TO_EMAIL is not configured." };
   }
 
-  const userTemplateId = parseTemplateId(
-    process.env.BREVO_CONTACT_USER_TEMPLATE_ID,
-  );
+  const userTemplateId =
+    parseTemplateId(process.env.BREVO_CONTACT_FR_USER_TEMPLATE_ID) ??
+    parseTemplateId(process.env.BREVO_CONTACT_USER_TEMPLATE_ID);
   if (userTemplateId === null) {
     return {
       ok: false,
       reason: "BREVO_CONTACT_USER_TEMPLATE_ID is missing or invalid.",
     };
   }
+
+  const userTemplateIdEn = parseTemplateId(
+    process.env.BREVO_CONTACT_EN_USER_TEMPLATE_ID,
+  );
 
   const adminTemplateId = parseTemplateId(
     process.env.BREVO_CONTACT_ADMIN_TEMPLATE_ID,
@@ -118,10 +124,24 @@ function getContactRuntimeConfig():
     ok: true,
     adminEmail,
     userTemplateId,
+    userTemplateIdEn,
     adminTemplateId,
     fallbackEmail,
     fallbackTemplateId,
   };
+}
+
+function pickVisitorConfirmationTemplateId(
+  config: {
+    userTemplateId: number;
+    userTemplateIdEn: number | null;
+  },
+  locale: AppLocale,
+): number {
+  if (locale === "en" && config.userTemplateIdEn !== null) {
+    return config.userTemplateIdEn;
+  }
+  return config.userTemplateId;
 }
 
 function buildAdminEmailHtml(data: ContactFormPayload): string {
@@ -339,6 +359,7 @@ export async function handleContactPostRequest(request: Request) {
     title: submission.title,
     message: submission.message,
   };
+  const contactLocale: AppLocale = submission.locale ?? "fr";
   const sender = getBrevoSenderFromEnv();
   const contactName = `${data.firstName} ${data.lastName}`.trim();
   const replyTo = { email: data.email, name: contactName || undefined };
@@ -426,7 +447,7 @@ export async function handleContactPostRequest(request: Request) {
     await brevoSendTemplateEmail({
       sender,
       to: [{ email: data.email, name: data.firstName || undefined }],
-      templateId: config.userTemplateId,
+      templateId: pickVisitorConfirmationTemplateId(config, contactLocale),
       params,
     });
   } catch (e) {
