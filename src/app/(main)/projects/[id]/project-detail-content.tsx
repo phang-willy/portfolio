@@ -117,7 +117,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
                 style={getBlockStyle(idxStackChip(i))}
                 className={getBlockShellClassName(
                   idxStackChip(i),
-                  "rounded-full border border-main/30 bg-main/5 px-4 py-1.5 text-sm",
+                  "rounded-full bg-main hover:bg-main/80 focus-visible:bg-main/80 transition-colors text-white px-4 py-1.5 text-sm",
                 )}
                 data-reveal-index={idxStackChip(i)}
               >
