@@ -87,6 +87,7 @@ export function projectItemsForLocale(
   return projects.map((project) => {
     const view = projectRecordForLocale(project, locale);
     return {
+      id: project.id,
       imageSrc: view.image,
       imageAlt: view.imageAlt,
       title: view.name,
