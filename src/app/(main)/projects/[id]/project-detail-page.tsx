@@ -3,6 +3,7 @@ import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { projectRecordForLocale } from "@/features/i18n/lib/localized-site-data";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
+import { appName } from "@/lib/app-name";
 import { PROJECT_IMAGE_FALLBACK_PATH } from "@/lib/project-image";
 import { getProjectById, getProjectsByCreatedAtDesc } from "@/lib/projects";
 import type { Metadata } from "next";
@@ -28,7 +29,7 @@ export async function generateProjectMetadata({
 
   if (!raw) {
     return {
-      title: `${process.env.APP_TITLE} - ${d.meta.projectFallbackTitle}`,
+      title: `${appName} - ${d.meta.projectFallbackTitle}`,
       openGraph: openGraphLocaleFields(locale),
     };
   }
@@ -36,11 +37,11 @@ export async function generateProjectMetadata({
   const project = projectRecordForLocale(raw, locale);
 
   return {
-    title: `${process.env.APP_TITLE} - ${project.name}`,
+    title: `${appName} - ${project.name}`,
     description: project.description,
     openGraph: {
       type: "website",
-      title: `${process.env.APP_TITLE} - ${project.name}`,
+      title: `${appName} - ${project.name}`,
       description: project.description,
       images: [{ url: project.image || PROJECT_IMAGE_FALLBACK_PATH }],
       ...openGraphLocaleFields(locale),

@@ -17,6 +17,7 @@ import {
   socialLinksForLocale,
 } from "@/features/i18n/lib/localized-site-data";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
+import { appName } from "@/lib/app-name";
 import { getGithubStats } from "@/lib/github-stats";
 import { getProjectsByUpdatedAtDesc } from "@/lib/projects";
 import type { Metadata } from "next";
@@ -24,11 +25,11 @@ import type { Metadata } from "next";
 export function buildHomeMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
-    title: `${process.env.APP_TITLE} - ${d.meta.homeTitle}`,
-    description: `${process.env.APP_TITLE} - ${d.meta.homeDescription}`,
+    title: `${appName} - ${d.meta.homeTitle}`,
+    description: `${appName} - ${d.meta.homeDescription}`,
     openGraph: {
-      title: `${process.env.APP_TITLE} - ${d.meta.homeTitle}`,
-      description: `${process.env.APP_TITLE} - ${d.meta.homeDescription}`,
+      title: `${appName} - ${d.meta.homeTitle}`,
+      description: `${appName} - ${d.meta.homeDescription}`,
       ...openGraphLocaleFields(locale),
     },
   };

@@ -2,6 +2,7 @@ import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
+import { appName } from "@/lib/app-name";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LuArrowUpRight } from "react-icons/lu";
@@ -9,11 +10,11 @@ import { LuArrowUpRight } from "react-icons/lu";
 export function buildLegalsMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
-    title: `${process.env.APP_TITLE} - ${d.meta.legalsTitle}`,
-    description: `${process.env.APP_TITLE} - ${d.meta.legalsDescription}`,
+    title: `${appName} - ${d.meta.legalsTitle}`,
+    description: `${appName} - ${d.meta.legalsDescription}`,
     openGraph: {
-      title: `${process.env.APP_TITLE} - ${d.meta.legalsTitle}`,
-      description: `${process.env.APP_TITLE} - ${d.meta.legalsDescription}`,
+      title: `${appName} - ${d.meta.legalsTitle}`,
+      description: `${appName} - ${d.meta.legalsDescription}`,
       ...openGraphLocaleFields(locale),
     },
   };
