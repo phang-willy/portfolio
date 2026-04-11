@@ -68,6 +68,7 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
     <section
       ref={sectionRef}
       id="experiences"
+      aria-labelledby="experiences-heading"
       className="bg-gray-100 dark:bg-gray-900 py-16 grid grid-cols-1 gap-16 overflow-x-clip"
     >
       <div
@@ -78,7 +79,7 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
         }`}
       >
         <div className="flex flex-col gap-8">
-          <h2>
+          <h2 id="experiences-heading">
             <span className="bg-main transition-colors duration-200 text-white px-6 py-3 rounded-full">
               {t.experiences.badge}
             </span>

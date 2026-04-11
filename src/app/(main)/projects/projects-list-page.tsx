@@ -28,9 +28,14 @@ export async function ProjectsListPage({ locale }: { locale: AppLocale }) {
 
   return (
     <>
-      <section className="container mx-auto p-4 flex flex-col gap-8 overflow-x-clip">
+      <section
+        className="container mx-auto p-4 flex flex-col gap-8 overflow-x-clip"
+        aria-labelledby="projects-page-title"
+      >
         <div className="grid grid-cols-1 gap-8">
-          <h1 className="text-3xl font-bold">{d.projectsPage.title}</h1>
+          <h1 id="projects-page-title" className="text-3xl font-bold">
+            {d.projectsPage.title}
+          </h1>
           <p className="text-base text-muted-foreground leading-8 max-w-xl">
             {d.projectsPage.intro}
           </p>
