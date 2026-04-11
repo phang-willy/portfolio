@@ -35,13 +35,14 @@ export async function generateProjectMetadata({
   }
 
   const project = projectRecordForLocale(raw, locale);
+  const kind = d.meta.projectFallbackTitle;
 
   return {
-    title: `${appName} - ${project.name}`,
+    title: `${appName} - ${kind} - ${project.name}`,
     description: project.description,
     openGraph: {
       type: "website",
-      title: `${appName} - ${project.name}`,
+      title: `${appName} - ${kind} - ${project.name}`,
       description: project.description,
       images: [{ url: project.image || PROJECT_IMAGE_FALLBACK_PATH }],
       ...openGraphLocaleFields(locale),
