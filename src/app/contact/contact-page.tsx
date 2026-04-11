@@ -25,9 +25,14 @@ export function ContactPage({ locale }: { locale: AppLocale }) {
   const legalsHref = buildLocalizedPathname("/legals", locale);
 
   return (
-    <section className="container mx-auto px-4 py-10">
+    <section
+      className="container mx-auto px-4 py-10"
+      aria-labelledby="contact-page-title"
+    >
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-3xl font-bold">{d.contactPage.title}</h1>
+        <h1 id="contact-page-title" className="text-3xl font-bold">
+          {d.contactPage.title}
+        </h1>
         <p className="mt-4 text-base text-black/70 dark:text-white/70">
           {d.contactPage.intro}
         </p>

@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "dev": "node scripts/next-with-server-port.mjs dev",
+    "prebuild": "npm run generate:sitemap",
     "build": "next build --webpack",
     "build:start": "npm run build && npm run start",
     "start": "node scripts/next-with-server-port.mjs start",
@@ -18,7 +19,8 @@
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "remind:github-token": "node scripts/github-token-expiry-reminder.mjs"
+    "remind:github-token": "node scripts/github-token-expiry-reminder.mjs",
+    "generate:sitemap": "tsx scripts/generate-sitemap-xml.ts"
   },
   "dependencies": {
     "maplibre-gl": "^5.21.1",
@@ -38,6 +40,7 @@
     "eslint-config-next": "16.2.1",
     "prettier": "3.8.1",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

@@ -90,7 +90,10 @@ export function HttpErrorView({
           </p>
           <h1 className="font-oswald text-2xl">{resolvedTitle}</h1>
         </header>
-        <section className="px-4 pb-4">
+        <section
+          className="px-4 pb-4"
+          aria-label={locale === "en" ? "Error details" : "Détails de l'erreur"}
+        >
           <p className="text-muted-foreground text-sm leading-relaxed">
             {resolvedMessage}
           </p>

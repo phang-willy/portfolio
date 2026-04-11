@@ -50,7 +50,7 @@ export async function HomePage({ locale }: { locale: AppLocale }) {
   return (
     <>
       <PresentationSection socialLinks={socialLinks} />
-      <StacksSection />
+      <StacksSection locale={locale} />
       <AboutSection
         contributions={githubStats?.contributionsAllTime ?? null}
         repositories={githubStats?.repositoriesAffiliated ?? null}
