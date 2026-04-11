@@ -16,6 +16,9 @@ export const en: Dictionary = {
     projectFallbackTitle: "Project",
     stacksMarqueeAria: "Technologies and tools — scrolling skills strip",
   },
+  a11y: {
+    opensInNewWindow: "opens in a new window",
+  },
   nav: {
     homeSr: "Home",
     projects: "Projects",

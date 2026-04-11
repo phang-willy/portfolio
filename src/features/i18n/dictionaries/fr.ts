@@ -15,6 +15,9 @@ export const fr = {
     stacksMarqueeAria:
       "Technologies et outils — défilement des compétences techniques",
   },
+  a11y: {
+    opensInNewWindow: "s’ouvre dans une nouvelle fenêtre",
+  },
   nav: {
     homeSr: "Accueil",
     projects: "Projets",

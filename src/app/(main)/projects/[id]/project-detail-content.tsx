@@ -184,6 +184,10 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
                   className="inline-flex items-center gap-2 bg-main hover:bg-main/80 focus-visible:bg-main/80 transition-colors text-white px-4 py-1.5 text-sm rounded-full"
                 >
                   <span>{item.label}</span>
+                  <span className="sr-only">
+                    {" "}
+                    — {t.a11y.opensInNewWindow}
+                  </span>
                   <LuExternalLink className="size-4" aria-hidden />
                 </a>
               </li>

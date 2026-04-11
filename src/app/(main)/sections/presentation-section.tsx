@@ -223,7 +223,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
                         : undefined
                     }
                     className="flex flex-col justify-center pt-3 pb-2 xl:flex-row items-center xl:justify-start gap-2 bg-main hover:bg-main/80 transition-colors duration-200 text-white xl:px-4 xl:py-2 rounded-full aspect-square xl:aspect-auto"
-                    aria-label={socialLink.label}
+                    aria-label={`${socialLink.label} — ${t.a11y.opensInNewWindow}`}
                   >
                     <Icon className="h-8 w-8 xl:w-6 xl:h-6 mx-auto xl:mx-0" />
                     <span className="block text-xs xl:text-base xl:inline">

@@ -78,6 +78,10 @@ export function LegalsPage({ locale }: { locale: AppLocale }) {
                 aria-hidden
                 className="size-4 shrink-0 transition-opacity duration-200 xl:opacity-0 xl:group-hover:opacity-100 xl:group-focus-visible:opacity-100"
               />
+              <span className="sr-only">
+                {" "}
+                — {d.a11y.opensInNewWindow}
+              </span>
             </Link>
           </p>
           <p>
@@ -110,6 +114,10 @@ export function LegalsPage({ locale }: { locale: AppLocale }) {
                 aria-hidden
                 className="size-4 shrink-0 transition-opacity duration-200 xl:opacity-0 xl:group-hover:opacity-100 xl:group-focus-visible:opacity-100"
               />
+              <span className="sr-only">
+                {" "}
+                — {d.a11y.opensInNewWindow}
+              </span>
             </Link>
             {t.pData2Trail}
           </p>
@@ -128,6 +136,10 @@ export function LegalsPage({ locale }: { locale: AppLocale }) {
                 aria-hidden
                 className="size-4 shrink-0 transition-opacity duration-200 xl:opacity-0 xl:group-hover:opacity-100 xl:group-focus-visible:opacity-100"
               />
+              <span className="sr-only">
+                {" "}
+                — {d.a11y.opensInNewWindow}
+              </span>
             </Link>
             {t.pData5Trail}{" "}
             <Link
