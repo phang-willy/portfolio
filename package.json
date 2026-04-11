@@ -12,11 +12,13 @@
   "scripts": {
     "dev": "node scripts/next-with-server-port.mjs dev",
     "build": "next build --webpack",
+    "build:start": "npm run build && npm run start",
     "start": "node scripts/next-with-server-port.mjs start",
     "lint": "eslint",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "remind:github-token": "node scripts/github-token-expiry-reminder.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^5.21.1",
