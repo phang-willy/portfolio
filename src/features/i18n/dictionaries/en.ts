@@ -14,6 +14,10 @@ export const en: Dictionary = {
     legalsDescription:
       "Legal information about this site: publisher, hosting, and terms of use.",
     projectFallbackTitle: "Project",
+    stacksMarqueeAria: "Technologies and tools — scrolling skills strip",
+  },
+  a11y: {
+    opensInNewWindow: "opens in a new window",
   },
   nav: {
     homeSr: "Home",
@@ -103,6 +107,7 @@ export const en: Dictionary = {
     name: "Willy PHANG",
     role: "Full Stack Developer",
     profileAlt: "PHANG Willy - Full Stack Developer",
+    sectionAriaLabel: "Message",
   },
   projectsPage: {
     title: "Explore my projects",
@@ -112,6 +117,7 @@ export const en: Dictionary = {
   },
   projectDetail: {
     backToProjects: "Back to projects",
+    heroPreview: "Preview",
     stacks: "Stacks / Tags",
     links: "Links",
     siteDemo: "Live site / demo",

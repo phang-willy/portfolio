@@ -2,6 +2,7 @@ import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
+import { appName } from "@/lib/app-name";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LuArrowUpRight } from "react-icons/lu";
@@ -9,11 +10,11 @@ import { LuArrowUpRight } from "react-icons/lu";
 export function buildLegalsMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
-    title: `${process.env.APP_TITLE} - ${d.meta.legalsTitle}`,
-    description: `${process.env.APP_TITLE} - ${d.meta.legalsDescription}`,
+    title: `${appName} - ${d.meta.legalsTitle}`,
+    description: `${appName} - ${d.meta.legalsDescription}`,
     openGraph: {
-      title: `${process.env.APP_TITLE} - ${d.meta.legalsTitle}`,
-      description: `${process.env.APP_TITLE} - ${d.meta.legalsDescription}`,
+      title: `${appName} - ${d.meta.legalsTitle}`,
+      description: `${appName} - ${d.meta.legalsDescription}`,
       ...openGraphLocaleFields(locale),
     },
   };
@@ -25,9 +26,14 @@ export function LegalsPage({ locale }: { locale: AppLocale }) {
   const contactHref = buildLocalizedPathname("/contact", locale);
 
   return (
-    <section className="container mx-auto px-4 py-10">
+    <section
+      className="container mx-auto px-4 py-10"
+      aria-labelledby="legals-page-title"
+    >
       <div className="grid grid-cols-1 gap-8">
-        <h1 className="text-3xl font-bold">{t.title}</h1>
+        <h1 id="legals-page-title" className="text-3xl font-bold">
+          {t.title}
+        </h1>
         <article className="flex flex-col gap-2">
           <h2 className="text-2xl font-bold">{t.publicationDirector}</h2>
           <p>PHANG Willy</p>
@@ -72,6 +78,10 @@ export function LegalsPage({ locale }: { locale: AppLocale }) {
                 aria-hidden
                 className="size-4 shrink-0 transition-opacity duration-200 xl:opacity-0 xl:group-hover:opacity-100 xl:group-focus-visible:opacity-100"
               />
+              <span className="sr-only">
+                {" "}
+                — {d.a11y.opensInNewWindow}
+              </span>
             </Link>
           </p>
           <p>
@@ -104,6 +114,10 @@ export function LegalsPage({ locale }: { locale: AppLocale }) {
                 aria-hidden
                 className="size-4 shrink-0 transition-opacity duration-200 xl:opacity-0 xl:group-hover:opacity-100 xl:group-focus-visible:opacity-100"
               />
+              <span className="sr-only">
+                {" "}
+                — {d.a11y.opensInNewWindow}
+              </span>
             </Link>
             {t.pData2Trail}
           </p>
@@ -122,6 +136,10 @@ export function LegalsPage({ locale }: { locale: AppLocale }) {
                 aria-hidden
                 className="size-4 shrink-0 transition-opacity duration-200 xl:opacity-0 xl:group-hover:opacity-100 xl:group-focus-visible:opacity-100"
               />
+              <span className="sr-only">
+                {" "}
+                — {d.a11y.opensInNewWindow}
+              </span>
             </Link>
             {t.pData5Trail}{" "}
             <Link

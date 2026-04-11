@@ -52,6 +52,7 @@ export function MessageSection() {
     <section
       ref={sectionRef}
       id="message"
+      aria-label={t.message.sectionAriaLabel}
       className="bg-gray-100 dark:bg-gray-900 py-20 overflow-x-clip"
     >
       <div className="container mx-auto p-4">

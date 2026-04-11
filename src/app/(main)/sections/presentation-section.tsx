@@ -145,6 +145,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
     <section
       ref={sectionRef}
       id="presentation"
+      aria-labelledby="presentation-heading"
       className="container mx-auto p-4 relative flex flex-col gap-2 md:h-[calc(100vh-128px)] overflow-x-clip"
     >
       <div className="flex grow flex-col gap-8 pt-2 md:grid md:h-full md:grid-cols-4 md:grid-rows-2 md:gap-x-8 md:gap-y-6 md:pt-8 xl:pt-8 xl:gap-x-8 xl:gap-y-6">
@@ -155,7 +156,10 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
               : "opacity-0 -translate-x-8"
           }`}
         >
-          <h1 className="text-5xl md:text-7xl xl:text-[10rem] uppercase w-full whitespace-nowrap font-bold">
+          <h1
+            id="presentation-heading"
+            className="text-5xl md:text-7xl xl:text-[10rem] uppercase w-full whitespace-nowrap font-bold"
+          >
             <span className="sr-only">PHANG Willy</span>
             <div className="flex flex-col gap-2">
               <span>{t.presentation.titleLine1}</span>
@@ -219,7 +223,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
                         : undefined
                     }
                     className="flex flex-col justify-center pt-3 pb-2 xl:flex-row items-center xl:justify-start gap-2 bg-main hover:bg-main/80 transition-colors duration-200 text-white xl:px-4 xl:py-2 rounded-full aspect-square xl:aspect-auto"
-                    aria-label={socialLink.label}
+                    aria-label={`${socialLink.label} — ${t.a11y.opensInNewWindow}`}
                   >
                     <Icon className="h-8 w-8 xl:w-6 xl:h-6 mx-auto xl:mx-0" />
                     <span className="block text-xs xl:text-base xl:inline">

@@ -53,7 +53,9 @@ Ce starter a pour but de :
 ├─ .githooks/
 ├─ public/                 # assets statiques (images projets dans public/project/, etc.)
 ├─ scripts/
-│  └─ next-with-server-port.mjs
+│  ├─ next-with-server-port.mjs
+│  ├─ github-token-expiry-reminder.mjs   # rappel e-mail (Brevo) avant expiration du PAT GitHub
+│  └─ generate-sitemap-xml.ts            # génère public/sitemap.xml (via npm run generate:sitemap)
 ├─ src/
 │  ├─ app/
 │  │  └─ api/contact/     # Route Handlers minces → ré-exportent lib/server/*-route-handlers
@@ -96,13 +98,63 @@ npm run dev
 
 ```bash
 npm run dev            # dev (port via scripts/next-with-server-port.mjs)
-npm run build          # next build → export statique dans out/ (voir ci-dessous)
+npm run build          # pré-génère le sitemap puis next build (voir ci-dessous)
 npm run start          # serveur Next après build (hors export pur FTP)
 npm run lint           # ESLint
 npm run type-check     # tsc --noEmit
 npm run format:check   # Prettier en lecture seule
 npm run format:write   # Prettier en écriture
+npm run generate:sitemap              # écrit public/sitemap.xml (tsx)
+npm run remind:github-token           # e-mail de rappel PAT GitHub (node)
 ```
+
+---
+
+## ⏰ Tâches planifiées sur le VPS (cron)
+
+Deux scripts utiles en production : **rappel d’expiration du token GitHub** (e-mail via Brevo) et **régénération du fichier `public/sitemap.xml`**. Ils lisent le **`.env`** à la racine du dépôt (comme l’app Next), donc le cron doit **`cd` dans le répertoire du projet** avant de lancer les commandes.
+
+### Prérequis
+
+- Node et les dépendances installés sur le VPS : `npm install` dans le clone du repo.
+- Fichier **`.env`** présent à la racine avec au minimum :
+  - **Rappel token** : `GITHUB_TOKEN`, `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `CONTACT_TO_EMAIL` (voir `.env.exemple`).
+  - **Sitemap** : `NEXT_PUBLIC_SITE_URL` ou `SITE_URL` (URL canonique du site, sans slash final de préférence).
+
+### Commandes à lancer à la main (test)
+
+```bash
+cd /chemin/vers/portfolio
+npm run generate:sitemap
+node scripts/github-token-expiry-reminder.mjs
+```
+
+### Exemple crontab (tous les jours à 2h00)
+
+Éditer la crontab : `crontab -e`.
+
+**Option A — deux lignes (logs séparés)** :
+
+```cron
+0 2 * * * cd /chemin/vers/portfolio && /usr/bin/npm run generate:sitemap >> /var/log/portfolio-sitemap.log 2>&1
+5 2 * * * cd /chemin/vers/portfolio && /usr/bin/node scripts/github-token-expiry-reminder.mjs >> /var/log/portfolio-github-token-reminder.log 2>&1
+```
+
+**Option B — une seule ligne (enchaînement)** :
+
+```cron
+0 2 * * * cd /chemin/vers/portfolio && /usr/bin/npm run generate:sitemap && /usr/bin/node scripts/github-token-expiry-reminder.mjs >> /var/log/portfolio-cron.log 2>&1
+```
+
+Remplace `/chemin/vers/portfolio` par le chemin réel du clone sur le serveur. Adapte les chemins vers **`npm`** et **`node`** si ton installation n’est pas dans `/usr/bin` (souvent le cas avec **nvm** : préfixer avec `bash -lc 'source ~/.nvm/nvm.sh && nvm use && cd ... && ...'` ou utiliser le chemin absolu vers le binaire Node, par ex. `~/.nvm/versions/node/v22/bin/npm`).
+
+### Après le sitemap
+
+`generate:sitemap` met à jour **`public/sitemap.xml`** sur disque. Avec **`next start`**, ce fichier est généralement pris en compte sans redémarrer PM2 ; en cas de doute, un **`pm2 restart`** du processus suffit.
+
+### Rappel token GitHub
+
+Le script n’envoie un e-mail **que** le **jour calendaire précédant** l’expiration du PAT (logique détaillée dans le fichier du script). Les autres jours, il se termine sans envoi (code de sortie 0).
 
 ---
 

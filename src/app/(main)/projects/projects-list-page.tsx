@@ -3,17 +3,18 @@ import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { projectRecordForLocale } from "@/features/i18n/lib/localized-site-data";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
+import { appName } from "@/lib/app-name";
 import { getProjectsByCreatedAtDesc } from "@/lib/projects";
 import type { Metadata } from "next";
 
 export function buildProjectsListMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
-    title: `${process.env.APP_TITLE} - ${d.meta.projectsTitle}`,
-    description: `${process.env.APP_TITLE} - ${d.meta.projectsDescription}`,
+    title: `${appName} - ${d.meta.projectsTitle}`,
+    description: `${appName} - ${d.meta.projectsDescription}`,
     openGraph: {
-      title: `${process.env.APP_TITLE} - ${d.meta.projectsTitle}`,
-      description: `${process.env.APP_TITLE} - ${d.meta.projectsDescription}`,
+      title: `${appName} - ${d.meta.projectsTitle}`,
+      description: `${appName} - ${d.meta.projectsDescription}`,
       ...openGraphLocaleFields(locale),
     },
   };
@@ -27,9 +28,14 @@ export async function ProjectsListPage({ locale }: { locale: AppLocale }) {
 
   return (
     <>
-      <section className="container mx-auto p-4 flex flex-col gap-8 overflow-x-clip">
+      <section
+        className="container mx-auto p-4 flex flex-col gap-8 overflow-x-clip"
+        aria-labelledby="projects-page-title"
+      >
         <div className="grid grid-cols-1 gap-8">
-          <h1 className="text-3xl font-bold">{d.projectsPage.title}</h1>
+          <h1 id="projects-page-title" className="text-3xl font-bold">
+            {d.projectsPage.title}
+          </h1>
           <p className="text-base text-muted-foreground leading-8 max-w-xl">
             {d.projectsPage.intro}
           </p>

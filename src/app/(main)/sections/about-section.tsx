@@ -53,10 +53,11 @@ export function AboutSection({
     <section
       ref={sectionRef}
       id="about"
+      aria-labelledby="about-heading"
       className="container mx-auto p-4 grid grid-cols-1 gap-8 overflow-x-clip"
     >
       <div className="flex flex-col gap-8">
-        <h2>
+        <h2 id="about-heading">
           <span
             className={`bg-main transition-colors duration-200 text-white px-6 py-3 rounded-full ${APPEAR_DURATION_CLASS} ease-out inline-block ${
               visibleMap.heading
