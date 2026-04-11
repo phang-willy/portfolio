@@ -3,17 +3,18 @@ import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { projectRecordForLocale } from "@/features/i18n/lib/localized-site-data";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
+import { appName } from "@/lib/app-name";
 import { getProjectsByCreatedAtDesc } from "@/lib/projects";
 import type { Metadata } from "next";
 
 export function buildProjectsListMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
-    title: `${process.env.APP_TITLE} - ${d.meta.projectsTitle}`,
-    description: `${process.env.APP_TITLE} - ${d.meta.projectsDescription}`,
+    title: `${appName} - ${d.meta.projectsTitle}`,
+    description: `${appName} - ${d.meta.projectsDescription}`,
     openGraph: {
-      title: `${process.env.APP_TITLE} - ${d.meta.projectsTitle}`,
-      description: `${process.env.APP_TITLE} - ${d.meta.projectsDescription}`,
+      title: `${appName} - ${d.meta.projectsTitle}`,
+      description: `${appName} - ${d.meta.projectsDescription}`,
       ...openGraphLocaleFields(locale),
     },
   };

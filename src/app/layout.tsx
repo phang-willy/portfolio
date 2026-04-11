@@ -4,6 +4,7 @@ import Script from "next/script";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { MainLayout } from "@/components/layout/main-layout";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
+import { appName } from "@/lib/app-name";
 import { Roboto, Oswald } from "next/font/google";
 
 const roboto = Roboto({
@@ -34,14 +35,14 @@ function getMetadataBase(): URL {
 
 export const metadata: Metadata = {
   metadataBase: getMetadataBase(),
-  title: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
-  description: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
+  title: `${appName} - Portfolio - Développeur Full Stack`,
+  description: `${appName} - Portfolio - Développeur Full Stack`,
   icons: {
     icon: "/logo.ico",
   },
   openGraph: {
-    title: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
-    description: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
+    title: `${appName} - Portfolio - Développeur Full Stack`,
+    description: `${appName} - Portfolio - Développeur Full Stack`,
     ...openGraphLocaleFields("fr"),
   },
 };

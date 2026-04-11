@@ -3,17 +3,18 @@ import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
+import { appName } from "@/lib/app-name";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export function buildContactMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
-    title: `${process.env.APP_TITLE} - ${d.meta.contactTitle}`,
-    description: `${process.env.APP_TITLE} - ${d.meta.contactDescription}`,
+    title: `${appName} - ${d.meta.contactTitle}`,
+    description: `${appName} - ${d.meta.contactDescription}`,
     openGraph: {
-      title: `${process.env.APP_TITLE} - ${d.meta.contactTitle}`,
-      description: `${process.env.APP_TITLE} - ${d.meta.contactDescription}`,
+      title: `${appName} - ${d.meta.contactTitle}`,
+      description: `${appName} - ${d.meta.contactDescription}`,
       ...openGraphLocaleFields(locale),
     },
   };
