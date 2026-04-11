@@ -7,6 +7,22 @@ const allowedDevOrigins = (env.ALLOWED_DEV_ORIGINS ?? "")
   .filter(Boolean);
 
 const nextConfig: NextConfig = {
+  async headers() {
+    if (process.env.NODE_ENV !== "production") {
+      return [];
+    }
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains",
+          },
+        ],
+      },
+    ];
+  },
   /** Redimensionnement Sharp ; le build prod utilise `next build --webpack` (package.json) pour `browserslist`. */
   images: {
     deviceSizes: [384, 640, 750, 828, 1080, 1200, 1920],
