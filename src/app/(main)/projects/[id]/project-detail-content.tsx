@@ -58,6 +58,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
       <div className="flex flex-col gap-10">
         <section
           id="back-to-projects"
+          aria-label={t.projectDetail.backToProjects}
           ref={setBlockRef(0)}
           style={getBlockStyle(0)}
           className={getBlockShellClassName(0)}
@@ -74,6 +75,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
 
         <section
           id="thumbnail"
+          aria-label={`${project.name} — ${t.projectDetail.heroPreview}`}
           ref={setBlockRef(1)}
           style={getBlockStyle(1)}
           className={getBlockShellClassName(
@@ -95,25 +97,40 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
 
         <section
           id="name"
+          aria-labelledby="project-detail-title"
           ref={setBlockRef(2)}
           style={getBlockStyle(2)}
           className={getBlockShellClassName(2, "grid grid-cols-1 gap-4")}
           data-reveal-index={2}
         >
-          <h1 className="text-3xl font-bold leading-tight">{project.name}</h1>
+          <h1
+            id="project-detail-title"
+            className="text-3xl font-bold leading-tight"
+          >
+            {project.name}
+          </h1>
           <p className="text-lg text-muted-foreground leading-8">
             {project.description}
           </p>
         </section>
 
-        <section id="stacks" className="grid grid-cols-1 gap-4">
+        <section
+          id="stacks"
+          aria-labelledby="project-detail-stacks-heading"
+          className="grid grid-cols-1 gap-4"
+        >
           <div
             ref={setBlockRef(idxStacksHeading)}
             style={getBlockStyle(idxStacksHeading)}
             className={getBlockShellClassName(idxStacksHeading)}
             data-reveal-index={idxStacksHeading}
           >
-            <h2 className="text-xl font-semibold">{t.projectDetail.stacks}</h2>
+            <h2
+              id="project-detail-stacks-heading"
+              className="text-xl font-semibold"
+            >
+              {t.projectDetail.stacks}
+            </h2>
           </div>
           <ul className="flex list-none flex-wrap gap-2 p-0">
             {sortedStacks.map((stack, i) => (
@@ -133,14 +150,23 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
           </ul>
         </section>
 
-        <section id="links" className="grid grid-cols-1 gap-4">
+        <section
+          id="links"
+          aria-labelledby="project-detail-links-heading"
+          className="grid grid-cols-1 gap-4"
+        >
           <div
             ref={setBlockRef(idxLinksHeading)}
             style={getBlockStyle(idxLinksHeading)}
             className={getBlockShellClassName(idxLinksHeading)}
             data-reveal-index={idxLinksHeading}
           >
-            <h2 className="text-xl font-semibold">{t.projectDetail.links}</h2>
+            <h2
+              id="project-detail-links-heading"
+              className="text-xl font-semibold"
+            >
+              {t.projectDetail.links}
+            </h2>
           </div>
           <ul className="flex list-none flex-col gap-2 p-0 sm:flex-row sm:flex-wrap sm:gap-6">
             {linkItems.map((item, i) => (
@@ -158,6 +184,10 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
                   className="inline-flex items-center gap-2 bg-main hover:bg-main/80 focus-visible:bg-main/80 transition-colors text-white px-4 py-1.5 text-sm rounded-full"
                 >
                   <span>{item.label}</span>
+                  <span className="sr-only">
+                    {" "}
+                    — {t.a11y.opensInNewWindow}
+                  </span>
                   <LuExternalLink className="size-4" aria-hidden />
                 </a>
               </li>
@@ -167,12 +197,16 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
 
         <section
           id="information"
+          aria-labelledby="project-detail-information-heading"
           ref={setBlockRef(idxInfo)}
           style={getBlockStyle(idxInfo)}
           className={getBlockShellClassName(idxInfo, "grid grid-cols-1 gap-4")}
           data-reveal-index={idxInfo}
         >
-          <h2 className="text-xl font-semibold">
+          <h2
+            id="project-detail-information-heading"
+            className="text-xl font-semibold"
+          >
             {t.projectDetail.information}
           </h2>
           <div className="flex flex-col gap-2">

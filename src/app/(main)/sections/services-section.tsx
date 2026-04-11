@@ -73,6 +73,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
     <section
       ref={sectionRef}
       id="services"
+      aria-labelledby="services-heading"
       className="container mx-auto p-4 grid grid-cols-1 gap-8 overflow-x-clip"
     >
       <div
@@ -82,7 +83,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
             : "opacity-0 -translate-x-8"
         }`}
       >
-        <h2>
+        <h2 id="services-heading">
           <span className="bg-main transition-colors duration-200 text-white px-6 py-3 rounded-full">
             {t.services.badge}
           </span>

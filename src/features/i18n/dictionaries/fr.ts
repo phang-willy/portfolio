@@ -12,6 +12,11 @@ export const fr = {
     legalsDescription:
       "Informations légales du site: éditeur, hébergement et conditions d'utilisation.",
     projectFallbackTitle: "Projet",
+    stacksMarqueeAria:
+      "Technologies et outils — défilement des compétences techniques",
+  },
+  a11y: {
+    opensInNewWindow: "s’ouvre dans une nouvelle fenêtre",
   },
   nav: {
     homeSr: "Accueil",
@@ -102,6 +107,7 @@ export const fr = {
     name: "Willy PHANG",
     role: "Développeur Full Stack",
     profileAlt: "PHANG Willy - Développeur Full Stack",
+    sectionAriaLabel: "Message",
   },
   projectsPage: {
     title: "Explorer mes projets",
@@ -111,6 +117,7 @@ export const fr = {
   },
   projectDetail: {
     backToProjects: "Retour aux projets",
+    heroPreview: "Aperçu",
     stacks: "Stacks / Tags",
     links: "Liens",
     siteDemo: "Site / démo",

@@ -4,6 +4,8 @@ import Script from "next/script";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { MainLayout } from "@/components/layout/main-layout";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
+import { appName } from "@/lib/app-name";
+import { getSiteBaseUrl } from "@/lib/site-base-url";
 import { Roboto, Oswald } from "next/font/google";
 
 const roboto = Roboto({
@@ -16,32 +18,16 @@ const oswald = Oswald({
   variable: "--font-oswald",
 });
 
-function getMetadataBase(): URL {
-  const fromEnv =
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() || process.env.SITE_URL?.trim();
-  if (fromEnv) {
-    try {
-      return new URL(fromEnv);
-    } catch {
-      // ignore invalid URL
-    }
-  }
-  if (process.env.VERCEL_URL) {
-    return new URL(`https://${process.env.VERCEL_URL}`);
-  }
-  return new URL("http://localhost:3000");
-}
-
 export const metadata: Metadata = {
-  metadataBase: getMetadataBase(),
-  title: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
-  description: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
+  metadataBase: getSiteBaseUrl(),
+  title: `${appName} - Portfolio - Développeur Full Stack`,
+  description: `${appName} - Portfolio - Développeur Full Stack`,
   icons: {
     icon: "/logo.ico",
   },
   openGraph: {
-    title: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
-    description: `${process.env.APP_TITLE} - Portfolio - Développeur Full Stack`,
+    title: `${appName} - Portfolio - Développeur Full Stack`,
+    description: `${appName} - Portfolio - Développeur Full Stack`,
     ...openGraphLocaleFields("fr"),
   },
 };

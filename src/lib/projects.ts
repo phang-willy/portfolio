@@ -1,3 +1,4 @@
+import { resolveProjectDatesFromGithub } from "@/lib/github-repo-dates";
 import projectsData from "@/data/project.json";
 
 export type RawProjectRecord = (typeof projectsData)["projects"][number];
@@ -19,22 +20,42 @@ function parseProjectsData(payload: unknown): ProjectsDataFile | null {
   return { projects: data.projects as Array<RawProjectRecord> };
 }
 
+async function enrichProjectsWithGithubDates(
+  projects: Array<RawProjectRecord>,
+): Promise<Array<RawProjectRecord>> {
+  return Promise.all(
+    projects.map(async (p) => {
+      const { createdAt, updatedAt } = await resolveProjectDatesFromGithub(
+        p.links,
+        { createdAt: p.createdAt, updatedAt: p.updatedAt },
+      );
+      return { ...p, createdAt, updatedAt };
+    }),
+  );
+}
+
 async function getProjectsData(): Promise<ProjectsDataFile> {
   const sourceUrl = process.env.PROJECTS_JSON_URL;
-  if (!sourceUrl) return projectsData;
-
-  try {
-    const res = await fetch(sourceUrl, {
-      next: { revalidate: PROJECTS_REVALIDATE_SECONDS },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = (await res.json()) as unknown;
-    const parsed = parseProjectsData(json);
-    if (!parsed) throw new Error("Invalid projects payload");
-    return parsed;
-  } catch {
-    return projectsData;
+  let base: ProjectsDataFile;
+  if (!sourceUrl) {
+    base = projectsData;
+  } else {
+    try {
+      const res = await fetch(sourceUrl, {
+        next: { revalidate: PROJECTS_REVALIDATE_SECONDS },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = (await res.json()) as unknown;
+      const parsed = parseProjectsData(json);
+      if (!parsed) throw new Error("Invalid projects payload");
+      base = parsed;
+    } catch {
+      base = projectsData;
+    }
   }
+
+  const projects = await enrichProjectsWithGithubDates(base.projects);
+  return { projects };
 }
 
 export async function getProjectsByCreatedAtDesc(): Promise<Array<RawProjectRecord>> {
