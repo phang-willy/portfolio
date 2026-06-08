@@ -1,0 +1,117 @@
+name: portfolio
+
+services:
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+      args:
+        APP_TITLE: ${APP_TITLE:-Portfolio}
+        NEXT_PUBLIC_CONTACT_API_ORIGIN: ${NEXT_PUBLIC_CONTACT_API_ORIGIN:-http://localhost:8000}
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        PROJECTS_JSON_URL: ${PROJECTS_JSON_URL:-}
+        SITE_URL: ${SITE_URL:-http://localhost:3000}
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_CONTACT_API_ORIGIN: ${NEXT_PUBLIC_CONTACT_API_ORIGIN:-http://localhost:8000}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      PORT: "3000"
+      SERVER_PORT: "3000"
+      SITE_URL: ${SITE_URL:-http://localhost:3000}
+    ports:
+      - "${FRONT_BIND_ADDRESS:-127.0.0.1}:${FRONT_PORT:-3000}:3000"
+    depends_on:
+      back:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - portfolio
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    ports:
+      - "${ADMIN_BIND_ADDRESS:-127.0.0.1}:${ADMIN_PORT:-3001}:3001"
+    depends_on:
+      back:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - portfolio
+
+  back:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001}
+      SERVER_PORT: "8000"
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-${POSTGRES_PASSWORD:-portfolio_change_me}}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/${POSTGRES_DB:-portfolio}}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${POSTGRES_USER:-portfolio}}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+    ports:
+      - "${BACK_BIND_ADDRESS:-127.0.0.1}:${BACK_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8000/actuator/health/readiness | grep UP || exit 1",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+    restart: unless-stopped
+    networks:
+      - portfolio
+
+  postgres:
+    image: postgres:17-alpine
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-portfolio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-portfolio_change_me}
+      POSTGRES_USER: ${POSTGRES_USER:-portfolio}
+    ports:
+      - "${POSTGRES_BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - portfolio
+
+  adminer:
+    image: adminer:4
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "${ADMINER_BIND_ADDRESS:-127.0.0.1}:${ADMINER_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - portfolio
+
+volumes:
+  postgres_data:
+
+networks:
+  portfolio:
+    driver: bridge

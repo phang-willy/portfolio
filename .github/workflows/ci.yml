@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Lint / Type-check / Build
+    name: Front / Back quality
     runs-on: ubuntu-latest
     env:
       # Actions JS runtime (checkout/setup-node) — align with Node 24 before default switch
@@ -35,15 +35,31 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
+          cache-dependency-path: "front/package-lock.json"
 
-      - name: Install dependencies
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: "maven"
+
+      - name: Install frontend dependencies
+        working-directory: front
         run: npm ci
 
-      - name: Lint
+      - name: Frontend lint
+        working-directory: front
         run: npm run lint
 
-      - name: Type check
+      - name: Frontend type check
+        working-directory: front
         run: npm run type-check
 
-      - name: Build
+      - name: Frontend build
+        working-directory: front
         run: npm run build
+
+      - name: Backend tests
+        working-directory: back
+        run: mvn -B test
