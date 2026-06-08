@@ -10,7 +10,7 @@ import com.phangwilly.portfolio.domain.model.ApiStatus;
 @Service
 public class GetApiStatusService implements GetApiStatusUseCase {
 
-  private static final String API_NAME = "portfolio";
+  private static final String API_NAME = "portfolio-api";
 
   private final Clock clock;
 
