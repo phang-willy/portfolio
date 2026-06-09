@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/front/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -12,14 +13,20 @@
 
 # testing
 /coverage
+/front/coverage
 
 # next.js
 /.next/
+/front/.next/
 /out/
+/front/out/
 /.tmp/
+/front/.tmp/
 
 # production
 /build
+/front/build
+/back/target
 
 # misc
 .DS_Store
@@ -33,6 +40,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env
+.env.local
+.env.*.local
+/front/.env
+/front/.env.local
+/front/.env.*.local
 
 # vercel
 .vercel
@@ -42,3 +54,5 @@ yarn-error.log*
 next-env.d.ts
 
 /editor
+
+/front/public/sitemap.xml

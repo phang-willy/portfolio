@@ -1,0 +1,89 @@
+<div class="admin-shell">
+  <aside class="sidebar" aria-label="Admin navigation">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <div>
+        <strong>{{ adminName() }}</strong>
+        <span>Control panel</span>
+      </div>
+    </div>
+
+    <nav class="nav-list">
+      <a class="active" href="/" aria-current="page">Dashboard</a>
+      <a href="/">Messages</a>
+      <a href="/">Projects</a>
+      <a href="/">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="workspace">
+    <header class="toolbar">
+      <div>
+        <p class="eyebrow">Admin overview</p>
+        <h1>Dashboard</h1>
+      </div>
+      <div class="toolbar-actions" aria-label="Admin actions">
+        <p-button label="Preview site" icon="pi pi-external-link" severity="secondary" [outlined]="true" />
+        <p-button label="New project" icon="pi pi-plus" />
+      </div>
+    </header>
+
+    <section class="metric-grid" aria-label="Admin metrics">
+      @for (metric of metrics; track metric.label) {
+        <article class="metric-card" [class]="'metric-card tone-' + metric.tone">
+          <span>{{ metric.label }}</span>
+          <strong>{{ metric.value }}</strong>
+          <small>{{ metric.trend }}</small>
+        </article>
+      }
+    </section>
+
+    <div class="content-grid">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Services</p>
+            <h2>Runtime status</h2>
+          </div>
+          <span class="status-pill">All systems checked</span>
+        </div>
+
+        <div class="service-table" role="table" aria-label="Service status">
+          <div class="service-row service-row-head" role="row">
+            <span role="columnheader">Service</span>
+            <span role="columnheader">Endpoint</span>
+            <span role="columnheader">Status</span>
+          </div>
+          @for (check of checks; track check.service) {
+            <div class="service-row" role="row">
+              <span role="cell">{{ check.service }}</span>
+              <code role="cell">{{ check.endpoint }}</code>
+              <strong role="cell">{{ check.status }}</strong>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="panel queue-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Today</p>
+            <h2>Review queue</h2>
+          </div>
+        </div>
+
+        <ul class="queue-list">
+          @for (item of queue; track item.title) {
+            <li>
+              <span aria-hidden="true"></span>
+              <div>
+                <strong>{{ item.title }}</strong>
+                <p>{{ item.detail }}</p>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    </div>
+  </main>
+</div>
