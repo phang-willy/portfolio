@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Front / Back quality
+    name: Lint / Type-check / Build
     runs-on: ubuntu-latest
     env:
       # Actions JS runtime (checkout/setup-node) — align with Node 24 before default switch
