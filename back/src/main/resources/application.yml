@@ -24,6 +24,9 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
 
 management:
   endpoint:
@@ -49,3 +52,22 @@ info:
 app:
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001}
+  auth:
+    register-enabled: ${REGISTER_ENABLE:false}
+    public-base-url: ${APP_PUBLIC_BASE_URL:http://localhost:8000}
+    admin-base-url: ${APP_ADMIN_BASE_URL:http://localhost:3001/admin}
+    jwt-secret: ${APP_AUTH_JWT_SECRET:change-this-dev-jwt-secret-with-at-least-32-characters}
+    token-hash-secret: ${APP_AUTH_TOKEN_HASH_SECRET:change-this-dev-token-hash-secret-with-at-least-32-characters}
+  email-queue:
+    scheduler-delay-millis: ${APP_EMAIL_QUEUE_SCHEDULER_DELAY_MILLIS:60000}
+    retry-delay: ${APP_EMAIL_QUEUE_RETRY_DELAY:5m}
+    batch-size: ${APP_EMAIL_QUEUE_BATCH_SIZE:10}
+    max-attempts: ${APP_EMAIL_QUEUE_MAX_ATTEMPTS:3}
+  email:
+    from: ${SMTP_FROM:noreply@phangwilly.local}
+  rate-limit:
+    enabled: ${APP_RATE_LIMIT_ENABLED:true}
+    admin-requests-per-second: ${APP_RATE_LIMIT_ADMIN_REQUESTS_PER_SECOND:100}
+    standard-requests-per-second: ${APP_RATE_LIMIT_STANDARD_REQUESTS_PER_SECOND:50}
+    bucket-ttl-millis: ${APP_RATE_LIMIT_BUCKET_TTL_MILLIS:600000}
+    cleanup-interval-millis: ${APP_RATE_LIMIT_CLEANUP_INTERVAL_MILLIS:300000}
