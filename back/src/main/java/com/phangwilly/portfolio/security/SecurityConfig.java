@@ -43,7 +43,7 @@ public class SecurityConfig {
           FORBIDDEN_MESSAGE
         )))
       .authorizeHttpRequests(authorize -> authorize
-        .requestMatchers("/api/auth/**", "/api/health", "/api/project", "/actuator/**", "/admin/**")
+        .requestMatchers(PublicSecurityPaths.requestMatchers())
         .permitAll()
         .requestMatchers("/api/account/**")
         .authenticated()

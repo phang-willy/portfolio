@@ -103,6 +103,11 @@ public class JwtSessionAuthenticationFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    return PublicSecurityPaths.shouldSkipJwtFilter(request);
+  }
+
   private static String resolveBearerToken(HttpServletRequest request) {
     String authorization = request.getHeader(AUTHORIZATION_HEADER);
     if (authorization == null || !authorization.startsWith(BEARER_PREFIX)) {
