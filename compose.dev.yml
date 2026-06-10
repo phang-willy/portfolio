@@ -52,12 +52,27 @@ services:
         exec mvn spring-boot:run
     environment:
       SERVER_PORT: "8000"
+      SMTP_HOST: ${SMTP_HOST:-maildev}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_FROM: ${SMTP_FROM:-noreply@phangwilly.local}
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
       SPRING_PROFILES_ACTIVE: dev
+    depends_on:
+      maildev:
+        condition: service_started
     volumes:
       - ./back:/workspace
       - maven_cache:/root/.m2
       - back_target:/workspace/target
+
+  maildev:
+    image: maildev/maildev:latest
+    ports:
+      - "${MAILDEV_SMTP_PORT:-1025}:1025"
+      - "${MAILDEV_WEB_PORT:-1080}:1080"
+    restart: unless-stopped
+    networks:
+      - portfolio
 
 volumes:
   front_node_modules:

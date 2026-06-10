@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useId,
-  useMemo,
-  useState,
-  type FormEvent,
-} from "react";
+import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import type { ZodError } from "zod";
 import { LuLoaderCircle } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
@@ -390,7 +384,7 @@ export function ContactForm({ className }: ContactFormProps) {
                   aria-describedby={describedBy}
                   aria-required={field.required ? true : undefined}
                   disabled={fieldsLocked}
-                  className={`${inputClassName} min-h-[140px] resize-y`}
+                  className={`${inputClassName} min-h-35 resize-y`}
                 />
               ) : (
                 <input
@@ -421,7 +415,7 @@ export function ContactForm({ className }: ContactFormProps) {
         })}
 
         <div
-          className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden"
+          className="absolute -left-2500 top-auto h-px w-px overflow-hidden"
           aria-hidden="true"
         >
           <label htmlFor={`${baseId}-website`}>Website</label>
