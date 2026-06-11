@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [dev, pre-prod, main]
   pull_request:
-    branches: [main, develop]
+    branches: [dev, pre-prod, main]
 
 jobs:
   front:
@@ -78,3 +78,21 @@ jobs:
       - name: Test
         working-directory: back
         run: mvn -B test
+
+  ci:
+    name: Lint / Type-check / Build
+    runs-on: ubuntu-latest
+    needs: [front, admin, back]
+    if: always()
+    steps:
+      - name: Require all checks
+        run: |
+          if [[ "${{ needs.front.result }}" != "success" ]] || \
+             [[ "${{ needs.admin.result }}" != "success" ]] || \
+             [[ "${{ needs.back.result }}" != "success" ]]; then
+            echo "One or more CI jobs failed or were skipped."
+            echo "front: ${{ needs.front.result }}"
+            echo "admin: ${{ needs.admin.result }}"
+            echo "back: ${{ needs.back.result }}"
+            exit 1
+          fi
