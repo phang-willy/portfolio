@@ -1,0 +1,39 @@
+<div class="admin-shell flex min-h-dvh bg-surface-50 text-surface-950">
+  <aside
+    class="admin-shell-sidebar hidden h-dvh shrink-0 overflow-hidden border-r border-surface-200 bg-surface-0 transition-[width] duration-200 lg:block"
+    [class.admin-shell-sidebar-collapsed]="sidebarCollapsed()"
+    aria-label="Sidebar"
+  >
+    <app-admin-sidebar class="block h-full w-full" [compact]="sidebarCollapsed()" />
+  </aside>
+
+  <p-drawer
+    [visible]="mobileSidebarOpen()"
+    (visibleChange)="onMobileSidebarVisibleChange($event)"
+    position="left"
+    [modal]="true"
+    [dismissible]="true"
+    [showCloseIcon]="false"
+    styleClass="admin-mobile-drawer"
+  >
+    <ng-template #headless>
+      <app-admin-sidebar
+        class="block h-full min-h-dvh w-full"
+        [showCloseButton]="true"
+        (navigated)="closeMobileSidebar()"
+        (closed)="closeMobileSidebar()"
+      />
+    </ng-template>
+  </p-drawer>
+
+  <div class="flex min-w-0 flex-1 flex-col relative">
+    <app-admin-shell-header
+      [sidebarOpen]="sidebarIsOpen()"
+      (toggleSidebar)="toggleSidebar()"
+      class="sticky top-0 left-0 w-full z-10"
+    />
+    <main class="flex flex-1 flex-col gap-4 p-4 md:p-6">
+      <router-outlet />
+    </main>
+  </div>
+</div>

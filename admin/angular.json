@@ -22,7 +22,7 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
+            "inlineStyleLanguage": "css",
             "assets": [
               {
                 "glob": "**/*",
@@ -31,11 +31,17 @@
             ],
             "styles": [
               "node_modules/primeicons/primeicons.css",
-              "src/styles.scss"
+              "src/styles.css"
             ]
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -62,7 +68,11 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "host": "0.0.0.0",
-            "port": 3001
+            "port": 3001,
+            "allowedHosts": true,
+            "hmr": true,
+            "liveReload": true,
+            "proxyConfig": "src/proxy.conf.json"
           },
           "configurations": {
             "production": {
@@ -70,6 +80,11 @@
             },
             "development": {
               "buildTarget": "admin:build:development"
+            },
+            "docker": {
+              "buildTarget": "admin:build:development",
+              "poll": 1000,
+              "proxyConfig": "src/proxy.docker.conf.json"
             }
           },
           "defaultConfiguration": "development"

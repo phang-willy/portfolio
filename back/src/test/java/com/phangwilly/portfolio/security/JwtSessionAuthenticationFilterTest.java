@@ -22,6 +22,7 @@ class JwtSessionAuthenticationFilterTest {
       null,
       null,
       null,
+      null,
       clock
     );
     MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/auth/login");

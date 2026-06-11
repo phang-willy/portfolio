@@ -15,8 +15,10 @@ class GlobalExceptionHandlerTest {
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
     assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().error().code()).isEqualTo("RATE_LIMIT_EXCEEDED");
-    assertThat(response.getBody().error().message()).isEqualTo("Too many requests");
+    assertThat(response.getBody().success()).isFalse();
+    assertThat(response.getBody().code()).isEqualTo(429);
+    assertThat(response.getBody().message()).isEqualTo("Too Many Requests");
+    assertThat(response.getBody().data()).isNull();
     assertThat(response.getHeaders().getFirst("Retry-After")).isEqualTo("1");
   }
 }

@@ -1,0 +1,17 @@
+@reference '../../../styles.css';
+
+.status-icon-danger {
+  @apply border border-red-200 bg-red-50 text-red-700;
+}
+
+:host-context(html.dark) .status-icon-danger {
+  @apply border-red-900/70 bg-red-950/50 text-red-200;
+}
+
+.status-text-danger {
+  @apply text-red-700;
+}
+
+:host-context(html.dark) .status-text-danger {
+  @apply text-red-300;
+}

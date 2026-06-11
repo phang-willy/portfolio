@@ -1,0 +1,50 @@
+@import 'tailwindcss';
+@import 'tailwindcss-primeui';
+
+@source "./app";
+
+@theme {
+  --font-oswald: 'Oswald', sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  html.theme-transition-disabled *,
+  html.theme-transition-disabled *::before,
+  html.theme-transition-disabled *::after {
+    transition: none !important;
+  }
+
+  html,
+  body {
+    @apply font-roboto m-0 min-h-full;
+  }
+
+  body {
+    @apply bg-surface-50 font-sans text-surface-950;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    @apply tracking-normal;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-oswald;
+  }
+}

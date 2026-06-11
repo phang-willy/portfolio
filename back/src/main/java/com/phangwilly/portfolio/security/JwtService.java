@@ -1,12 +1,8 @@
 package com.phangwilly.portfolio.security;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phangwilly.portfolio.config.AuthProperties;
 import com.phangwilly.portfolio.enums.UserRole;
 import com.phangwilly.portfolio.model.User;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -19,6 +15,9 @@ import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class JwtService {
@@ -100,7 +99,7 @@ public class JwtService {
         .getUrlEncoder()
         .withoutPadding()
         .encodeToString(objectMapper.writeValueAsBytes(value));
-    } catch (JsonProcessingException exception) {
+    } catch (JacksonException exception) {
       throw new IllegalStateException("Unable to encode JWT", exception);
     }
   }
@@ -109,7 +108,7 @@ public class JwtService {
     try {
       byte[] decoded = Base64.getUrlDecoder().decode(encodedValue);
       return objectMapper.readValue(decoded, MAP_TYPE);
-    } catch (IOException | IllegalArgumentException exception) {
+    } catch (JacksonException | IllegalArgumentException exception) {
       throw new IllegalArgumentException("Unable to decode JWT", exception);
     }
   }

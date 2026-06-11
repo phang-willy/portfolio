@@ -1,0 +1,5 @@
+@reference '../../../../styles.css';
+
+:host ::ng-deep .two-factor-otp .p-inputotp-input {
+  @apply size-11 text-center text-lg font-bold max-sm:size-10;
+}

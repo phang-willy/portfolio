@@ -40,6 +40,7 @@ public class WebConfig implements WebMvcConfigurer {
       .allowedOrigins(corsProperties.allowedOrigins().toArray(String[]::new))
       .allowedMethods(ALLOWED_METHODS)
       .allowedHeaders("*")
+      .allowCredentials(true)
       .maxAge(CORS_MAX_AGE_SECONDS);
   }
 

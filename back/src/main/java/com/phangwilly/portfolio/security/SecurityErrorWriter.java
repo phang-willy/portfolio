@@ -1,12 +1,12 @@
 package com.phangwilly.portfolio.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phangwilly.portfolio.dto.ApiErrorResponse;
+import com.phangwilly.portfolio.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class SecurityErrorWriter {
@@ -17,10 +17,10 @@ public class SecurityErrorWriter {
     this.objectMapper = objectMapper;
   }
 
-  public void write(HttpServletResponse response, HttpStatus status, String code, String message)
+  public void write(HttpServletResponse response, HttpStatus status, String message)
     throws IOException {
     response.setStatus(status.value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    objectMapper.writeValue(response.getWriter(), ApiErrorResponse.of(code, message));
+    objectMapper.writeValue(response.getWriter(), ApiResponse.error(status, message));
   }
 }

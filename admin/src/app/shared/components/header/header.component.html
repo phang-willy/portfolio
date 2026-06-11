@@ -1,0 +1,41 @@
+<header
+  class="flex min-h-16 items-center justify-between gap-4 border-b border-surface-200 bg-surface-0 px-5 text-surface-950 max-sm:flex-col max-sm:items-stretch max-sm:py-4"
+>
+  <a routerLink="/admin" class="flex items-center gap-3 text-surface-950 no-underline">
+    <span
+      class="grid size-10 place-items-center rounded-lg bg-primary-500 font-extrabold text-primary-contrast"
+      aria-hidden="true"
+      >A</span
+    >
+    <span class="grid">
+      <strong>Portfolio Admin</strong>
+      <small class="font-bold text-surface-500">Control panel</small>
+    </span>
+  </a>
+
+  <div
+    class="flex items-center justify-end gap-3 max-sm:justify-between"
+    aria-label="Authenticated user"
+  >
+    @if (currentUser$ | async; as user) {
+      <div class="grid text-right max-sm:text-left">
+        <strong>{{ user.firstname }} {{ user.lastname }}</strong>
+        <small class="font-bold text-surface-500">{{ user.email }} · {{ user.role }}</small>
+      </div>
+    }
+
+    <p-button
+      label="Logout"
+      icon="pi pi-sign-out"
+      severity="danger"
+      [outlined]="true"
+      [loading]="isLoggingOut()"
+      [disabled]="isLoggingOut()"
+      (onClick)="logout()"
+    />
+
+    <div>
+      <app-theme-toggle />
+    </div>
+  </div>
+</header>

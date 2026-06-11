@@ -1,0 +1,27 @@
+@reference '../../../../styles.css';
+
+.admin-shell {
+  --admin-sidebar-width: 16rem;
+  --admin-sidebar-collapsed-width: 4.5rem;
+}
+
+.admin-shell-sidebar {
+  width: var(--admin-sidebar-width);
+}
+
+.admin-shell-sidebar.admin-shell-sidebar-collapsed {
+  width: var(--admin-sidebar-collapsed-width);
+}
+
+.admin-mobile-drawer.p-drawer {
+  @apply w-[min(100vw,18rem)]! border-surface-200! bg-surface-0! text-surface-950!;
+}
+
+.admin-mobile-drawer.p-drawer,
+.admin-mobile-drawer .p-drawer-content {
+  @apply h-full! max-h-dvh!;
+}
+
+.admin-mobile-drawer .p-drawer-content {
+  @apply overflow-hidden! p-0!;
+}

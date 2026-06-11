@@ -1,0 +1,23 @@
+<header class="admin-shell-header">
+  <div class="admin-shell-header-control">
+    <p-button
+      type="button"
+      [icon]="sidebarToggleIcon()"
+      [rounded]="true"
+      [text]="true"
+      severity="secondary"
+      styleClass="admin-header-icon-btn"
+      [attr.aria-label]="sidebarToggleLabel()"
+      [attr.aria-expanded]="sidebarOpen()"
+      (onClick)="onToggleSidebar()"
+    />
+  </div>
+
+  <div class="admin-breadcrumb-shell">
+    <p-breadcrumb [model]="breadcrumbItems()" styleClass="admin-breadcrumb" />
+  </div>
+
+  <div class="admin-shell-header-control">
+    <app-theme-toggle />
+  </div>
+</header>

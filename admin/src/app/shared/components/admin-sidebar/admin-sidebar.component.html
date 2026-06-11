@@ -1,0 +1,112 @@
+<div class="flex h-full min-h-0 flex-col bg-surface-0 text-surface-950">
+  <div class="flex h-16 shrink-0 items-center gap-3 border-b border-surface-200 px-4">
+    <span
+      class="grid size-10 shrink-0 place-items-center rounded-lg bg-primary-500 font-extrabold text-primary-contrast"
+      aria-hidden="true"
+      >A</span
+    >
+    @if (!compact()) {
+      <div class="grid min-w-0 flex-1">
+        <strong class="truncate leading-tight">Portfolio Admin</strong>
+        <small class="truncate font-bold text-surface-500">Control panel</small>
+      </div>
+    } @else {
+      <div class="flex-1"></div>
+    }
+    @if (showCloseButton()) {
+      <p-button
+        type="button"
+        icon="pi pi-times"
+        [rounded]="true"
+        [text]="true"
+        severity="secondary"
+        styleClass="admin-header-icon-btn"
+        ariaLabel="Close navigation"
+        (onClick)="onClose()"
+      />
+    }
+  </div>
+
+  <nav
+    class="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-3 py-4"
+    aria-label="Admin navigation"
+  >
+    @for (section of navSections; track section.label) {
+      <section class="grid gap-1">
+        @if (!compact()) {
+          <p class="m-0 px-2 text-xs font-extrabold uppercase tracking-wide text-surface-500">
+            {{ section.label }}
+          </p>
+        }
+        <ul class="m-0 grid list-none gap-0.5 p-0">
+          @for (item of section.items; track item.route) {
+            <li>
+              <a
+                class="admin-nav-link"
+                [routerLink]="item.route"
+                routerLinkActive="admin-nav-link-active"
+                [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+                (click)="onNavigate()"
+              >
+                <i [class]="item.icon + ' admin-nav-link-icon'" aria-hidden="true"></i>
+                @if (!compact()) {
+                  <span>{{ item.label }}</span>
+                }
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </nav>
+
+  <footer class="mt-auto shrink-0 border-t border-surface-200 p-3">
+    @if (currentUser$ | async; as user) {
+      <div class="admin-sidebar-user-card grid gap-3 p-2" [class.place-items-center]="compact()">
+        <div class="flex items-center gap-3" [class.flex-col]="compact()">
+          <p-avatar
+            [label]="userInitials(user.firstname, user.lastname)"
+            shape="circle"
+            class="shrink-0 bg-primary-500 text-primary-contrast"
+          />
+          @if (!compact()) {
+            <div class="grid min-w-0 flex-1">
+              <strong class="truncate text-sm leading-tight">
+                {{ user.firstname }} {{ user.lastname }}
+              </strong>
+              <small class="truncate font-bold text-surface-500">{{ user.email }}</small>
+            </div>
+          }
+        </div>
+
+        @if (!compact()) {
+          <p-button
+            label="Logout"
+            icon="pi pi-sign-out"
+            severity="danger"
+            [outlined]="true"
+            class="w-full"
+            styleClass="w-full justify-center"
+            [loading]="isLoggingOut()"
+            [disabled]="isLoggingOut()"
+            (onClick)="logout()"
+          />
+        } @else {
+          <p-button
+            icon="pi pi-sign-out"
+            severity="danger"
+            [outlined]="true"
+            size="small"
+            [rounded]="true"
+            class="w-full"
+            styleClass="w-full justify-center"
+            [loading]="isLoggingOut()"
+            [disabled]="isLoggingOut()"
+            ariaLabel="Logout"
+            (onClick)="logout()"
+          />
+        }
+      </div>
+    }
+  </footer>
+</div>

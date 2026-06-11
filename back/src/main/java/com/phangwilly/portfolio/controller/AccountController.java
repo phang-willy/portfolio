@@ -1,7 +1,9 @@
 package com.phangwilly.portfolio.controller;
 
-import com.phangwilly.portfolio.dto.AuthMessageResponse;
+import com.phangwilly.portfolio.dto.ApiResponse;
+import com.phangwilly.portfolio.dto.ApiResponses;
 import com.phangwilly.portfolio.dto.ChangePasswordRequest;
+import com.phangwilly.portfolio.security.Honeypot;
 import com.phangwilly.portfolio.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/account")
 public class AccountController {
 
+  private static final String PASSWORD_CHANGED_MESSAGE = "Password changed";
+
   private final AccountService accountService;
 
   public AccountController(AccountService accountService) {
@@ -21,9 +25,13 @@ public class AccountController {
   }
 
   @PostMapping("/change-password")
-  public ResponseEntity<AuthMessageResponse> changePassword(
+  public ResponseEntity<ApiResponse<Void>> changePassword(
     @Valid @RequestBody ChangePasswordRequest request
   ) {
-    return ResponseEntity.ok(accountService.changePassword(request));
+    if (Honeypot.isFilled(request.website())) {
+      return ApiResponses.okMessage(PASSWORD_CHANGED_MESSAGE);
+    }
+
+    return ApiResponses.okMessage(accountService.changePassword(request).message());
   }
 }
