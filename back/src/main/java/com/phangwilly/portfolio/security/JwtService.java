@@ -56,6 +56,14 @@ public class JwtService {
   }
 
   public Optional<JwtPayload> parseAndValidate(String token, Instant now) {
+    return parseToken(token).filter(payload -> payload.expiresAt().isAfter(now));
+  }
+
+  public Optional<JwtPayload> parseAndValidateSignature(String token) {
+    return parseToken(token);
+  }
+
+  private Optional<JwtPayload> parseToken(String token) {
     try {
       String[] parts = token.split("\\.");
       if (parts.length != 3) {
@@ -78,9 +86,6 @@ public class JwtService {
 
       Map<String, Object> payload = decodeJson(parts[1]);
       Instant expiresAt = Instant.ofEpochSecond(readLong(payload, "exp"));
-      if (!expiresAt.isAfter(now)) {
-        return Optional.empty();
-      }
 
       return Optional.of(new JwtPayload(
         UUID.fromString(String.valueOf(payload.get("sub"))),

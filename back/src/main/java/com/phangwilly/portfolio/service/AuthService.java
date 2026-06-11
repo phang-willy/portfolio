@@ -378,7 +378,7 @@ public class AuthService {
   private UserSession findValidSession(String token, Instant now) {
     String tokenHash = tokenHashService.hashJwt(token);
     JwtPayload payload = jwtService
-      .parseAndValidate(token, now)
+      .parseAndValidateSignature(token)
       .orElseThrow(() -> unauthenticatedException());
     UserSession session = userSessionRepository
       .findByTokenHash(tokenHash)
