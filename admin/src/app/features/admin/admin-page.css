@@ -1,0 +1,9 @@
+@reference '../../../styles.css';
+
+.status-text-success {
+  @apply text-green-700;
+}
+
+:host-context(html.dark) .status-text-success {
+  @apply text-green-300;
+}

@@ -1,5 +1,7 @@
 package com.phangwilly.portfolio.controller;
 
+import com.phangwilly.portfolio.dto.ApiResponse;
+import com.phangwilly.portfolio.dto.ApiResponses;
 import com.phangwilly.portfolio.dto.HealthResponse;
 import com.phangwilly.portfolio.service.GetApiStatusService;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,7 @@ public class HealthController {
   }
 
   @GetMapping("/health")
-  public ResponseEntity<HealthResponse> health() {
-    return ResponseEntity.ok(HealthResponse.from(getApiStatusService.getStatus()));
+  public ResponseEntity<ApiResponse<HealthResponse>> health() {
+    return ApiResponses.ok(HealthResponse.from(getApiStatusService.getStatus()));
   }
 }

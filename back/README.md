@@ -55,6 +55,8 @@ POST /api/auth/reset-password
 POST /api/account/change-password
 ```
 
+Les emails d'inscription ne doivent pas pointer directement vers l'API. Le lien public envoye a l'utilisateur doit pointer vers l'admin Angular, par exemple `http://localhost:3001/verify?token=...`, puis Angular appelle `GET /api/auth/verify-email?token=...`.
+
 Les projets retournes par l'endpoint public excluent les lignes avec `deleted_at` ou `deactivated_at`.
 
 ## Authentification
@@ -74,7 +76,7 @@ Variables utiles :
 ```text
 REGISTER_ENABLE=false
 APP_PUBLIC_BASE_URL=http://localhost:8000
-APP_ADMIN_BASE_URL=http://localhost:3001/admin
+APP_ADMIN_BASE_URL=http://localhost:3001
 APP_AUTH_JWT_SECRET=change-this-dev-jwt-secret-with-at-least-32-characters
 APP_AUTH_TOKEN_HASH_SECRET=change-this-dev-token-hash-secret-with-at-least-32-characters
 ```
@@ -89,14 +91,29 @@ Bucket4j applique un rate limiting sur `/api/**`.
 - Autres utilisateurs et anonymes : 50 requetes par seconde.
 - Depassement : `429 Too Many Requests`.
 
-Reponse d'erreur :
+Format de reponse API (succes et erreur) :
 
 ```json
 {
-  "error": {
-    "code": "RATE_LIMIT_EXCEEDED",
-    "message": "Too many requests"
-  }
+  "success": false,
+  "code": 429,
+  "message": "Too Many Requests",
+  "data": null
+}
+```
+
+Les reponses reussies utilisent le meme envelope avec `success: true`, `code` egal au statut HTTP (souvent `200`) et le payload metier dans `data`.
+
+Quand aucun message metier n'est fourni, `message` reprend la reason phrase HTTP standard (ex. `200` → `OK`, `400` → `Bad Request`, `401` → `Unauthorized`). Voir [HTTP Status Codes](https://restfulapi.net/http-status-codes/).
+
+Route inexistante (ex. `GET /api/auth/`) :
+
+```json
+{
+  "success": false,
+  "code": 404,
+  "message": "Not Found",
+  "data": null
 }
 ```
 

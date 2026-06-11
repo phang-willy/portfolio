@@ -3,12 +3,14 @@ package com.phangwilly.portfolio.service;
 import com.phangwilly.portfolio.config.AuthDurations;
 import com.phangwilly.portfolio.config.AuthProperties;
 import com.phangwilly.portfolio.dto.AuthMessageResponse;
-import com.phangwilly.portfolio.dto.AuthTokenResponse;
+import com.phangwilly.portfolio.dto.AuthPublicConfigResponse;
+import com.phangwilly.portfolio.dto.AuthenticatedUserResponse;
 import com.phangwilly.portfolio.dto.ForgotPasswordRequest;
 import com.phangwilly.portfolio.dto.LoginRequest;
 import com.phangwilly.portfolio.dto.LoginResponse;
 import com.phangwilly.portfolio.dto.RegisterRequest;
 import com.phangwilly.portfolio.dto.ResetPasswordRequest;
+import com.phangwilly.portfolio.dto.UserResponse;
 import com.phangwilly.portfolio.dto.VerifyTwoFactorRequest;
 import com.phangwilly.portfolio.exception.ApiException;
 import com.phangwilly.portfolio.model.EmailVerificationToken;
@@ -23,10 +25,16 @@ import com.phangwilly.portfolio.repository.TwoFactorAuthRepository;
 import com.phangwilly.portfolio.repository.UserPasswordRepository;
 import com.phangwilly.portfolio.repository.UserRepository;
 import com.phangwilly.portfolio.repository.UserSessionRepository;
+import com.phangwilly.portfolio.security.AuthenticatedUser;
+import com.phangwilly.portfolio.security.CurrentUserService;
+import com.phangwilly.portfolio.security.JwtPayload;
 import com.phangwilly.portfolio.security.JwtService;
 import com.phangwilly.portfolio.security.SecureTokenService;
 import com.phangwilly.portfolio.security.TokenHashService;
 import com.phangwilly.portfolio.security.TwoFactorCodeService;
+import com.phangwilly.portfolio.util.PersonNameFormatter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -55,6 +63,8 @@ public class AuthService {
   private static final String ACCOUNT_DEACTIVATED_MESSAGE = "Account is deactivated";
   private static final String ACCOUNT_LOCKED_CODE = "ACCOUNT_LOCKED";
   private static final String ACCOUNT_LOCKED_MESSAGE = "Account is temporarily locked";
+  private static final String UNAUTHENTICATED_CODE = "UNAUTHENTICATED";
+  private static final String UNAUTHENTICATED_MESSAGE = "Authentication is required";
   private static final String TWO_FACTOR_INVALID_CODE = "TWO_FACTOR_INVALID";
   private static final String TWO_FACTOR_INVALID_MESSAGE = "Invalid or expired two-factor code";
   private static final String REGISTER_SUCCESS_MESSAGE =
@@ -66,8 +76,11 @@ public class AuthService {
   private static final String VERIFY_EMAIL_SUBJECT = "Verify your email";
   private static final String TWO_FACTOR_SUBJECT = "Your authentication code";
   private static final String RESET_PASSWORD_SUBJECT = "Reset your password";
+  private static final String VERIFY_EMAIL_FRONTEND_PATH = "/verify";
+  private static final String RESET_PASSWORD_FRONTEND_PATH = "/reset-password";
 
   private final AuthProperties authProperties;
+  private final CurrentUserService currentUserService;
   private final UserRepository userRepository;
   private final UserPasswordRepository userPasswordRepository;
   private final EmailVerificationTokenRepository emailVerificationTokenRepository;
@@ -84,6 +97,7 @@ public class AuthService {
 
   public AuthService(
     AuthProperties authProperties,
+    CurrentUserService currentUserService,
     UserRepository userRepository,
     UserPasswordRepository userPasswordRepository,
     EmailVerificationTokenRepository emailVerificationTokenRepository,
@@ -99,6 +113,7 @@ public class AuthService {
     Clock clock
   ) {
     this.authProperties = authProperties;
+    this.currentUserService = currentUserService;
     this.userRepository = userRepository;
     this.userPasswordRepository = userPasswordRepository;
     this.emailVerificationTokenRepository = emailVerificationTokenRepository;
@@ -114,15 +129,14 @@ public class AuthService {
     this.clock = clock;
   }
 
+  @Transactional(readOnly = true)
+  public AuthPublicConfigResponse getPublicConfig() {
+    return new AuthPublicConfigResponse(authProperties.isRegisterEnabled());
+  }
+
   @Transactional
   public AuthMessageResponse register(RegisterRequest request) {
-    if (!authProperties.isRegisterEnabled()) {
-      throw new ApiException(
-        HttpStatus.FORBIDDEN,
-        REGISTER_DISABLED_CODE,
-        REGISTER_DISABLED_MESSAGE
-      );
-    }
+    ensureRegisterEnabled();
 
     ensurePasswordsMatch(request.password(), request.confirmPassword());
 
@@ -136,8 +150,8 @@ public class AuthService {
     }
 
     User user = userRepository.save(new User(
-      request.lastname().trim(),
-      request.firstname().trim(),
+      PersonNameFormatter.formatLastname(request.lastname()),
+      PersonNameFormatter.formatFirstname(request.firstname()),
       email
     ));
 
@@ -156,8 +170,7 @@ public class AuthService {
     emailQueueService.enqueue(
       user.getEmail(),
       VERIFY_EMAIL_SUBJECT,
-      "Verify your email: " + authProperties.getPublicBaseUrl()
-        + "/api/auth/verify-email?token=" + token
+      "Verify your email: " + buildAdminTokenUrl(VERIFY_EMAIL_FRONTEND_PATH, token)
     );
 
     return new AuthMessageResponse(REGISTER_SUCCESS_MESSAGE);
@@ -213,7 +226,7 @@ public class AuthService {
   }
 
   @Transactional
-  public AuthTokenResponse verifyTwoFactor(VerifyTwoFactorRequest request) {
+  public AuthSession verifyTwoFactor(VerifyTwoFactorRequest request) {
     Instant now = Instant.now(clock);
     User user = userRepository
       .findByEmailIgnoreCase(normalizeEmail(request.email()))
@@ -233,15 +246,34 @@ public class AuthService {
     ensureUserCanLogin(user, now);
 
     twoFactorAuth.verify(now);
-    Instant expiredAt = now.plus(sessionDuration(request.rememberMe()));
-    String jwt = jwtService.generateToken(user, expiredAt);
-    userSessionRepository.save(new UserSession(
-      user,
-      tokenHashService.hashJwt(jwt),
-      expiredAt
-    ));
+    return createSession(user, sessionDuration(request.rememberMe()), now);
+  }
 
-    return new AuthTokenResponse(jwt, expiredAt);
+  @Transactional(readOnly = true)
+  public AuthenticatedUserResponse me() {
+    AuthenticatedUser currentUser = currentUserService.getCurrentUser();
+    User user = userRepository
+      .findById(currentUser.id())
+      .orElseThrow(() -> unauthenticatedException());
+
+    return authenticatedUserResponse(user);
+  }
+
+  @Transactional
+  public AuthSession refresh(String token) {
+    Instant now = Instant.now(clock);
+    UserSession currentSession = findValidSession(token, now);
+
+    currentSession.expire(now);
+    return createSession(currentSession.getUser(), AuthDurations.DEFAULT_SESSION_TTL, now);
+  }
+
+  @Transactional
+  public void logout(String token) {
+    Instant now = Instant.now(clock);
+    userSessionRepository
+      .findByTokenHash(tokenHashService.hashJwt(token))
+      .ifPresent(session -> session.expire(now));
   }
 
   @Transactional
@@ -258,8 +290,7 @@ public class AuthService {
       emailQueueService.enqueue(
         user.getEmail(),
         RESET_PASSWORD_SUBJECT,
-        "Reset your password: " + authProperties.getAdminBaseUrl()
-          + "/reset-password?token=" + token
+        "Reset your password: " + buildAdminTokenUrl(RESET_PASSWORD_FRONTEND_PATH, token)
       );
     });
 
@@ -331,8 +362,69 @@ public class AuthService {
       : AuthDurations.DEFAULT_SESSION_TTL;
   }
 
+  private AuthSession createSession(User user, Duration duration, Instant now) {
+    Instant expiredAt = now.plus(duration);
+    String jwt = jwtService.generateToken(user, expiredAt);
+
+    userSessionRepository.save(new UserSession(
+      user,
+      tokenHashService.hashJwt(jwt),
+      expiredAt
+    ));
+
+    return new AuthSession(jwt, expiredAt, authenticatedUserResponse(user));
+  }
+
+  private UserSession findValidSession(String token, Instant now) {
+    String tokenHash = tokenHashService.hashJwt(token);
+    JwtPayload payload = jwtService
+      .parseAndValidateSignature(token)
+      .orElseThrow(() -> unauthenticatedException());
+    UserSession session = userSessionRepository
+      .findByTokenHash(tokenHash)
+      .orElseThrow(() -> unauthenticatedException());
+
+    if (!session.getUser().getId().equals(payload.userId())
+      || !session.isValid(now)
+      || !session.getUser().isActive()) {
+      throw unauthenticatedException();
+    }
+
+    return session;
+  }
+
+  private static AuthenticatedUserResponse authenticatedUserResponse(User user) {
+    return new AuthenticatedUserResponse(UserResponse.from(user));
+  }
+
+  private void ensureRegisterEnabled() {
+    if (!authProperties.isRegisterEnabled()) {
+      throw new ApiException(
+        HttpStatus.FORBIDDEN,
+        REGISTER_DISABLED_CODE,
+        REGISTER_DISABLED_MESSAGE
+      );
+    }
+  }
+
   private static String normalizeEmail(String email) {
     return email.trim().toLowerCase(Locale.ROOT);
+  }
+
+  private String buildAdminTokenUrl(String path, String token) {
+    return stripTrailingSlash(authProperties.getAdminBaseUrl())
+      + path
+      + "?token="
+      + URLEncoder.encode(token, StandardCharsets.UTF_8);
+  }
+
+  private static String stripTrailingSlash(String value) {
+    int endIndex = value.length();
+    while (endIndex > 0 && value.charAt(endIndex - 1) == '/') {
+      endIndex--;
+    }
+
+    return value.substring(0, endIndex);
   }
 
   private static ApiException invalidTokenException() {
@@ -352,6 +444,14 @@ public class AuthService {
       HttpStatus.UNAUTHORIZED,
       TWO_FACTOR_INVALID_CODE,
       TWO_FACTOR_INVALID_MESSAGE
+    );
+  }
+
+  private static ApiException unauthenticatedException() {
+    return new ApiException(
+      HttpStatus.UNAUTHORIZED,
+      UNAUTHENTICATED_CODE,
+      UNAUTHENTICATED_MESSAGE
     );
   }
 }

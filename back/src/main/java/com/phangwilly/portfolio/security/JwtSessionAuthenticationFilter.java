@@ -23,10 +23,10 @@ public class JwtSessionAuthenticationFilter extends OncePerRequestFilter {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String BEARER_PREFIX = "Bearer ";
-  private static final String UNAUTHENTICATED_CODE = "UNAUTHENTICATED";
   private static final String UNAUTHENTICATED_MESSAGE = "Invalid or expired authentication token";
 
   private final JwtService jwtService;
+  private final AuthCookieService authCookieService;
   private final TokenHashService tokenHashService;
   private final UserSessionRepository userSessionRepository;
   private final SecurityErrorWriter securityErrorWriter;
@@ -34,12 +34,14 @@ public class JwtSessionAuthenticationFilter extends OncePerRequestFilter {
 
   public JwtSessionAuthenticationFilter(
     JwtService jwtService,
+    AuthCookieService authCookieService,
     TokenHashService tokenHashService,
     UserSessionRepository userSessionRepository,
     SecurityErrorWriter securityErrorWriter,
     Clock clock
   ) {
     this.jwtService = jwtService;
+    this.authCookieService = authCookieService;
     this.tokenHashService = tokenHashService;
     this.userSessionRepository = userSessionRepository;
     this.securityErrorWriter = securityErrorWriter;
@@ -52,7 +54,7 @@ public class JwtSessionAuthenticationFilter extends OncePerRequestFilter {
     HttpServletResponse response,
     FilterChain filterChain
   ) throws ServletException, IOException {
-    String token = resolveBearerToken(request);
+    String token = resolveToken(request);
     if (token == null) {
       filterChain.doFilter(request, response);
       return;
@@ -68,7 +70,6 @@ public class JwtSessionAuthenticationFilter extends OncePerRequestFilter {
       securityErrorWriter.write(
         response,
         HttpStatus.UNAUTHORIZED,
-        UNAUTHENTICATED_CODE,
         UNAUTHENTICATED_MESSAGE
       );
       return;
@@ -80,7 +81,6 @@ public class JwtSessionAuthenticationFilter extends OncePerRequestFilter {
       securityErrorWriter.write(
         response,
         HttpStatus.UNAUTHORIZED,
-        UNAUTHENTICATED_CODE,
         UNAUTHENTICATED_MESSAGE
       );
       return;
@@ -106,6 +106,12 @@ public class JwtSessionAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     return PublicSecurityPaths.shouldSkipJwtFilter(request);
+  }
+
+  private String resolveToken(HttpServletRequest request) {
+    return authCookieService
+      .resolveToken(request)
+      .orElseGet(() -> resolveBearerToken(request));
   }
 
   private static String resolveBearerToken(HttpServletRequest request) {

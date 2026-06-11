@@ -19,6 +19,7 @@
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
     "remind:github-token": "node scripts/github-token-expiry-reminder.mjs",
     "generate:sitemap": "tsx scripts/generate-sitemap-xml.ts"
   },
@@ -41,6 +42,7 @@
     "prettier": "3.8.1",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   }
 }

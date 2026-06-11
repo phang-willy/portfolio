@@ -1,0 +1,63 @@
+@reference '../../../styles.css';
+
+:host .auth-input {
+  @apply border-surface-300 bg-surface-0 text-surface-950 shadow-none transition-colors;
+}
+
+:host .auth-input::placeholder {
+  @apply text-surface-400;
+}
+
+:host .auth-input:enabled:hover {
+  @apply border-surface-400;
+}
+
+:host .auth-input:enabled:focus {
+  @apply border-primary-500 ring-2 ring-primary-500/20;
+}
+
+:host .auth-input.p-invalid,
+:host .auth-input.ng-invalid.ng-touched {
+  @apply border-red-500;
+}
+
+:host ::ng-deep .p-checkbox .p-checkbox-box {
+  @apply border-surface-300 bg-surface-0 text-primary-contrast transition-colors;
+}
+
+:host ::ng-deep .p-checkbox:not(.p-disabled) .p-checkbox-box:hover {
+  @apply border-primary-500;
+}
+
+:host ::ng-deep .p-checkbox.p-checkbox-checked .p-checkbox-box,
+:host ::ng-deep .p-checkbox.p-highlight .p-checkbox-box {
+  @apply border-primary-500 bg-primary-500;
+}
+
+:host .auth-help {
+  @apply min-h-4 text-xs leading-snug text-red-600;
+}
+
+:host-context(html.dark) .auth-help {
+  @apply text-red-300;
+}
+
+:host .auth-feedback {
+  @apply m-0 rounded-lg border px-3 py-2.5 font-bold leading-snug;
+}
+
+:host .auth-feedback-error {
+  @apply border-red-200 bg-red-50 text-red-700;
+}
+
+:host-context(html.dark) .auth-feedback-error {
+  @apply border-red-900/70 bg-red-950/50 text-red-200;
+}
+
+:host .auth-feedback-success {
+  @apply border-green-200 bg-green-50 text-green-700;
+}
+
+:host-context(html.dark) .auth-feedback-success {
+  @apply border-green-900/70 bg-green-950/50 text-green-200;
+}

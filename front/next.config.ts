@@ -1,10 +1,16 @@
 import type { NextConfig } from "next";
 import { env } from "process";
 
-const allowedDevOrigins = (env.ALLOWED_DEV_ORIGINS ?? "")
+const defaultAllowedDevOrigins = ["localhost", "127.0.0.1"];
+
+const configuredAllowedDevOrigins = (env.ALLOWED_DEV_ORIGINS ?? "")
   .split(",")
   .map((v) => v.trim())
   .filter(Boolean);
+
+const allowedDevOrigins = Array.from(
+  new Set([...defaultAllowedDevOrigins, ...configuredAllowedDevOrigins]),
+);
 
 const contactApiOrigin = (() => {
   const value = (env.NEXT_PUBLIC_CONTACT_API_ORIGIN ?? "").trim();

@@ -1,0 +1,42 @@
+@reference '../../../../styles.css';
+
+.admin-shell-header {
+  @apply flex h-16 shrink-0 items-center gap-3 border-b border-surface-200 bg-surface-0 px-4 text-surface-950;
+}
+
+.admin-shell-header-control {
+  @apply flex h-10 shrink-0 items-center justify-center;
+}
+
+:host ::ng-deep .admin-header-icon-btn {
+  @apply size-10! min-h-10! min-w-10! p-0!;
+}
+
+:host ::ng-deep .admin-header-icon-btn.p-button.p-button-text.p-button-secondary:not(:disabled):hover {
+  @apply bg-surface-100 text-surface-950;
+}
+
+.admin-breadcrumb-shell {
+  @apply flex h-10 min-h-10 min-w-0 flex-1 items-center rounded-lg border border-surface-200 bg-surface-100 px-3;
+}
+
+:host ::ng-deep .admin-breadcrumb-shell .p-breadcrumb.p-component,
+:host ::ng-deep .admin-breadcrumb.p-breadcrumb,
+:host ::ng-deep .p-breadcrumb.admin-breadcrumb {
+  @apply m-0! h-auto! min-h-0! w-full! border-0! bg-transparent! p-0! shadow-none!;
+  background-color: transparent !important;
+}
+
+:host ::ng-deep .admin-breadcrumb .p-breadcrumb-list {
+  @apply m-0 flex flex-wrap items-center gap-1;
+}
+
+:host ::ng-deep .admin-breadcrumb .p-breadcrumb-item-label,
+:host ::ng-deep .admin-breadcrumb .p-breadcrumb-item-link,
+:host ::ng-deep .admin-breadcrumb a {
+  @apply text-sm font-semibold text-surface-700 no-underline;
+}
+
+:host ::ng-deep .admin-breadcrumb .p-breadcrumb-chevron {
+  @apply text-surface-500;
+}

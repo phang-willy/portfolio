@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 public record VerifyTwoFactorRequest(
   @NotBlank @Email @Size(max = 320) String email,
   @NotBlank @Pattern(regexp = "\\d{6}") String code,
-  boolean rememberMe
+  boolean rememberMe,
+  @Size(max = 500) String website
 ) {
 }
