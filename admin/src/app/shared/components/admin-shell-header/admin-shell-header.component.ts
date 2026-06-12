@@ -1,16 +1,22 @@
 import { Component, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { MenuItem } from 'primeng/api';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { ButtonModule } from 'primeng/button';
+import { NgIcon } from '@ng-icons/core';
 import { filter, map, startWith } from 'rxjs';
+import { HlmBreadcrumbImports } from '@spartan-ng/helm/breadcrumb';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmIcon } from '@spartan-ng/helm/icon';
 
 import { ThemeToggleComponent } from '@/app/shared/components/theme-toggle/theme-toggle.component';
 
+interface AdminBreadcrumbItem {
+  readonly label: string;
+  readonly link?: string;
+}
+
 @Component({
   selector: 'app-admin-shell-header',
-  imports: [BreadcrumbModule, ButtonModule, ThemeToggleComponent],
+  imports: [HlmBreadcrumbImports, HlmButtonImports, HlmIcon, NgIcon, ThemeToggleComponent],
   templateUrl: './admin-shell-header.component.html',
   styleUrl: './admin-shell-header.component.css',
 })
@@ -31,7 +37,7 @@ export class AdminShellHeaderComponent {
   );
 
   protected sidebarToggleIcon(): string {
-    return this.sidebarOpen() ? 'pi pi-angle-left' : 'pi pi-bars';
+    return this.sidebarOpen() ? 'lucidePanelLeftClose' : 'lucideMenu';
   }
 
   protected sidebarToggleLabel(): string {
@@ -42,8 +48,8 @@ export class AdminShellHeaderComponent {
     this.toggleSidebar.emit();
   }
 
-  private buildBreadcrumbItems(): MenuItem[] {
-    const items: MenuItem[] = [{ label: 'Admin', routerLink: '/admin/dashboard' }];
+  private buildBreadcrumbItems(): AdminBreadcrumbItem[] {
+    const items: AdminBreadcrumbItem[] = [{ label: 'Admin', link: '/admin/dashboard' }];
     let route: ActivatedRoute | null = this.activatedRoute.firstChild;
 
     while (route?.firstChild) {

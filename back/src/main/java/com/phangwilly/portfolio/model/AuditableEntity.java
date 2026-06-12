@@ -45,4 +45,8 @@ public abstract class AuditableEntity {
   public Instant getDeletedAt() {
     return deletedAt;
   }
+
+  public void markDeleted() {
+    this.deletedAt = Instant.now();
+  }
 }

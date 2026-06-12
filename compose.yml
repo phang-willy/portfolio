@@ -77,6 +77,8 @@ services:
     build:
       context: ./admin
       dockerfile: Dockerfile
+      args:
+        APP_TITLE: ${APP_TITLE:-Portfolio}
     ports:
       - "${ADMIN_BIND_ADDRESS:-127.0.0.1}:${ADMIN_PORT:-3001}:3001"
     depends_on:
@@ -93,8 +95,11 @@ services:
       context: ./admin
       dockerfile: Dockerfile
       target: deps
-    command: sh -c "npm install --include=dev --no-audit --no-fund && npm run start:docker"
+    env_file:
+      - .env
+    command: sh -c "npm ci --include=dev --no-audit --no-fund && npm run start:docker"
     environment:
+      APP_TITLE: ${APP_TITLE:-Portfolio}
       CHOKIDAR_INTERVAL: "1000"
       CHOKIDAR_USEPOLLING: "true"
       NG_CLI_ANALYTICS: "false"
@@ -156,17 +161,16 @@ services:
       - sh
       - -c
       - |
-        mkdir -p target
-        find target -mindepth 1 -delete
         mvn -q -DskipTests compile || exit 1
         touch /tmp/portfolio-api-last-compile || exit 1
         (
           while true; do
-            if find src pom.xml -newer /tmp/portfolio-api-last-compile | grep -q .; then
-              touch /tmp/portfolio-api-last-compile;
-              mvn -q -DskipTests compile;
-            fi;
-            sleep 2;
+            sleep 2
+            if find src pom.xml -newer /tmp/portfolio-api-last-compile 2>/dev/null | grep -q .; then
+              sleep 4
+              touch /tmp/portfolio-api-last-compile
+              flock /tmp/portfolio-api-compile.lock mvn -q -DskipTests compile || true
+            fi
           done
         ) &
         exec mvn spring-boot:run

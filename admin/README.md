@@ -22,19 +22,17 @@ docker compose up --build admin
 docker compose -f compose.yml -f compose.dev.yml up --build admin
 ```
 
-## PrimeNG
+## Spartan UI
 
 Configuration :
 
 - Angular `21`
-- PrimeNG `21`
-- preset `Aura`
-- primary `blue`
-- surface `slate`
-- ripple `off`
-- RTL `off` via `dir="ltr"` dans `src/index.html`
+- [Spartan UI](https://www.spartan.ng/) (`@spartan-ng/brain` + composants Helm dans `src/app/shared/ui/`)
+- thème `slate` via `@spartan-ng/brain/hlm-tailwind-preset.css`
+- icônes Lucide via `@ng-icons/lucide`
 
 Sources utiles :
 
+- [Spartan documentation](https://www.spartan.ng/documentation)
+- [Spartan theming](https://www.spartan.ng/documentation/theming)
 - [Angular compatibility](https://angular.dev/reference/versions)
-- [PrimeNG npm](https://www.npmjs.com/package/primeng)

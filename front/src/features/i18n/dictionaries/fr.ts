@@ -13,7 +13,7 @@ export const fr = {
       "Informations légales du site: éditeur, hébergement et conditions d'utilisation.",
     projectFallbackTitle: "Projet",
     stacksMarqueeAria:
-      "Technologies et outils — défilement des compétences techniques",
+      "Technologies et outils - défilement des compétences techniques",
   },
   a11y: {
     opensInNewWindow: "s’ouvre dans une nouvelle fenêtre",

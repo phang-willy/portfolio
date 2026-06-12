@@ -1,36 +1,32 @@
-<div class="admin-shell flex min-h-dvh bg-surface-50 text-surface-950">
+<div class="admin-shell flex min-h-dvh bg-background text-foreground">
   <aside
-    class="admin-shell-sidebar hidden h-dvh shrink-0 overflow-hidden border-r border-surface-200 bg-surface-0 transition-[width] duration-200 lg:block"
+    class="admin-shell-sidebar hidden h-dvh shrink-0 overflow-hidden border-r border-border bg-card transition-[width] duration-200 lg:block"
     [class.admin-shell-sidebar-collapsed]="sidebarCollapsed()"
     aria-label="Sidebar"
   >
     <app-admin-sidebar class="block h-full w-full" [compact]="sidebarCollapsed()" />
   </aside>
 
-  <p-drawer
-    [visible]="mobileSidebarOpen()"
-    (visibleChange)="onMobileSidebarVisibleChange($event)"
-    position="left"
-    [modal]="true"
-    [dismissible]="true"
-    [showCloseIcon]="false"
-    styleClass="admin-mobile-drawer"
-  >
-    <ng-template #headless>
+  <hlm-sheet side="left" [state]="mobileSidebarState()" (stateChanged)="onMobileSidebarStateChange($event)">
+    <hlm-sheet-content
+      *hlmSheetPortal="let ctx"
+      [showCloseButton]="false"
+      class="w-full max-w-none gap-0 border-0 p-0 sm:max-w-sm"
+    >
       <app-admin-sidebar
         class="block h-full min-h-dvh w-full"
         [showCloseButton]="true"
         (navigated)="closeMobileSidebar()"
         (closed)="closeMobileSidebar()"
       />
-    </ng-template>
-  </p-drawer>
+    </hlm-sheet-content>
+  </hlm-sheet>
 
-  <div class="flex min-w-0 flex-1 flex-col relative">
+  <div class="relative flex min-w-0 flex-1 flex-col">
     <app-admin-shell-header
       [sidebarOpen]="sidebarIsOpen()"
       (toggleSidebar)="toggleSidebar()"
-      class="sticky top-0 left-0 w-full z-10"
+      class="sticky top-0 left-0 z-10 w-full"
     />
     <main class="flex flex-1 flex-col gap-4 p-4 md:p-6">
       <router-outlet />

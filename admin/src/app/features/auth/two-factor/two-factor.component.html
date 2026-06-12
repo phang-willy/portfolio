@@ -1,25 +1,23 @@
-<main class="grid min-h-dvh place-items-center bg-surface-50 px-4 py-8 text-surface-950 sm:px-6">
+<main class="grid min-h-dvh place-items-center bg-background px-4 py-8 text-foreground sm:px-6">
   <section
-    class="w-full max-w-120 rounded-lg border border-surface-200 bg-surface-0 p-5 shadow-lg sm:p-7"
+    class="w-full max-w-120 rounded-lg border border-border bg-card p-5 shadow-lg sm:p-7"
     aria-labelledby="two-factor-title"
   >
     <div class="mb-6 flex items-center gap-3.5">
       <span
-        class="grid size-11 place-items-center rounded-lg bg-primary-500 font-extrabold text-primary-contrast"
+        class="grid size-11 place-items-center rounded-lg bg-primary font-extrabold text-primary-foreground"
         aria-hidden="true"
         >A</span
       >
       <div>
-        <p class="mb-1 text-xs font-extrabold uppercase text-primary-700">Portfolio Admin</p>
-        <h1 id="two-factor-title" class="m-0 text-3xl font-bold leading-tight text-surface-950">
+        <p class="mb-1 text-xs font-extrabold uppercase text-primary">Portfolio Admin</p>
+        <h1 id="two-factor-title" class="m-0 text-3xl font-bold leading-tight text-foreground">
           Two-factor code
         </h1>
       </div>
     </div>
 
-    <p class="m-0 text-sm text-surface-600">
-      Enter the 6-digit code sent to your email.
-    </p>
+    <p class="m-0 text-sm text-muted-foreground">Enter the 6-digit code sent to your email.</p>
 
     <form class="grid gap-4" [formGroup]="twoFactorForm" (ngSubmit)="submitTwoFactor()">
       <app-auth-honeypot-field />
@@ -27,23 +25,32 @@
       <input type="hidden" formControlName="email" />
 
       <div class="grid gap-2">
-        <label class="cursor-pointer font-bold text-surface-800">
+        <label class="cursor-pointer font-bold text-foreground">
           <span class="text-sm">2FA code</span>
         </label>
-        <p-inputotp
+        <brn-input-otp
+          hlmInputOtp
           formControlName="code"
-          [length]="6"
-          [integerOnly]="true"
-          styleClass="two-factor-otp w-full justify-between gap-2"
-          [class.p-invalid]="hasFieldError('code')"
+          maxLength="6"
+          inputMode="numeric"
+          class="w-full justify-start"
+          [inputClass]="
+            hasFieldError('code') ? 'data-[matches-spartan-invalid=true]:ring-destructive/20' : ''
+          "
           [attr.aria-invalid]="hasFieldError('code')"
-        />
+        >
+          <hlm-input-otp-group>
+            @for (index of otpSlotIndexes; track index) {
+              <hlm-input-otp-slot [index]="index" />
+            }
+          </hlm-input-otp-group>
+        </brn-input-otp>
         <small class="auth-help">{{ fieldError('code') }}</small>
       </div>
 
       <div class="flex items-center gap-2.5">
-        <p-checkbox inputId="two-factor-remember-me" formControlName="rememberMe" [binary]="true" />
-        <label for="two-factor-remember-me" class="cursor-pointer font-bold text-surface-800">
+        <hlm-checkbox inputId="two-factor-remember-me" formControlName="rememberMe" />
+        <label for="two-factor-remember-me" class="cursor-pointer font-bold text-foreground">
           <span class="text-sm">Remember me</span>
         </label>
       </div>
@@ -54,17 +61,19 @@
         </p>
       }
 
-      <p-button
-        type="submit"
-        label="Verify"
-        icon="pi pi-lock-open"
-        class="w-full"
-        styleClass="w-full justify-center"
-        [loading]="isSubmitting()"
-        [disabled]="isSubmitting()"
-      />
+      <button hlmBtn type="submit" class="w-full justify-center" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <hlm-spinner aria-label="Verifying code" />
+        } @else {
+          <ng-icon hlm size="sm" name="lucideLockOpen" />
+        }
+        Verify
+      </button>
 
-      <a routerLink="/login" class="text-center text-sm font-bold text-primary-700 no-underline hover:underline">
+      <a
+        routerLink="/login"
+        class="text-center text-sm font-bold text-primary no-underline hover:underline"
+      >
         Back to login
       </a>
     </form>

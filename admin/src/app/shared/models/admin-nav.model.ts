@@ -16,7 +16,7 @@ export const ADMIN_NAV_SECTIONS: readonly AdminNavSection[] = [
     items: [
       {
         label: 'Dashboard',
-        icon: 'pi pi-home',
+        icon: 'lucideHouse',
         route: '/admin/dashboard',
         exact: true,
       },
@@ -27,13 +27,18 @@ export const ADMIN_NAV_SECTIONS: readonly AdminNavSection[] = [
     items: [
       {
         label: 'Messages',
-        icon: 'pi pi-inbox',
+        icon: 'lucideInbox',
         route: '/admin/messages',
       },
       {
         label: 'Projects',
-        icon: 'pi pi-folder',
+        icon: 'lucideFolder',
         route: '/admin/projects',
+      },
+      {
+        label: 'Stacks',
+        icon: 'lucideCode',
+        route: '/admin/stacks',
       },
     ],
   },
@@ -42,7 +47,7 @@ export const ADMIN_NAV_SECTIONS: readonly AdminNavSection[] = [
     items: [
       {
         label: 'API status',
-        icon: 'pi pi-server',
+        icon: 'lucideServer',
         route: '/admin/system',
       },
     ],

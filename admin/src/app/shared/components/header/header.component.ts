@@ -2,8 +2,11 @@ import { AsyncPipe } from '@angular/common';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
+import { NgIcon } from '@ng-icons/core';
 import { catchError, finalize, of } from 'rxjs';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmIcon } from '@spartan-ng/helm/icon';
+import { HlmSpinner } from '@spartan-ng/helm/spinner';
 
 import { AuthStateService } from '@/app/core/auth/auth-state.service';
 import { AuthService } from '@/app/core/auth/auth.service';
@@ -11,7 +14,7 @@ import { ThemeToggleComponent } from '@/app/shared/components/theme-toggle/theme
 
 @Component({
   selector: 'app-header',
-  imports: [AsyncPipe, ButtonModule, RouterLink, ThemeToggleComponent],
+  imports: [AsyncPipe, HlmButtonImports, HlmIcon, HlmSpinner, NgIcon, RouterLink, ThemeToggleComponent],
   templateUrl: './header.component.html',
 })
 export class HeaderComponent {

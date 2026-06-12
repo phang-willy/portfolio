@@ -1,0 +1,426 @@
+<div class="grid content-start gap-6">
+  <section class="flex flex-wrap items-start justify-between gap-4">
+    <div class="grid gap-2">
+      <p class="m-0 text-xs font-extrabold uppercase text-primary">Content</p>
+      <h1 class="m-0 text-3xl font-bold text-foreground">Stacks</h1>
+      <p class="m-0 text-muted-foreground">Manage technologies displayed on the portfolio.</p>
+    </div>
+
+    <button hlmBtn type="button" (click)="openCreateDialog()">
+      <ng-icon hlm size="sm" name="lucidePlus" />
+      New stack
+    </button>
+  </section>
+
+  @if (errorMessage(); as message) {
+    <p
+      class="m-0 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+    >
+      {{ message }}
+    </p>
+  }
+
+  <section class="rounded-lg border border-border bg-card text-foreground shadow-lg">
+    <div
+      class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3 max-sm:flex-col max-sm:items-stretch"
+    >
+      <div
+        hlmSelect
+        class="w-full md:w-auto"
+        [ngModel]="rowsPerPage()"
+        (ngModelChange)="onRowsPerPageChange($event)"
+      >
+        <hlm-select-trigger class="w-full min-w-20">
+          <hlm-select-value placeholder="Rows per page" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          @for (rows of tableRowsOptions; track rows) {
+            <hlm-select-item [value]="rows">{{ rows }}</hlm-select-item>
+          }
+        </hlm-select-content>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 max-sm:w-full max-sm:justify-between">
+        <label class="text-sm text-muted-foreground" for="search">Search:</label>
+        <div class="relative w-full min-w-48 max-w-xs">
+          <ng-icon
+            hlm
+            size="sm"
+            name="lucideSearch"
+            class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            hlmInput
+            type="search"
+            id="search"
+            name="search"
+            class="w-full pl-9"
+            [value]="globalFilterValue()"
+            (input)="onGlobalFilter($event)"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div hlmTableContainer class="hidden overflow-x-auto md:block">
+      <table hlmTable class="w-full">
+        <thead hlmTHead>
+          <tr hlmTr>
+            <th hlmTh class="min-w-56">
+              <ng-container
+                *ngTemplateOutlet="sortHeader; context: { $implicit: 'name', label: 'Name' }"
+              />
+            </th>
+            <th hlmTh class="min-w-12">Icon</th>
+            <th hlmTh class="min-w-32">
+              <ng-container
+                *ngTemplateOutlet="
+                  sortHeader;
+                  context: { $implicit: 'createdAt', label: 'Created' }
+                "
+              />
+            </th>
+            <th hlmTh class="min-w-32">
+              <ng-container
+                *ngTemplateOutlet="
+                  sortHeader;
+                  context: { $implicit: 'updatedAt', label: 'Updated' }
+                "
+              />
+            </th>
+            <th hlmTh class="min-w-36 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody hlmTBody>
+          @if (isLoading()) {
+            <tr hlmTr>
+              <td hlmTd colspan="5" class="py-10 text-center text-muted-foreground">
+                <span class="inline-flex items-center justify-center gap-2">
+                  <hlm-spinner aria-label="Loading stacks" />
+                  Loading stacks...
+                </span>
+              </td>
+            </tr>
+          } @else if (paginatedStacks().length === 0) {
+            <tr hlmTr>
+              <td hlmTd colspan="5" class="py-10 text-center text-muted-foreground">
+                <span class="inline-flex flex-col items-center gap-2">
+                  <ng-icon hlm size="lg" name="lucideInbox" class="text-muted-foreground/70" />
+                  No stacks found.
+                </span>
+              </td>
+            </tr>
+          } @else {
+            @for (stack of paginatedStacks(); track stack.id) {
+              <tr hlmTr>
+                <td hlmTd>
+                  <span class="font-semibold">{{ stack.name }}</span>
+                </td>
+                <td hlmTd>
+                  @if (svgPreview(stack.image); as preview) {
+                    <div
+                      class="grid size-10 place-items-center text-foreground **:fill-current [&_svg]:size-full"
+                      [innerHTML]="preview"
+                    ></div>
+                  } @else {
+                    <span class="text-muted-foreground">-</span>
+                  }
+                </td>
+                <td hlmTd>{{ stack.createdAt | adminDate }}</td>
+                <td hlmTd>{{ stack.updatedAt | adminDate }}</td>
+                <td hlmTd class="text-right">
+                  <ng-container *ngTemplateOutlet="stackActions; context: { $implicit: stack }" />
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divide-y divide-border md:hidden">
+      @if (isLoading()) {
+        <p
+          class="flex items-center justify-center gap-2 px-4 py-10 text-center text-sm text-muted-foreground"
+        >
+          <hlm-spinner aria-label="Loading stacks" />
+          Loading stacks...
+        </p>
+      } @else if (paginatedStacks().length === 0) {
+        <p
+          class="flex flex-col items-center gap-2 px-4 py-10 text-center text-sm text-muted-foreground"
+        >
+          <ng-icon hlm size="lg" name="lucideInbox" class="text-muted-foreground/70" />
+          No stacks found.
+        </p>
+      } @else {
+        <div class="grid grid-cols-2 gap-2 border-b border-border px-4 py-3 text-xs">
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'name', label: 'Name', compact: true }
+            "
+          />
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'createdAt', label: 'Created', compact: true }
+            "
+          />
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'updatedAt', label: 'Updated', compact: true }
+            "
+          />
+        </div>
+
+        @for (stack of paginatedStacks(); track stack.id; let even = $even) {
+          <article class="px-4 py-4" [class.bg-muted/30]="even">
+            <dl class="grid grid-cols-[minmax(5.5rem,auto)_1fr] gap-x-4 gap-y-2 text-sm">
+              <dt class="font-semibold text-foreground">Name:</dt>
+              <dd class="m-0 text-end font-semibold">{{ stack.name }}</dd>
+
+              <dt class="font-semibold text-foreground">Icon:</dt>
+              <dd class="m-0 flex justify-end">
+                @if (svgPreview(stack.image); as preview) {
+                  <div
+                    class="grid size-10 place-items-center text-foreground **:fill-current [&_svg]:size-full"
+                    [innerHTML]="preview"
+                  ></div>
+                } @else {
+                  <span class="text-muted-foreground">No SVG icon</span>
+                }
+              </dd>
+
+              <dt class="font-semibold text-foreground">Created:</dt>
+              <dd class="m-0 text-end">{{ stack.createdAt | adminDate }}</dd>
+
+              <dt class="font-semibold text-foreground">Updated:</dt>
+              <dd class="m-0 text-end">{{ stack.updatedAt | adminDate }}</dd>
+
+              <dt class="font-semibold text-foreground">Actions:</dt>
+              <dd class="m-0 flex justify-end">
+                <ng-container *ngTemplateOutlet="stackActions; context: { $implicit: stack }" />
+              </dd>
+            </dl>
+          </article>
+        }
+      }
+    </div>
+
+    <ng-template #sortHeader let-field let-label="label" let-compact="compact">
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5"
+        [class.font-semibold]="compact"
+        (click)="toggleSort(field)"
+      >
+        {{ label }}
+        <ng-icon
+          hlm
+          size="xs"
+          [name]="sortIcon(field)"
+          [class.text-primary]="isSorted(field)"
+          [class.text-muted-foreground/50]="!isSorted(field)"
+        />
+      </button>
+    </ng-template>
+
+    <ng-template #stackActions let-stack>
+      <div class="flex items-center justify-end gap-1">
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          (click)="openEditDialog(stack)"
+          aria-label="Edit {{ stack.name }}"
+        >
+          <ng-icon hlm size="sm" name="lucidePencil" />
+        </button>
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+          (click)="confirmDelete(stack)"
+          aria-label="Delete {{ stack.name }}"
+        >
+          <ng-icon hlm size="sm" name="lucideTrash2" />
+        </button>
+      </div>
+    </ng-template>
+
+    <div
+      class="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 max-sm:flex-col max-sm:items-stretch"
+    >
+      <span class="block min-w-max text-sm font-semibold text-muted-foreground">
+        {{ pageReport() }}
+      </span>
+
+      <div class="ml-auto flex items-center gap-1 max-sm:mx-auto">
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isFirstPage()"
+          (click)="changePage(1)"
+          aria-label="First page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronsLeft" />
+        </button>
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isFirstPage()"
+          (click)="changePage(currentPage() - 1)"
+          aria-label="Previous page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronLeft" />
+        </button>
+
+        @for (page of pageLinks(); track page) {
+          <button
+            hlmBtn
+            type="button"
+            size="icon-sm"
+            [variant]="currentPage() === page ? 'default' : 'ghost'"
+            (click)="changePage(page)"
+            [attr.aria-current]="currentPage() === page ? 'page' : null"
+            [attr.aria-label]="'Page ' + page"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isLastPage()"
+          (click)="changePage(currentPage() + 1)"
+          aria-label="Next page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronRight" />
+        </button>
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isLastPage()"
+          (click)="changePage(totalPages())"
+          aria-label="Last page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronsRight" />
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<hlm-dialog [state]="dialogState()" (stateChanged)="onDialogStateChange($event)">
+  <hlm-dialog-content *hlmDialogPortal="let ctx" [showCloseButton]="false" class="sm:max-w-lg">
+    <hlm-dialog-header>
+      <h2 hlmDialogTitle>{{ dialogTitle }}</h2>
+    </hlm-dialog-header>
+
+    <form [formGroup]="stackForm" (ngSubmit)="submitStack()">
+      <app-auth-honeypot-field />
+
+      <div class="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4">
+        <div class="grid gap-4">
+          <div class="grid gap-2">
+            <label class="text-sm font-semibold text-foreground" for="stack-name">Name</label>
+            <input
+              hlmInput
+              class="w-full"
+              id="stack-name"
+              formControlName="name"
+              autocomplete="off"
+              [forceInvalid]="hasFieldError('name')"
+              [attr.aria-invalid]="hasFieldError('name')"
+            />
+            @if (fieldError('name'); as error) {
+              <small class="text-sm text-red-600">{{ error }}</small>
+            }
+          </div>
+
+          <div class="grid gap-2">
+            <label class="text-sm font-semibold text-foreground" for="stack-image">SVG icon</label>
+            <p class="m-0 text-xs text-muted-foreground">
+              Paste the full inline SVG markup, not a file path.
+            </p>
+            <textarea
+              hlmTextarea
+              class="min-h-32 w-full resize-y font-mono text-xs leading-relaxed"
+              id="stack-image"
+              formControlName="image"
+              rows="10"
+              autocomplete="off"
+              placeholder='<svg xmlns="http://www.w3.org/2000/svg" ...></svg>'
+              [forceInvalid]="hasFieldError('image')"
+              [attr.aria-invalid]="hasFieldError('image')"
+            ></textarea>
+            @if (fieldError('image'); as error) {
+              <small class="text-sm text-red-600">{{ error }}</small>
+            }
+          </div>
+
+          @if (errorMessage(); as message) {
+            <p class="m-0 text-sm text-red-600">{{ message }}</p>
+          }
+        </div>
+      </div>
+
+      <hlm-dialog-footer>
+        <button hlmBtn type="button" variant="ghost" (click)="closeDialog()">Cancel</button>
+        <button hlmBtn type="submit" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <hlm-spinner aria-label="Saving stack" />
+          }
+          {{ editingStack() ? 'Save' : 'Create' }}
+        </button>
+      </hlm-dialog-footer>
+    </form>
+  </hlm-dialog-content>
+</hlm-dialog>
+
+<hlm-alert-dialog [state]="deleteDialogState()" (stateChanged)="onDeleteDialogStateChange($event)">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal="let ctx" size="sm">
+    <form [formGroup]="deleteForm">
+      <app-auth-honeypot-field />
+
+      <hlm-alert-dialog-header>
+      <hlm-alert-dialog-media
+        class="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive"
+      >
+        <ng-icon hlm name="lucideTrash2" />
+      </hlm-alert-dialog-media>
+      <h2 hlmAlertDialogTitle>Delete stack?</h2>
+      <p hlmAlertDialogDescription>
+        @if (deleteTarget(); as stack) {
+          <p>
+            This will permanently delete <strong>"{{ stack.name }}"</strong>.
+          </p>
+          <p>This action cannot be undone.</p>
+        } @else {
+          This action cannot be undone.
+        }
+      </p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button hlmAlertDialogCancel type="button">Cancel</button>
+      <button hlmAlertDialogAction type="button" variant="destructive" (click)="acceptDelete()">
+        Delete
+      </button>
+    </hlm-alert-dialog-footer>
+    </form>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>

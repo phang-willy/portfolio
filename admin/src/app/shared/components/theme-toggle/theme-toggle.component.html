@@ -1,35 +1,35 @@
 <div class="relative">
   <button
     type="button"
-    class="inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-surface-200 bg-surface-0 text-surface-700 shadow-lg transition-colors hover:bg-surface-100 hover:text-surface-950 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+    class="inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-border bg-card text-foreground shadow-lg transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
     aria-label="Toggle theme"
     aria-haspopup="menu"
     [attr.aria-expanded]="isOpen()"
     (click)="toggleMenu($event)"
   >
-    <i [class]="currentIcon()" aria-hidden="true"></i>
+    <ng-icon hlm size="sm" [name]="currentIcon()" />
   </button>
 
   @if (isOpen()) {
     <div
-      class="absolute top-12 right-0 grid min-w-38 gap-1 rounded-md border border-surface-200 bg-surface-0 p-1 text-surface-950 shadow-xl"
+      class="absolute top-12 right-0 grid min-w-38 gap-1 rounded-md border border-border bg-card p-1 text-foreground shadow-xl"
       role="menu"
       aria-label="Theme"
     >
       @for (option of options; track option.value) {
         <button
           type="button"
-          class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded border-0 bg-transparent px-2.5 text-left text-sm font-bold text-surface-700 transition-colors hover:bg-surface-100 hover:text-surface-950 focus:bg-surface-100 focus:text-surface-950 focus:outline-none"
+          class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded border-0 bg-transparent px-2.5 text-left text-sm font-bold text-foreground transition-colors hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground focus:outline-none"
           role="menuitemradio"
           [attr.aria-checked]="preference() === option.value"
-          [class.bg-surface-100]="preference() === option.value"
-          [class.text-surface-950]="preference() === option.value"
+          [class.bg-muted]="preference() === option.value"
+          [class.text-foreground]="preference() === option.value"
           (click)="selectTheme(option.value, $event)"
         >
-          <i class="text-sm" [class]="option.icon" aria-hidden="true"></i>
+          <ng-icon hlm size="sm" [name]="option.icon" />
           <span>{{ option.label }}</span>
           @if (preference() === option.value) {
-            <i class="pi pi-check ml-auto text-primary-700" aria-hidden="true"></i>
+            <ng-icon hlm size="sm" name="lucideCheck" class="ml-auto text-primary" />
           }
         </button>
       }

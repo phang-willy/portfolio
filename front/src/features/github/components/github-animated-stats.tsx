@@ -91,7 +91,7 @@ function StatBlock({
     >
       <p className="text-4xl font-bold tabular-nums">
         {showPlaceholder ? (
-          <span className="text-gray-600">—</span>
+          <span className="text-gray-600">-</span>
         ) : (
           <>
             {showPlus ? <span>+</span> : null}

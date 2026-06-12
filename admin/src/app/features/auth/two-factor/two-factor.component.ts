@@ -2,11 +2,14 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { InputOtpModule } from 'primeng/inputotp';
-import { InputTextModule } from 'primeng/inputtext';
+import { NgIcon } from '@ng-icons/core';
+import { BrnInputOtp } from '@spartan-ng/brain/input-otp';
 import { EMPTY, catchError, finalize, from, switchMap } from 'rxjs';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
+import { HlmIcon } from '@spartan-ng/helm/icon';
+import { HlmInputOtpImports } from '@spartan-ng/helm/input-otp';
+import { HlmSpinner } from '@spartan-ng/helm/spinner';
 
 import { resolveAuthErrorMessage } from '@/app/core/auth/auth-error-message';
 import { AuthService } from '@/app/core/auth/auth.service';
@@ -24,10 +27,13 @@ interface TwoFactorNavigationState {
   selector: 'app-two-factor',
   imports: [
     AuthHoneypotFieldComponent,
-    ButtonModule,
-    CheckboxModule,
-    InputOtpModule,
-    InputTextModule,
+    BrnInputOtp,
+    HlmButtonImports,
+    HlmCheckboxImports,
+    HlmIcon,
+    HlmInputOtpImports,
+    HlmSpinner,
+    NgIcon,
     ReactiveFormsModule,
     RouterLink,
   ],
@@ -43,6 +49,7 @@ export class TwoFactorComponent implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly hasSubmitted = signal(false);
   protected readonly isSubmitting = signal(false);
+  protected readonly otpSlotIndexes = [0, 1, 2, 3, 4, 5];
 
   private readonly navigationState = this.resolveNavigationState();
 

@@ -1,5 +1,13 @@
 @reference '../../../../styles.css';
 
-:host ::ng-deep .two-factor-otp .p-inputotp-input {
+:host ::ng-deep brn-input-otp[hlmInputOtp] {
+  @apply w-full justify-center gap-0;
+}
+
+:host ::ng-deep hlm-input-otp-group {
+  @apply w-fit;
+}
+
+:host ::ng-deep hlm-input-otp-slot {
   @apply size-11 text-center text-lg font-bold max-sm:size-10;
 }

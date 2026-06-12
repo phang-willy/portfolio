@@ -2,10 +2,13 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { InputTextModule } from 'primeng/inputtext';
+import { NgIcon } from '@ng-icons/core';
 import { EMPTY, catchError, finalize, from, switchMap, tap } from 'rxjs';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
+import { HlmIcon } from '@spartan-ng/helm/icon';
+import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmSpinner } from '@spartan-ng/helm/spinner';
 
 import { AuthStateService } from '@/app/core/auth/auth-state.service';
 import { resolveAuthErrorMessage } from '@/app/core/auth/auth-error-message';
@@ -19,9 +22,12 @@ type LoginField = 'email' | 'password' | 'rememberMe';
   selector: 'app-login',
   imports: [
     AuthHoneypotFieldComponent,
-    ButtonModule,
-    CheckboxModule,
-    InputTextModule,
+    HlmButtonImports,
+    HlmCheckboxImports,
+    HlmIcon,
+    HlmInputImports,
+    HlmSpinner,
+    NgIcon,
     ReactiveFormsModule,
     RouterLink,
   ],

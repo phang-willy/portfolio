@@ -31,4 +31,9 @@ public class Stack extends AuditableEntity {
   public String getImage() {
     return image;
   }
+
+  public void updateDetails(String name, String image) {
+    this.name = name;
+    this.image = image;
+  }
 }
