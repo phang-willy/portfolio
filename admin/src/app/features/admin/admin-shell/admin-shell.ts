@@ -1,13 +1,14 @@
 import { Component, ViewEncapsulation, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { DrawerModule } from 'primeng/drawer';
+import type { BrnDialogState } from '@spartan-ng/brain/dialog';
+import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 
 import { AdminShellHeaderComponent } from '@/app/shared/components/admin-shell-header/admin-shell-header.component';
 import { AdminSidebarComponent } from '@/app/shared/components/admin-sidebar/admin-sidebar.component';
 
 @Component({
   selector: 'app-admin-shell',
-  imports: [AdminShellHeaderComponent, AdminSidebarComponent, DrawerModule, RouterOutlet],
+  imports: [AdminShellHeaderComponent, AdminSidebarComponent, HlmSheetImports, RouterOutlet],
   templateUrl: './admin-shell.html',
   styleUrl: './admin-shell.css',
   encapsulation: ViewEncapsulation.None,
@@ -29,8 +30,8 @@ export class AdminShell {
     this.mobileSidebarOpen.set(false);
   }
 
-  protected onMobileSidebarVisibleChange(visible: boolean): void {
-    this.mobileSidebarOpen.set(visible);
+  protected onMobileSidebarStateChange(state: BrnDialogState): void {
+    this.mobileSidebarOpen.set(state === 'open');
   }
 
   protected sidebarIsOpen(): boolean {
@@ -39,6 +40,10 @@ export class AdminShell {
     }
 
     return this.mobileSidebarOpen();
+  }
+
+  protected mobileSidebarState(): BrnDialogState {
+    return this.mobileSidebarOpen() ? 'open' : 'closed';
   }
 
   private isDesktopViewport(): boolean {

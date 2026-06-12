@@ -169,7 +169,7 @@ export const HorizontalAutoScroll = ({
     <div
       ref={containerRef}
       role="region"
-      aria-label="Technologies — défilement horizontal"
+      aria-label="Technologies - défilement horizontal"
       onWheel={onWheel}
       className={[
         "overflow-x-hidden overflow-y-hidden overscroll-x-contain",

@@ -2,9 +2,12 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
+import { NgIcon } from '@ng-icons/core';
 import { EMPTY, catchError, finalize, tap } from 'rxjs';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmIcon } from '@spartan-ng/helm/icon';
+import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmSpinner } from '@spartan-ng/helm/spinner';
 
 import { resolveAuthErrorMessage } from '@/app/core/auth/auth-error-message';
 import { AuthService } from '@/app/core/auth/auth.service';
@@ -15,7 +18,16 @@ type ResetPasswordField = 'password' | 'confirmPassword';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [AuthHoneypotFieldComponent, ButtonModule, InputTextModule, ReactiveFormsModule, RouterLink],
+  imports: [
+    AuthHoneypotFieldComponent,
+    HlmButtonImports,
+    HlmIcon,
+    HlmInputImports,
+    HlmSpinner,
+    NgIcon,
+    ReactiveFormsModule,
+    RouterLink,
+  ],
   templateUrl: './reset-password.component.html',
   styleUrl: '../auth-form.css',
 })

@@ -1,37 +1,24 @@
 @reference '../../../styles.css';
 
 :host .auth-input {
-  @apply border-surface-300 bg-surface-0 text-surface-950 shadow-none transition-colors;
+  @apply border-input bg-background text-foreground shadow-none transition-colors;
 }
 
 :host .auth-input::placeholder {
-  @apply text-surface-400;
+  @apply text-muted-foreground;
 }
 
 :host .auth-input:enabled:hover {
-  @apply border-surface-400;
+  @apply border-ring/50;
 }
 
 :host .auth-input:enabled:focus {
-  @apply border-primary-500 ring-2 ring-primary-500/20;
+  @apply border-primary ring-2 ring-primary/20;
 }
 
-:host .auth-input.p-invalid,
-:host .auth-input.ng-invalid.ng-touched {
-  @apply border-red-500;
-}
-
-:host ::ng-deep .p-checkbox .p-checkbox-box {
-  @apply border-surface-300 bg-surface-0 text-primary-contrast transition-colors;
-}
-
-:host ::ng-deep .p-checkbox:not(.p-disabled) .p-checkbox-box:hover {
-  @apply border-primary-500;
-}
-
-:host ::ng-deep .p-checkbox.p-checkbox-checked .p-checkbox-box,
-:host ::ng-deep .p-checkbox.p-highlight .p-checkbox-box {
-  @apply border-primary-500 bg-primary-500;
+:host .auth-input.ng-invalid.ng-touched,
+:host .auth-input[data-matches-spartan-invalid='true'] {
+  @apply border-destructive;
 }
 
 :host .auth-help {

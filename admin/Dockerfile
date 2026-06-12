@@ -9,8 +9,10 @@ FROM deps AS build
 
 WORKDIR /app
 
+ARG APP_TITLE=Portfolio
+ENV APP_TITLE=$APP_TITLE
 COPY . .
-RUN npm run build
+RUN npm run sync:env && npm run build
 
 FROM nginx:1.29-alpine AS runtime
 

@@ -53,7 +53,7 @@ export function isContactPostOriginAllowed(request: Request): boolean {
     return true;
   }
 
-  return allowed.some((base) => origin === base || origin.startsWith(base));
+  return allowed.some((base) => origin === base);
 }
 
 export type ContactRatePreset = "post" | "status";

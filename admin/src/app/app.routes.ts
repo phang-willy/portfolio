@@ -15,6 +15,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('@/app/features/auth/login/login.component').then((module) => module.LoginComponent),
     canActivate: [redirectAuthenticatedGuard],
+    data: { title: 'Login' },
   },
   {
     path: 'register',
@@ -23,6 +24,7 @@ export const routes: Routes = [
         (module) => module.RegisterComponent,
       ),
     canActivate: [registerEnabledGuard, redirectAuthenticatedGuard],
+    data: { title: 'Register' },
   },
   {
     path: '2fa',
@@ -31,6 +33,7 @@ export const routes: Routes = [
         (module) => module.TwoFactorComponent,
       ),
     canActivate: [redirectAuthenticatedGuard],
+    data: { title: 'Two-factor authentication' },
   },
   {
     path: 'forgot-password',
@@ -39,11 +42,13 @@ export const routes: Routes = [
         (module) => module.ForgotPasswordComponent,
       ),
     canActivate: [redirectAuthenticatedGuard],
+    data: { title: 'Forgot password' },
   },
   {
     path: 'verify',
     loadComponent: () =>
       import('@/app/features/auth/verify/verify.component').then((module) => module.VerifyComponent),
+    data: { title: 'Verify email' },
   },
   {
     path: 'reset-password',
@@ -51,6 +56,7 @@ export const routes: Routes = [
       import('@/app/features/auth/reset-password/reset-password.component').then(
         (module) => module.ResetPasswordComponent,
       ),
+    data: { title: 'Reset password' },
   },
   {
     path: 'admin',
@@ -67,7 +73,7 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () =>
           import('@/app/features/admin/admin-page').then((module) => module.AdminPage),
-        data: { breadcrumb: 'Dashboard' },
+        data: { breadcrumb: 'Dashboard', title: 'Dashboard' },
       },
       {
         path: 'messages',
@@ -76,6 +82,12 @@ export const routes: Routes = [
             (module) => module.AdminPlaceholderPage,
           ),
         data: { breadcrumb: 'Messages', title: 'Messages', section: 'Content' },
+      },
+      {
+        path: 'stacks',
+        loadComponent: () =>
+          import('@/app/features/stacks/stacks-page').then((module) => module.StacksPage),
+        data: { breadcrumb: 'Stacks', title: 'Stacks', section: 'Content' },
       },
       {
         path: 'projects',
@@ -101,6 +113,7 @@ export const routes: Routes = [
       import('@/app/features/unauthorized/unauthorized-page').then(
         (module) => module.UnauthorizedPage,
       ),
+    data: { title: 'Unauthorized' },
   },
   {
     path: '**',

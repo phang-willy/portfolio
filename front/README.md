@@ -125,14 +125,14 @@ node scripts/github-token-expiry-reminder.mjs
 
 Éditer la crontab : `crontab -e`.
 
-**Option A — deux lignes (logs séparés)** :
+**Option A - deux lignes (logs séparés)** :
 
 ```cron
 0 2 * * * cd /chemin/vers/portfolio/front && /usr/bin/npm run generate:sitemap >> /var/log/portfolio-sitemap.log 2>&1
 5 2 * * * cd /chemin/vers/portfolio/front && /usr/bin/node scripts/github-token-expiry-reminder.mjs >> /var/log/portfolio-github-token-reminder.log 2>&1
 ```
 
-**Option B — une seule ligne (enchaînement)** :
+**Option B - une seule ligne (enchaînement)** :
 
 ```cron
 0 2 * * * cd /chemin/vers/portfolio/front && /usr/bin/npm run generate:sitemap && /usr/bin/node scripts/github-token-expiry-reminder.mjs >> /var/log/portfolio-cron.log 2>&1
@@ -278,10 +278,10 @@ Le site est généré en **HTML/CSS/JS statiques** dans **`out/`**, adaptés à 
 
 ### Contact : site statique + API TypeScript
 
-| Contexte                     | Backend                                                                                                                                                                                                                                             |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contexte                     | Backend                                                                                                                                                                                                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Export statique (`out/`)** | Le navigateur appelle **`NEXT_PUBLIC_CONTACT_API_ORIGIN`** + `/api/contact` (`src/lib/contact-api-url.ts`). L’origine doit exécuter la **même** logique que **`src/lib/server/contact-route-handlers.ts`** (même contrat JSON, honeypot inclus). |
-| **Développement local**      | **`NEXT_PUBLIC_CONTACT_API_ORIGIN` ignoré** : **`fetch`** vers **`/api/contact`** sur la même origine que **`next dev`** (localhost ou IP du réseau, selon comment tu ouvres le site).                                                |
+| **Développement local**      | **`NEXT_PUBLIC_CONTACT_API_ORIGIN` ignoré** : **`fetch`** vers **`/api/contact`** sur la même origine que **`next dev`** (localhost ou IP du réseau, selon comment tu ouvres le site).                                                           |
 
 ### Apache : fichier `.htaccess`
 

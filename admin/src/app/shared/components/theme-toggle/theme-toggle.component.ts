@@ -1,4 +1,6 @@
 import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
+import { NgIcon } from '@ng-icons/core';
+import { HlmIcon } from '@spartan-ng/helm/icon';
 
 import { ThemePreference, ThemeService } from '@/app/core/theme/theme.service';
 
@@ -9,13 +11,14 @@ interface ThemeOption {
 }
 
 const THEME_OPTIONS: readonly ThemeOption[] = [
-  { value: 'light', label: 'Light', icon: 'pi pi-sun' },
-  { value: 'dark', label: 'Dark', icon: 'pi pi-moon' },
-  { value: 'system', label: 'System', icon: 'pi pi-desktop' },
+  { value: 'light', label: 'Light', icon: 'lucideSun' },
+  { value: 'dark', label: 'Dark', icon: 'lucideMoon' },
+  { value: 'system', label: 'System', icon: 'lucideMonitor' },
 ];
 
 @Component({
   selector: 'app-theme-toggle',
+  imports: [HlmIcon, NgIcon],
   templateUrl: './theme-toggle.component.html',
 })
 export class ThemeToggleComponent {
@@ -26,7 +29,7 @@ export class ThemeToggleComponent {
   protected readonly options = THEME_OPTIONS;
   protected readonly preference = this.themeService.preference;
   protected readonly currentIcon = computed(() =>
-    this.themeService.resolvedTheme() === 'dark' ? 'pi pi-moon' : 'pi pi-sun',
+    this.themeService.resolvedTheme() === 'dark' ? 'lucideMoon' : 'lucideSun',
   );
 
   protected toggleMenu(event: MouseEvent): void {

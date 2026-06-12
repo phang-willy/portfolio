@@ -184,7 +184,7 @@ export async function getGithubStats(): Promise<GithubStats | null> {
   if (!baseStatsResponse.ok) {
     if (isExplicitDev()) {
       console.error(
-        "[github] getGithubStats — requête de base échouée :",
+        "[github] getGithubStats - requête de base échouée :",
         baseStatsResponse.http ?? baseStatsResponse.errors,
       );
     }
@@ -195,7 +195,7 @@ export async function getGithubStats(): Promise<GithubStats | null> {
   const login = viewer?.login;
   if (!login) {
     if (isExplicitDev()) {
-      console.error("[github] getGithubStats — viewer.login absent.");
+      console.error("[github] getGithubStats - viewer.login absent.");
     }
     return null;
   }
@@ -204,7 +204,7 @@ export async function getGithubStats(): Promise<GithubStats | null> {
   if (expected && login.toLowerCase() !== expected) {
     if (isExplicitDev()) {
       console.warn(
-        `[github] getGithubStats — login API "${login}" ≠ GITHUB_USERNAME "${expected}".`,
+        `[github] getGithubStats - login API "${login}" ≠ GITHUB_USERNAME "${expected}".`,
       );
     }
     return null;
@@ -216,7 +216,7 @@ export async function getGithubStats(): Promise<GithubStats | null> {
     : new Date(Date.UTC(2008, 0, 1));
   if (Number.isNaN(createdAt.getTime())) {
     if (isExplicitDev()) {
-      console.error("[github] getGithubStats — createdAt invalide.");
+      console.error("[github] getGithubStats - createdAt invalide.");
     }
     return null;
   }
@@ -271,7 +271,7 @@ export async function getGithubStats(): Promise<GithubStats | null> {
     if (!chunkResponse.ok) {
       if (isExplicitDev()) {
         console.error(
-          `[github] getGithubStats — chunk ${contributionDateRanges[i]?.from.slice(0, 10)}… :`,
+          `[github] getGithubStats - chunk ${contributionDateRanges[i]?.from.slice(0, 10)}… :`,
           chunkResponse.http ?? chunkResponse.errors,
         );
       }
@@ -407,7 +407,7 @@ export async function logGithubEnvStatus(): Promise<void> {
     }
 
     console.log(
-      `${tag} linked — compte API : "${login}"${username ? ` (GITHUB_USERNAME aligné)` : ""}.`,
+      `${tag} linked - compte API : "${login}"${username ? ` (GITHUB_USERNAME aligné)` : ""}.`,
     );
   } catch (err) {
     if (dev) {

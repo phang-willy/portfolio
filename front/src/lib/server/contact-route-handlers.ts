@@ -150,7 +150,7 @@ function buildAdminEmailHtml(data: ContactFormPayload): string {
     { label: "Téléphone", value: e(data.phone) },
     {
       label: "Entreprise",
-      value: data.company !== undefined ? e(data.company) : e("—"),
+      value: data.company !== undefined ? e(data.company) : e("-"),
     },
     { label: "Titre", value: e(data.title) },
     { label: "Message", value: e(data.message).replaceAll("\n", "<br />") },

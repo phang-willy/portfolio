@@ -1,23 +1,29 @@
-<main class="grid min-h-dvh place-items-center bg-surface-50 px-4 py-8 text-surface-950">
+<main class="grid min-h-dvh place-items-center bg-background px-4 py-8 text-foreground">
   <section
-    class="grid w-full max-w-130 gap-5 rounded-lg border border-surface-200 bg-surface-0 p-6 text-center shadow-lg"
+    class="grid w-full max-w-130 gap-5 rounded-lg border border-border bg-card p-6 text-center shadow-lg"
     aria-labelledby="unauthorized-title"
   >
     <div class="status-icon-danger mx-auto grid size-12 place-items-center rounded-lg">
-      <i class="pi pi-lock" aria-hidden="true"></i>
+      <ng-icon hlm size="lg" name="lucideLock" />
     </div>
     <div class="grid gap-2">
       <p class="status-text-danger m-0 text-xs font-extrabold uppercase">Access denied</p>
       <h1 id="unauthorized-title" class="m-0 text-3xl font-bold leading-tight">
         Unauthorized
       </h1>
-      <p class="m-0 text-surface-600">
+      <p class="m-0 text-muted-foreground">
         Your account is authenticated but does not have the required admin role.
       </p>
     </div>
     <div class="flex justify-center gap-2 max-sm:flex-col">
-      <p-button label="Back to login" icon="pi pi-sign-in" routerLink="/login" [outlined]="true" />
-      <p-button label="Open admin" icon="pi pi-shield" routerLink="/admin/dashboard" />
+      <a hlmBtn routerLink="/login" variant="outline">
+        <ng-icon hlm size="sm" name="lucideLogIn" />
+        Back to login
+      </a>
+      <a hlmBtn routerLink="/admin/dashboard">
+        <ng-icon hlm size="sm" name="lucideShield" />
+        Open admin
+      </a>
     </div>
   </section>
 </main>

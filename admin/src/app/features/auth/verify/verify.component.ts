@@ -2,8 +2,11 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
+import { NgIcon } from '@ng-icons/core';
 import { EMPTY, catchError, finalize, from, switchMap, tap, timer } from 'rxjs';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmIcon } from '@spartan-ng/helm/icon';
+import { HlmSpinner } from '@spartan-ng/helm/spinner';
 
 import { resolveAuthErrorMessage } from '@/app/core/auth/auth-error-message';
 import { AuthService } from '@/app/core/auth/auth.service';
@@ -12,7 +15,15 @@ import { HONEYPOT_FIELD_NAME, isHoneypotFilled } from '@/app/shared/utils/honeyp
 
 @Component({
   selector: 'app-verify',
-  imports: [AuthHoneypotFieldComponent, ButtonModule, ReactiveFormsModule, RouterLink],
+  imports: [
+    AuthHoneypotFieldComponent,
+    HlmButtonImports,
+    HlmIcon,
+    HlmSpinner,
+    NgIcon,
+    ReactiveFormsModule,
+    RouterLink,
+  ],
   templateUrl: './verify.component.html',
   styleUrl: '../auth-form.css',
 })

@@ -2,9 +2,12 @@ import { AsyncPipe } from '@angular/common';
 import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { AvatarModule } from 'primeng/avatar';
-import { ButtonModule } from 'primeng/button';
+import { NgIcon } from '@ng-icons/core';
 import { catchError, finalize, of } from 'rxjs';
+import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmIcon } from '@spartan-ng/helm/icon';
+import { HlmSpinner } from '@spartan-ng/helm/spinner';
 
 import { AuthStateService } from '@/app/core/auth/auth-state.service';
 import { AuthService } from '@/app/core/auth/auth.service';
@@ -12,7 +15,16 @@ import { ADMIN_NAV_SECTIONS } from '@/app/shared/models/admin-nav.model';
 
 @Component({
   selector: 'app-admin-sidebar',
-  imports: [AsyncPipe, AvatarModule, ButtonModule, RouterLink, RouterLinkActive],
+  imports: [
+    AsyncPipe,
+    HlmAvatarImports,
+    HlmButtonImports,
+    HlmIcon,
+    HlmSpinner,
+    NgIcon,
+    RouterLink,
+    RouterLinkActive,
+  ],
   templateUrl: './admin-sidebar.component.html',
   styleUrl: './admin-sidebar.component.css',
 })

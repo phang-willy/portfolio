@@ -14,7 +14,7 @@ export const en: Dictionary = {
     legalsDescription:
       "Legal information about this site: publisher, hosting, and terms of use.",
     projectFallbackTitle: "Project",
-    stacksMarqueeAria: "Technologies and tools — scrolling skills strip",
+    stacksMarqueeAria: "Technologies and tools - scrolling skills strip",
   },
   a11y: {
     opensInNewWindow: "opens in a new window",
@@ -99,7 +99,7 @@ export const en: Dictionary = {
   message: {
     quote1a: "If you've made it this far, thank you for your time.",
     quote1b:
-      "I enjoy building useful, performant, polished products—with the same standards whether it's a marketing site, a business app, or an e-commerce platform.",
+      "I enjoy building useful, performant, polished products-with the same standards whether it's a marketing site, a business app, or an e-commerce platform.",
     quote2:
       "My goal is simple: help you turn an idea into a concrete, durable, pleasant-to-use solution.",
     quote3:
@@ -129,7 +129,7 @@ export const en: Dictionary = {
   contactPage: {
     title: "Contact",
     intro:
-      "You can reach out for a mission, a collaboration, or simply to chat about a web project. Use the form below—I reply as soon as I can.",
+      "You can reach out for a mission, a collaboration, or simply to chat about a web project. Use the form below-I reply as soon as I can.",
     legalLeadIn:
       "By submitting this form, you agree to the processing of the data described in the",
     legalLink: "legal notice",
@@ -142,7 +142,7 @@ export const en: Dictionary = {
     submit: "Send",
     submitHintBlocked: "Fill all required fields to enable sending.",
     submitHintFooter:
-      "Complete all required fields—the send button will enable automatically.",
+      "Complete all required fields-the send button will enable automatically.",
     submitHintRequired: "Fields marked with an asterisk are required.",
     success: "Your message was sent successfully. Thank you!",
     errors: {

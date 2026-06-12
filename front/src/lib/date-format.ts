@@ -6,7 +6,7 @@ export function formatDateDdMmYyyy(isoDate: string): string {
   return `${day}/${month}/${year}`;
 }
 
-/** FR : JJ/MM/AAAA — EN : MM/JJ/AAAA (pages projet en anglais). */
+/** FR : JJ/MM/AAAA - EN : MM/JJ/AAAA (pages projet en anglais). */
 export function formatDateForLocale(
   isoDate: string,
   locale: AppLocale,

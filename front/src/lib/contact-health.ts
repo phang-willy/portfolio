@@ -22,7 +22,7 @@ export function formatBrevoRequestErrorDetail(
       const code = o.code;
       const message = o.message;
       if (code !== undefined || message !== undefined) {
-        return `HTTP ${error.status}. Code Brevo : ${String(code ?? "—")}. Message : ${String(message ?? "—")}. Corps : ${slice}`;
+        return `HTTP ${error.status}. Code Brevo : ${String(code ?? "-")}. Message : ${String(message ?? "-")}. Corps : ${slice}`;
       }
     }
   } catch {
@@ -204,7 +204,7 @@ export async function notifyQuotaFallbackIfNeeded(
   try {
     const sender = getBrevoSenderFromEnv();
     const subject =
-      "[Portfolio] Alerte quota Brevo — formulaire contact bloqué";
+      "[Portfolio] Alerte quota Brevo - formulaire contact bloqué";
     const html = `<!DOCTYPE html><html lang="fr"><body style="font-family:system-ui,sans-serif;line-height:1.5">
 <p>Le formulaire de contact a été désactivé côté site : les crédits d'envoi Brevo (sendLimit) sont trop bas.</p>
 <ul>
