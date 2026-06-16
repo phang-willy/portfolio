@@ -1,8 +1,22 @@
 @reference '../../../../styles.css';
 
+html:has(app-admin-shell),
+body:has(app-admin-shell) {
+  @apply h-full overflow-hidden;
+}
+
+body:has(app-admin-shell) app-root {
+  @apply block h-full;
+}
+
+app-admin-shell {
+  @apply block h-dvh overflow-hidden;
+}
+
 .admin-shell {
   --admin-sidebar-width: 16rem;
   --admin-sidebar-collapsed-width: 4.5rem;
+  @apply h-full;
 }
 
 .admin-shell-sidebar {

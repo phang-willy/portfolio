@@ -1,7 +1,7 @@
 @reference '../../../../styles.css';
 
 :host {
-  @apply block min-h-dvh;
+  @apply block h-full min-h-0;
 }
 
 .admin-nav-link {

@@ -6,11 +6,11 @@ export function zodIssuesToFieldErrors<TField extends string>(
   const fieldErrors: Partial<Record<TField, string>> = {};
 
   for (const issue of error.issues) {
-    const field = issue.path[0];
-    if (typeof field !== 'string') {
+    if (issue.path.length === 0) {
       continue;
     }
 
+    const field = issue.path.map(String).join('.');
     const key = field as TField;
     if (!fieldErrors[key]) {
       fieldErrors[key] = issue.message;

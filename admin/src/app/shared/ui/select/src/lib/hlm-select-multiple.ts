@@ -12,7 +12,8 @@ import { classes } from '@spartan-ng/helm/utils';
       sideOffset: 6,
     }),
     provideBrnDialogDefaultOptions({
-      autoFocus: 'first-heading',
+      ariaModal: false,
+      autoFocus: 'first-tabbable',
     }),
   ],
   hostDirectives: [

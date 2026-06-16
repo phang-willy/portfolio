@@ -1,0 +1,428 @@
+<div class="grid content-start gap-6">
+  <section class="flex flex-wrap items-start justify-between gap-4">
+    <div class="grid gap-2">
+      <p class="m-0 text-xs font-extrabold uppercase text-primary">Content</p>
+      <h1 class="m-0 text-3xl font-bold text-foreground">Projects</h1>
+      <p class="m-0 text-muted-foreground">Manage portfolio projects in French and English.</p>
+    </div>
+
+    <a hlmBtn routerLink="/admin/projects/create">
+      <ng-icon hlm size="sm" name="lucidePlus" />
+      New project
+    </a>
+  </section>
+
+  @if (errorMessage(); as message) {
+    <p
+      class="m-0 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+    >
+      {{ message }}
+    </p>
+  }
+
+  <section class="rounded-lg border border-border bg-card text-foreground shadow-lg">
+    <div
+      class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3 max-sm:flex-col max-sm:items-stretch"
+    >
+      <div
+        hlmSelect
+        class="w-full md:w-auto"
+        [ngModel]="rowsPerPage()"
+        (ngModelChange)="onRowsPerPageChange($event)"
+      >
+        <hlm-select-trigger class="w-full min-w-20">
+          <hlm-select-value placeholder="Rows per page" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          @for (rows of tableRowsOptions; track rows) {
+            <hlm-select-item [value]="rows">{{ rows }}</hlm-select-item>
+          }
+        </hlm-select-content>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 max-sm:w-full max-sm:justify-between">
+        <label class="text-sm text-muted-foreground" for="search">Search:</label>
+        <div class="relative w-full min-w-48 max-w-xs">
+          <ng-icon
+            hlm
+            size="sm"
+            name="lucideSearch"
+            class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            hlmInput
+            type="search"
+            id="search"
+            name="search"
+            class="w-full pl-9"
+            [value]="globalFilterValue()"
+            (input)="onGlobalFilter($event)"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div hlmTableContainer class="hidden overflow-x-auto md:block">
+      <table hlmTable class="w-full">
+        <thead hlmTHead>
+          <tr hlmTr>
+            <th hlmTh class="min-w-40 font-bold">
+              <ng-container
+                *ngTemplateOutlet="sortHeader; context: { $implicit: 'slug', label: 'Slug' }"
+              />
+            </th>
+            <th hlmTh class="min-w-48 font-bold">
+              <ng-container
+                *ngTemplateOutlet="
+                  sortHeader;
+                  context: { $implicit: 'titleFr', label: 'Title (FR)' }
+                "
+              />
+            </th>
+            <th hlmTh class="min-w-48 font-bold">Title (EN)</th>
+            <th hlmTh class="min-w-48 font-bold">Stacks</th>
+            <th hlmTh class="min-w-32 font-bold">
+              <ng-container
+                *ngTemplateOutlet="
+                  sortHeader;
+                  context: { $implicit: 'createdAt', label: 'Created' }
+                "
+              />
+            </th>
+            <th hlmTh class="min-w-32 font-bold">
+              <ng-container
+                *ngTemplateOutlet="
+                  sortHeader;
+                  context: { $implicit: 'updatedAt', label: 'Updated' }
+                "
+              />
+            </th>
+            <th hlmTh class="min-w-36 text-right font-bold">Actions</th>
+          </tr>
+        </thead>
+        <tbody hlmTBody>
+          @if (isLoading()) {
+            <tr hlmTr>
+              <td hlmTd colspan="7" class="py-10 text-center text-muted-foreground">
+                <span class="inline-flex items-center justify-center gap-2">
+                  <hlm-spinner aria-label="Loading projects" />
+                  Loading projects...
+                </span>
+              </td>
+            </tr>
+          } @else if (paginatedProjects().length === 0) {
+            <tr hlmTr>
+              <td hlmTd colspan="7" class="py-10 text-center text-muted-foreground">
+                <span class="inline-flex flex-col items-center gap-2">
+                  <ng-icon hlm size="lg" name="lucideInbox" class="text-muted-foreground/70" />
+                  No projects found.
+                </span>
+              </td>
+            </tr>
+          } @else {
+            @for (project of paginatedProjects(); track project.id) {
+              <tr hlmTr>
+                <td hlmTd>
+                  <span class="font-semibold">{{ project.slug }}</span>
+                </td>
+                <td hlmTd>{{ project.titleFr }}</td>
+                <td hlmTd>{{ project.titleEn }}</td>
+                <td hlmTd>{{ project.stackNames.join(', ') || '-' }}</td>
+                <td hlmTd>{{ project.createdAt | adminDate }}</td>
+                <td hlmTd>{{ project.updatedAt | adminDate }}</td>
+                <td hlmTd class="text-right">
+                  <ng-container
+                    *ngTemplateOutlet="projectActions; context: { $implicit: project }"
+                  />
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divide-y divide-border md:hidden">
+      @if (isLoading()) {
+        <p
+          class="flex items-center justify-center gap-2 px-4 py-10 text-center text-sm text-muted-foreground"
+        >
+          <hlm-spinner aria-label="Loading projects" />
+          Loading projects...
+        </p>
+      } @else if (paginatedProjects().length === 0) {
+        <p
+          class="flex flex-col items-center gap-2 px-4 py-10 text-center text-sm text-muted-foreground"
+        >
+          <ng-icon hlm size="lg" name="lucideInbox" class="text-muted-foreground/70" />
+          No projects found.
+        </p>
+      } @else {
+        <div class="grid grid-cols-2 gap-2 border-b border-border px-4 py-3 text-xs">
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'slug', label: 'Slug', compact: true }
+            "
+          />
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'titleFr', label: 'Title (FR)', compact: true }
+            "
+          />
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'createdAt', label: 'Created', compact: true }
+            "
+          />
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'updatedAt', label: 'Updated', compact: true }
+            "
+          />
+        </div>
+
+        @for (project of paginatedProjects(); track project.id; let even = $even) {
+          <article class="px-4 py-4" [class.bg-muted/30]="even">
+            <dl class="grid grid-cols-[minmax(5.5rem,auto)_1fr] gap-x-4 gap-y-2 text-sm">
+              <dt class="font-semibold text-foreground">Slug:</dt>
+              <dd class="m-0 text-end font-semibold">{{ project.slug }}</dd>
+
+              <dt class="font-semibold text-foreground">Title (FR):</dt>
+              <dd class="m-0 text-end">{{ project.titleFr }}</dd>
+
+              <dt class="font-semibold text-foreground">Title (EN):</dt>
+              <dd class="m-0 text-end">{{ project.titleEn }}</dd>
+
+              <dt class="font-semibold text-foreground">Stacks:</dt>
+              <dd class="m-0 text-end">{{ project.stackNames.join(', ') || '-' }}</dd>
+
+              <dt class="font-semibold text-foreground">Created:</dt>
+              <dd class="m-0 text-end">{{ project.createdAt | adminDate }}</dd>
+
+              <dt class="font-semibold text-foreground">Updated:</dt>
+              <dd class="m-0 text-end">{{ project.updatedAt | adminDate }}</dd>
+
+              <dt class="font-semibold text-foreground">Actions:</dt>
+              <dd class="m-0 flex justify-end">
+                <ng-container *ngTemplateOutlet="projectActions; context: { $implicit: project }" />
+              </dd>
+            </dl>
+          </article>
+        }
+      }
+    </div>
+
+    <ng-template #sortHeader let-field let-label="label" let-compact="compact">
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5"
+        [class.font-semibold]="compact"
+        (click)="toggleSort(field)"
+      >
+        {{ label }}
+        <ng-icon
+          hlm
+          size="xs"
+          [name]="sortIcon(field)"
+          [class.text-primary]="isSorted(field)"
+          [class.text-muted-foreground/50]="!isSorted(field)"
+        />
+      </button>
+    </ng-template>
+
+    <ng-template #projectActions let-project>
+      <div class="flex items-center justify-end gap-1">
+        <a
+          hlmBtn
+          variant="ghost"
+          size="icon-sm"
+          hlmTooltip="Edit"
+          position="top"
+          [routerLink]="['/admin/projects/edit', project.id]"
+          [attr.aria-label]="'Edit ' + project.slug"
+        >
+          <ng-icon hlm size="sm" name="lucidePencil" />
+        </a>
+        @if (project.deactivatedAt === null) {
+          <button
+            hlmBtn
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            class="text-muted-foreground hover:text-foreground"
+            hlmTooltip="Deactivate"
+            position="top"
+            (click)="confirmDeactivate(project)"
+            [attr.aria-label]="'Deactivate ' + project.slug"
+          >
+            <ng-icon hlm size="sm" name="lucideEyeOff" />
+          </button>
+        } @else {
+          <button
+            hlmBtn
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            class="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+            hlmTooltip="Reactivate"
+            position="top"
+            (click)="confirmReactivate(project)"
+            [attr.aria-label]="'Reactivate ' + project.slug"
+          >
+            <ng-icon hlm size="sm" name="lucideRotateCcw" />
+          </button>
+          <button
+            hlmBtn
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+            hlmTooltip="Delete"
+            position="top"
+            (click)="confirmDelete(project)"
+            [attr.aria-label]="'Delete ' + project.slug"
+          >
+            <ng-icon hlm size="sm" name="lucideTrash2" />
+          </button>
+        }
+      </div>
+    </ng-template>
+
+    <div
+      class="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 max-sm:flex-col max-sm:items-stretch"
+    >
+      <span class="block min-w-max text-sm font-semibold text-muted-foreground">
+        {{ pageReport() }}
+      </span>
+
+      <div class="ml-auto flex items-center gap-1 max-sm:mx-auto">
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isFirstPage()"
+          (click)="changePage(1)"
+          aria-label="First page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronsLeft" />
+        </button>
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isFirstPage()"
+          (click)="changePage(currentPage() - 1)"
+          aria-label="Previous page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronLeft" />
+        </button>
+
+        @for (page of pageLinks(); track page) {
+          <button
+            hlmBtn
+            type="button"
+            size="icon-sm"
+            [variant]="currentPage() === page ? 'default' : 'ghost'"
+            (click)="changePage(page)"
+            [attr.aria-current]="currentPage() === page ? 'page' : null"
+            [attr.aria-label]="'Page ' + page"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isLastPage()"
+          (click)="changePage(currentPage() + 1)"
+          aria-label="Next page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronRight" />
+        </button>
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isLastPage()"
+          (click)="changePage(totalPages())"
+          aria-label="Last page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronsRight" />
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<hlm-alert-dialog
+  [state]="deactivateDialogState()"
+  (stateChange)="onDeactivateDialogStateChange($event)"
+>
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Deactivate project</h2>
+      <p hlmAlertDialogDescription>
+        This will deactivate <strong>{{ deactivateTarget()?.slug }}</strong
+        >. You can permanently delete it afterwards.
+      </p>
+    </hlm-alert-dialog-header>
+    <form [formGroup]="deactivateForm" (ngSubmit)="acceptDeactivate()">
+      <app-auth-honeypot-field />
+      <hlm-alert-dialog-footer>
+        <button hlmAlertDialogCancel type="button" (click)="closeDeactivateDialog()">Cancel</button>
+        <button hlmAlertDialogAction type="submit">Deactivate</button>
+      </hlm-alert-dialog-footer>
+    </form>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
+<hlm-alert-dialog
+  [state]="reactivateDialogState()"
+  (stateChange)="onReactivateDialogStateChange($event)"
+>
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Reactivate project</h2>
+      <p hlmAlertDialogDescription>
+        This will reactivate <strong>{{ reactivateTarget()?.slug }}</strong>.
+      </p>
+    </hlm-alert-dialog-header>
+    <form [formGroup]="reactivateForm" (ngSubmit)="acceptReactivate()">
+      <app-auth-honeypot-field />
+      <hlm-alert-dialog-footer>
+        <button hlmAlertDialogCancel type="button" (click)="closeReactivateDialog()">Cancel</button>
+        <button hlmAlertDialogAction type="submit">Reactivate</button>
+      </hlm-alert-dialog-footer>
+    </form>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
+<hlm-alert-dialog [state]="deleteDialogState()" (stateChange)="onDeleteDialogStateChange($event)">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Delete project</h2>
+      <p hlmAlertDialogDescription>
+        This will permanently delete both French and English versions of
+        <strong>{{ deleteTarget()?.slug }}</strong
+        > from the database.
+      </p>
+    </hlm-alert-dialog-header>
+    <form [formGroup]="deleteForm" (ngSubmit)="acceptDelete()">
+      <app-auth-honeypot-field />
+      <hlm-alert-dialog-footer>
+        <button hlmAlertDialogCancel type="button" (click)="closeDeleteDialog()">Cancel</button>
+        <button hlmAlertDialogAction type="submit">Delete</button>
+      </hlm-alert-dialog-footer>
+    </form>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>

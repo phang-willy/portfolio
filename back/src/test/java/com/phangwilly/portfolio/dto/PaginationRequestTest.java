@@ -21,7 +21,14 @@ class PaginationRequestTest {
     PaginationRequest paginationRequest = PaginationRequest.of(2, 200);
 
     assertThat(paginationRequest.page()).isEqualTo(2);
-    assertThat(paginationRequest.size()).isEqualTo(50);
+    assertThat(paginationRequest.size()).isEqualTo(200);
+  }
+
+  @Test
+  void capsPageSizeAboveMaximum() {
+    PaginationRequest paginationRequest = PaginationRequest.of(0, 500);
+
+    assertThat(paginationRequest.size()).isEqualTo(200);
   }
 
   @Test

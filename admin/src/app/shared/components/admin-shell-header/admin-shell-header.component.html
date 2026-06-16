@@ -17,7 +17,7 @@
   <div class="admin-breadcrumb-shell">
     <nav hlmBreadcrumb class="admin-breadcrumb">
       <ol hlmBreadcrumbList>
-        @for (item of breadcrumbItems(); track item.label; let last = $last) {
+        @for (item of breadcrumbItems(); track item.id; let last = $last) {
           <li hlmBreadcrumbItem>
             @if (!last && item.link) {
               <a hlmBreadcrumbLink [link]="item.link">{{ item.label }}</a>

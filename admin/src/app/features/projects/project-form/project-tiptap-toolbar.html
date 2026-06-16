@@ -1,0 +1,135 @@
+<div
+  class="flex flex-wrap items-center gap-1 rounded-t-md border border-b-0 border-input bg-muted/40 p-1"
+  role="toolbar"
+  aria-label="Text formatting"
+>
+  <button
+    hlmBtn
+    type="button"
+    size="icon-sm"
+    variant="ghost"
+    aria-label="Bold"
+    [disabled]="codeView()"
+    [class.bg-accent]="isActive('bold')"
+    (click)="toggleBold()"
+  >
+    <ng-icon hlm size="sm" name="lucideBold" />
+  </button>
+  <button
+    hlmBtn
+    type="button"
+    size="icon-sm"
+    variant="ghost"
+    aria-label="Italic"
+    [disabled]="codeView()"
+    [class.bg-accent]="isActive('italic')"
+    (click)="toggleItalic()"
+  >
+    <ng-icon hlm size="sm" name="lucideItalic" />
+  </button>
+  <button
+    hlmBtn
+    type="button"
+    size="icon-sm"
+    variant="ghost"
+    aria-label="Underline"
+    [disabled]="codeView()"
+    [class.bg-accent]="isActive('underline')"
+    (click)="toggleUnderline()"
+  >
+    <ng-icon hlm size="sm" name="lucideUnderline" />
+  </button>
+
+  <span class="mx-1 h-6 w-px bg-border" aria-hidden="true"></span>
+
+  <select
+    class="block-type-select h-8 w-36 rounded-md border border-input bg-transparent px-2.5 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+    aria-label="Type de bloc"
+    [disabled]="codeView()"
+    [ngModel]="blockType()"
+    (ngModelChange)="onBlockTypeChange($event)"
+  >
+    @for (option of blockTypeOptions; track option.value) {
+      <option [ngValue]="option.value">{{ option.label }}</option>
+    }
+  </select>
+
+  <span class="mx-1 h-6 w-px bg-border" aria-hidden="true"></span>
+
+  <button
+    hlmBtn
+    type="button"
+    size="icon-sm"
+    variant="ghost"
+    aria-label="Bullet list"
+    [disabled]="codeView()"
+    [class.bg-accent]="isActive('bulletList')"
+    (click)="toggleBulletList()"
+  >
+    <ng-icon hlm size="sm" name="lucideList" />
+  </button>
+  <button
+    hlmBtn
+    type="button"
+    size="icon-sm"
+    variant="ghost"
+    aria-label="Ordered list"
+    [disabled]="codeView()"
+    [class.bg-accent]="isActive('orderedList')"
+    (click)="toggleOrderedList()"
+  >
+    <ng-icon hlm size="sm" name="lucideListOrdered" />
+  </button>
+  <button
+    hlmBtn
+    type="button"
+    size="icon-sm"
+    variant="ghost"
+    aria-label="Horizontal rule"
+    [disabled]="codeView()"
+    (click)="setHorizontalRule()"
+  >
+    <ng-icon hlm size="sm" name="lucideMinus" />
+  </button>
+
+  <span class="mx-1 h-6 w-px bg-border" aria-hidden="true"></span>
+
+  <button
+    hlmBtn
+    type="button"
+    size="icon-sm"
+    variant="ghost"
+    aria-label="Add link"
+    [disabled]="codeView()"
+    [class.bg-accent]="isActive('link')"
+    (click)="setLink()"
+  >
+    <ng-icon hlm size="sm" name="lucideLink" />
+  </button>
+  <button
+    hlmBtn
+    type="button"
+    size="icon-sm"
+    variant="ghost"
+    aria-label="Remove link"
+    [disabled]="codeView() || !isActive('link')"
+    (click)="unsetLink()"
+  >
+    <ng-icon hlm size="sm" name="lucideUnlink" />
+  </button>
+
+  <span class="mx-1 h-6 w-px bg-border" aria-hidden="true"></span>
+
+  <button
+    hlmBtn
+    type="button"
+    size="sm"
+    variant="ghost"
+    class="h-8"
+    [class.bg-accent]="codeView()"
+    (click)="toggleCodeView()"
+  >
+    <ng-icon hlm size="sm" name="lucideCode" />
+    {{ codeView() ? 'View editor' : 'View code' }}
+  </button>
+</div>

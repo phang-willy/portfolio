@@ -16,30 +16,38 @@ export class PageTitleService {
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-        map(() => this.resolveRouteTitle(this.router.routerState.root)),
+        map(() => this.resolveRouteTitleSegments(this.router.routerState.root)),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((routeTitle) => this.setTitle(routeTitle));
+      .subscribe((routeTitleSegments) => this.setTitle(routeTitleSegments));
   }
 
-  private resolveRouteTitle(route: ActivatedRoute): string | null {
+  private resolveRouteTitleSegments(route: ActivatedRoute): string[] {
+    const segments: string[] = [];
     let currentRoute: ActivatedRoute | null = route;
 
-    while (currentRoute?.firstChild) {
+    while (currentRoute) {
+      const data = currentRoute.snapshot.data;
+      const title = data['title'];
+
+      if (typeof title === 'string' && title.length > 0) {
+        segments.push(title);
+      } else if (typeof data['titleFromParam'] === 'string') {
+        const param = currentRoute.snapshot.paramMap.get(data['titleFromParam']);
+        if (param) {
+          segments.push(param);
+        }
+      }
+
       currentRoute = currentRoute.firstChild;
     }
 
-    const title = currentRoute?.snapshot.data['title'];
-    return typeof title === 'string' && title.length > 0 ? title : null;
+    return segments;
   }
 
-  private setTitle(routeTitle: string | null): void {
+  private setTitle(routeTitleSegments: string[]): void {
     const appTitle = environment.appTitle.trim() || 'Portfolio';
-    const segments = [appTitle, 'Admin'];
-
-    if (routeTitle) {
-      segments.push(routeTitle);
-    }
+    const segments = [appTitle, 'Admin', ...routeTitleSegments];
 
     this.title.setTitle(segments.join(' - '));
   }
