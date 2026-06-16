@@ -19,6 +19,7 @@ public final class PublicSecurityPaths {
   public static final String AUTH_REFRESH_PATH = "/api/auth/refresh";
   public static final String HEALTH_PATH = "/api/health";
   public static final String PROJECT_PATH = "/api/project";
+  public static final String PROJECT_IMAGE_PATTERN = "/api/project/image/**";
   public static final String ACTUATOR_PATTERN = "/actuator/**";
   public static final String ADMIN_FRONT_PATTERN = "/admin/**";
 
@@ -35,6 +36,7 @@ public final class PublicSecurityPaths {
     AUTH_REFRESH_PATH,
     HEALTH_PATH,
     PROJECT_PATH,
+    PROJECT_IMAGE_PATTERN,
     ACTUATOR_PATTERN,
     ADMIN_FRONT_PATTERN
   };

@@ -12,7 +12,6 @@ import com.phangwilly.portfolio.security.Honeypot;
 import com.phangwilly.portfolio.service.ProjectAdminService;
 import jakarta.validation.Valid;
 import java.util.UUID;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -118,13 +117,5 @@ public class ProjectAdminController {
     @RequestParam("file") MultipartFile file
   ) {
     return ApiResponses.ok(projectAdminService.uploadImage(file));
-  }
-
-  @GetMapping("/image/{filename}")
-  public ResponseEntity<Resource> getImage(@PathVariable String filename) {
-    Resource resource = projectAdminService.loadImage(filename);
-    return ResponseEntity.ok()
-      .contentType(projectAdminService.resolveImageMediaType(filename))
-      .body(resource);
   }
 }

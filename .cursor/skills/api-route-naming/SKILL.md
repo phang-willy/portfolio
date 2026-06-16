@@ -30,7 +30,8 @@ Use **singular resource nouns** in the path. Collection vs item is expressed by 
 | Admin list | `GET /api/admin/project` |
 | Admin item | `GET /api/admin/project/{id}` |
 | Admin action | `PUT /api/admin/project/deactivate/{id}` |
-| Nested resource | `POST /api/admin/project/image` |
+| Nested resource (upload) | `POST /api/admin/project/image` |
+| Nested resource (public) | `GET /api/project/image/{filename}` |
 
 ## Avoid
 

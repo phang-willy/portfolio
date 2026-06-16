@@ -508,16 +508,28 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   }
 
   private syncEditorsToForm(): void {
-    this.projectForm.patchValue({
-      fr: {
+    const patch: Partial<{
+      fr: typeof this.projectForm.controls.fr.value;
+      en: typeof this.projectForm.controls.en.value;
+    }> = {};
+
+    if (!this.isCodeView('fr')) {
+      patch.fr = {
         ...this.projectForm.controls.fr.getRawValue(),
         content: normalizeEditorHtml(this.frEditor.getHTML()),
-      },
-      en: {
+      };
+    }
+
+    if (!this.isCodeView('en')) {
+      patch.en = {
         ...this.projectForm.controls.en.getRawValue(),
         content: normalizeEditorHtml(this.enEditor.getHTML()),
-      },
-    });
+      };
+    }
+
+    if (patch.fr !== undefined || patch.en !== undefined) {
+      this.projectForm.patchValue(patch);
+    }
   }
 
   private syncEditorFromForm(tab: ProjectLocale): void {

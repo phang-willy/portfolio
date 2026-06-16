@@ -244,7 +244,7 @@ public class ProjectAdminService {
       );
     }
 
-    return new ProjectImageUploadResponse("/api/admin/project/image/" + filename);
+    return new ProjectImageUploadResponse("/api/project/image/" + filename);
   }
 
   @Transactional(readOnly = true)
