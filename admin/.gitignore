@@ -21,6 +21,9 @@ yarn-error.log
 .settings/
 *.sublime-workspace
 
+# Local env (optional GITHUB_TOKEN for spartan-ng-mcp)
+.env
+
 # Visual Studio Code
 .vscode/*
 !.vscode/settings.json

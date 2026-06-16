@@ -2,7 +2,7 @@ package com.phangwilly.portfolio.controller;
 
 import com.phangwilly.portfolio.dto.ApiResponse;
 import com.phangwilly.portfolio.dto.ApiResponses;
-import com.phangwilly.portfolio.dto.PageResponse;
+import com.phangwilly.portfolio.dto.PaginatedApiResponse;
 import com.phangwilly.portfolio.dto.StackDeleteRequest;
 import com.phangwilly.portfolio.dto.StackRequest;
 import com.phangwilly.portfolio.dto.StackResponse;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/admin/stacks")
+@RequestMapping("/api/admin/stack")
 public class StackAdminController {
 
   private static final String STACK_DELETED_MESSAGE = "Stack deleted";
@@ -34,11 +34,11 @@ public class StackAdminController {
   }
 
   @GetMapping
-  public ResponseEntity<ApiResponse<PageResponse<StackResponse>>> getStacks(
+  public ResponseEntity<PaginatedApiResponse<StackResponse>> getStacks(
     @RequestParam(required = false) Integer page,
     @RequestParam(required = false) Integer size
   ) {
-    return ApiResponses.ok(stackService.getStacks(page, size));
+    return ApiResponses.okPaginated(stackService.getStacks(page, size));
   }
 
   @GetMapping("/{id}")

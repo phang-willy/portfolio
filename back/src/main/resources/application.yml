@@ -83,3 +83,6 @@ app:
     standard-requests-per-second: ${APP_RATE_LIMIT_STANDARD_REQUESTS_PER_SECOND:50}
     bucket-ttl-millis: ${APP_RATE_LIMIT_BUCKET_TTL_MILLIS:600000}
     cleanup-interval-millis: ${APP_RATE_LIMIT_CLEANUP_INTERVAL_MILLIS:300000}
+  project-images:
+    upload-dir: ${APP_PROJECT_IMAGE_UPLOAD_DIR:uploads/projects}
+    max-bytes: ${APP_PROJECT_IMAGE_MAX_BYTES:5242880}

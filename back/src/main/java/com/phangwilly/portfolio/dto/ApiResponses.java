@@ -22,4 +22,9 @@ public final class ApiResponses {
     return ResponseEntity.status(HttpStatus.OK)
       .body(ApiResponse.success(HttpStatus.OK, message, null));
   }
+
+  public static <T> ResponseEntity<PaginatedApiResponse<T>> okPaginated(PageResponse<T> page) {
+    return ResponseEntity.status(HttpStatus.OK)
+      .body(PaginatedApiResponse.success(HttpStatus.OK, null, page));
+  }
 }

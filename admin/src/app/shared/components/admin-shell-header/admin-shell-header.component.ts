@@ -10,6 +10,7 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
 import { ThemeToggleComponent } from '@/app/shared/components/theme-toggle/theme-toggle.component';
 
 interface AdminBreadcrumbItem {
+  readonly id: string;
   readonly label: string;
   readonly link?: string;
 }
@@ -21,7 +22,6 @@ interface AdminBreadcrumbItem {
   styleUrl: './admin-shell-header.component.css',
 })
 export class AdminShellHeaderComponent {
-  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   readonly sidebarOpen = input(true);
@@ -49,17 +49,40 @@ export class AdminShellHeaderComponent {
   }
 
   private buildBreadcrumbItems(): AdminBreadcrumbItem[] {
-    const items: AdminBreadcrumbItem[] = [{ label: 'Admin', link: '/admin/dashboard' }];
-    let route: ActivatedRoute | null = this.activatedRoute.firstChild;
+    const items: AdminBreadcrumbItem[] = [
+      { id: 'admin', label: 'Admin', link: '/admin/dashboard' },
+    ];
+    const crumbs: AdminBreadcrumbItem[] = [];
+    let route: ActivatedRoute | null = this.router.routerState.root;
 
     while (route?.firstChild) {
       route = route.firstChild;
+      const data = route.routeConfig?.data;
+      if (!data) {
+        continue;
+      }
+
+      const breadcrumb = data['breadcrumb'];
+      const breadcrumbLink = data['breadcrumbLink'];
+
+      if (typeof breadcrumb === 'string' && breadcrumb.length > 0) {
+        crumbs.push({
+          id: route.snapshot?.url.map((segment) => segment.path).join('/') || breadcrumb,
+          label: breadcrumb,
+          link: typeof breadcrumbLink === 'string' ? breadcrumbLink : undefined,
+        });
+      }
     }
 
-    const breadcrumb = route?.snapshot?.data?.['breadcrumb'];
-    if (typeof breadcrumb === 'string' && breadcrumb.length > 0) {
-      items.push({ label: breadcrumb });
-    }
+    crumbs.forEach((crumb, index) => {
+      const isLast = index === crumbs.length - 1;
+
+      items.push({
+        id: crumb.id,
+        label: crumb.label,
+        link: isLast ? undefined : crumb.link,
+      });
+    });
 
     return items;
   }

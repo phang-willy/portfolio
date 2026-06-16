@@ -14,6 +14,7 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTableImports } from '@spartan-ng/helm/table';
+import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { StackService } from '@/app/features/stacks/stack.service';
@@ -49,6 +50,7 @@ const ADMIN_ACTION_DENIED = 'Only administrators can perform this action.';
     HlmSelectImports,
     HlmSpinner,
     HlmTableImports,
+    HlmTooltipImports,
     HlmTextareaImports,
     NgIcon,
     NgTemplateOutlet,
@@ -326,6 +328,7 @@ export class StacksPage {
   }
 
   protected onRowsPerPageChange(rows: number): void {
+    (document.activeElement as HTMLElement | null)?.blur?.();
     this.rowsPerPage.set(rows);
     this.currentPage.set(1);
   }

@@ -91,11 +91,37 @@ export const routes: Routes = [
       },
       {
         path: 'projects',
-        loadComponent: () =>
-          import('@/app/features/admin/admin-placeholder-page').then(
-            (module) => module.AdminPlaceholderPage,
-          ),
-        data: { breadcrumb: 'Projects', title: 'Projects', section: 'Content' },
+        data: {
+          breadcrumb: 'Project',
+          breadcrumbLink: '/admin/projects',
+          section: 'Content',
+          title: 'Project',
+        },
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('@/app/features/projects/projects-list-page').then(
+                (module) => module.ProjectsListPage,
+              ),
+          },
+          {
+            path: 'create',
+            loadComponent: () =>
+              import('@/app/features/projects/project-create-page').then(
+                (module) => module.ProjectCreatePage,
+              ),
+            data: { breadcrumb: 'Create', title: 'Create' },
+          },
+          {
+            path: 'edit/:id',
+            loadComponent: () =>
+              import('@/app/features/projects/project-edit-page').then(
+                (module) => module.ProjectEditPage,
+              ),
+            data: { breadcrumb: 'Edit', titleFromParam: 'id' },
+          },
+        ],
       },
       {
         path: 'system',

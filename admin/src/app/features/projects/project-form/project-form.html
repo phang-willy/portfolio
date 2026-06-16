@@ -1,0 +1,276 @@
+<div class="grid content-start gap-6">
+  <section class="flex flex-wrap items-start justify-between gap-4">
+    <div class="grid gap-2">
+      <p class="m-0 text-xs font-extrabold uppercase text-primary">Content</p>
+      <h1 class="m-0 text-3xl font-bold text-foreground">{{ pageTitle() }}</h1>
+      <p class="m-0 text-muted-foreground">
+        Manage French and English content for a portfolio project.
+      </p>
+    </div>
+
+    <a hlmBtn variant="outline" routerLink="/admin/projects">
+      <ng-icon hlm size="sm" name="lucideArrowLeft" />
+      Back to list
+    </a>
+  </section>
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-2 text-muted-foreground">
+      <hlm-spinner size="sm" />
+      <span>Loading project...</span>
+    </div>
+  } @else {
+    <form class="grid gap-6" [formGroup]="projectForm" (ngSubmit)="submitForm()">
+      <section class="rounded-lg border border-border bg-card p-4 shadow-lg">
+        <div class="flex flex-col gap-4">
+          <div class="inline-flex w-fit rounded-lg bg-muted p-1" role="tablist" aria-label="Project language">
+            <button
+              type="button"
+              hlmBtn
+              size="sm"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'fr'"
+              [variant]="activeTab() === 'fr' ? 'default' : 'ghost'"
+              [class.ring-2]="hasLocaleErrors('fr')"
+              [class.ring-destructive/40]="hasLocaleErrors('fr')"
+              (click)="requestTab('fr', $event)"
+            >
+              French
+            </button>
+            <button
+              type="button"
+              hlmBtn
+              size="sm"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'en'"
+              [variant]="activeTab() === 'en' ? 'default' : 'ghost'"
+              [class.ring-2]="hasLocaleErrors('en')"
+              [class.ring-destructive/40]="hasLocaleErrors('en')"
+              (click)="requestTab('en', $event)"
+            >
+              English
+            </button>
+          </div>
+
+          @if (activeTab() === 'fr') {
+            <ng-container *ngTemplateOutlet="localeFields; context: { $implicit: 'fr' }" />
+          } @else {
+            <ng-container *ngTemplateOutlet="localeFields; context: { $implicit: 'en' }" />
+          }
+        </div>
+      </section>
+
+      <section class="rounded-lg border border-border bg-card p-4 shadow-lg">
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="grid gap-2 md:col-span-2">
+            <label class="text-sm font-bold" for="slug">Slug</label>
+            <input
+              hlmInput
+              id="slug"
+              formControlName="slug"
+              autocomplete="off"
+              [class.ring-destructive/20]="hasFieldError('slug')"
+              (input)="onSlugInput()"
+            />
+            @if (fieldError('slug'); as error) {
+              <p class="m-0 text-sm text-destructive">{{ error }}</p>
+            }
+          </div>
+
+          <div class="grid gap-2">
+            <label class="text-sm font-bold" for="productionLink">Production link</label>
+            <input
+              hlmInput
+              id="productionLink"
+              formControlName="productionLink"
+              type="url"
+              placeholder="https://"
+              [class.ring-destructive/20]="hasFieldError('productionLink')"
+            />
+            @if (fieldError('productionLink'); as error) {
+              <p class="m-0 text-sm text-destructive">{{ error }}</p>
+            }
+          </div>
+
+          <div class="grid gap-2">
+            <label class="text-sm font-bold" for="sourceCodeLink">Source code link</label>
+            <input
+              hlmInput
+              id="sourceCodeLink"
+              formControlName="sourceCodeLink"
+              type="url"
+              placeholder="https://github.com/..."
+              [class.ring-destructive/20]="hasFieldError('sourceCodeLink')"
+            />
+            @if (fieldError('sourceCodeLink'); as error) {
+              <p class="m-0 text-sm text-destructive">{{ error }}</p>
+            }
+          </div>
+
+          <div class="grid gap-2 md:col-span-2">
+            <label class="text-sm font-bold" for="imageLink">Image</label>
+            <div class="flex flex-wrap items-center gap-2">
+              <input
+                hlmInput
+                id="imageLink"
+                class="min-w-0 flex-1"
+                formControlName="imageLink"
+                type="text"
+                placeholder="URL or upload a file"
+                [class.ring-destructive/20]="hasFieldError('imageLink')"
+              />
+              <label hlmBtn variant="outline" class="cursor-pointer">
+                <input
+                  class="sr-only"
+                  type="file"
+                  accept="image/*"
+                  [disabled]="isUploadingImage()"
+                  (change)="onImageSelected($event)"
+                />
+                @if (isUploadingImage()) {
+                  <hlm-spinner size="sm" />
+                } @else {
+                  <ng-icon hlm size="sm" name="lucideUpload" />
+                }
+                Upload
+              </label>
+              <button hlmBtn type="button" variant="ghost" (click)="clearImage()">Clear</button>
+            </div>
+            @if (projectForm.controls.imageLink.value) {
+              <img
+                class="mt-2 max-h-40 rounded-md border border-border object-cover"
+                [src]="projectForm.controls.imageLink.value"
+                alt="Preview"
+              />
+            }
+          </div>
+
+          <div class="grid gap-2 md:col-span-2">
+            <label class="text-sm font-bold">Stacks</label>
+            <hlm-combobox-multiple [(value)]="selectedStackIds">
+              <hlm-combobox-chips class="w-full max-w-none">
+                <ng-template hlmComboboxValues let-values>
+                  @for (stackId of values; track stackId) {
+                    <hlm-combobox-chip [value]="stackId">
+                      {{ stacks() | stackName: stackId }}
+                    </hlm-combobox-chip>
+                  }
+                </ng-template>
+                <input hlmComboboxChipInput placeholder="Select stacks" />
+              </hlm-combobox-chips>
+              <hlm-combobox-content *hlmComboboxPortal>
+                <hlm-combobox-empty>No stacks found.</hlm-combobox-empty>
+                <div hlmComboboxList>
+                  @for (stack of stacks(); track stack.id) {
+                    <hlm-combobox-item [value]="stack.id">{{ stack.name }}</hlm-combobox-item>
+                  }
+                </div>
+              </hlm-combobox-content>
+            </hlm-combobox-multiple>
+          </div>
+        </div>
+      </section>
+
+      <app-auth-honeypot-field />
+
+      <div class="flex flex-wrap gap-2">
+        <button hlmBtn type="submit" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <hlm-spinner size="sm" />
+          }
+          {{ mode() === 'create' ? 'Create project' : 'Save changes' }}
+        </button>
+        <a hlmBtn variant="outline" routerLink="/admin/projects">Cancel</a>
+      </div>
+    </form>
+  }
+</div>
+
+<ng-template #localeFields let-tab>
+  <div class="grid gap-4" [formGroup]="tab === 'fr' ? projectForm.controls.fr : projectForm.controls.en">
+    <div class="grid gap-2">
+      <label class="text-sm font-bold" [for]="tab + '-title'">Title</label>
+      <input
+        hlmInput
+        [id]="tab + '-title'"
+        formControlName="title"
+        (input)="onTitleInput(tab)"
+        [class.ring-destructive/20]="hasLocaleFieldError(tab, 'title')"
+      />
+      @if (localeFieldError(tab, 'title'); as error) {
+        <p class="m-0 text-sm text-destructive">{{ error }}</p>
+      }
+    </div>
+
+    <div class="grid gap-2">
+      <label class="text-sm font-bold" [for]="tab + '-description'">Description</label>
+      <textarea
+        hlmTextarea
+        [id]="tab + '-description'"
+        rows="3"
+        formControlName="description"
+        [class.ring-destructive/20]="hasLocaleFieldError(tab, 'description')"
+      ></textarea>
+      @if (localeFieldError(tab, 'description'); as error) {
+        <p class="m-0 text-sm text-destructive">{{ error }}</p>
+      }
+    </div>
+
+    <div class="grid gap-2">
+      <label class="text-sm font-bold" [for]="tab + '-content'">Content</label>
+      <div class="overflow-hidden rounded-md">
+        <app-project-tiptap-toolbar
+          [editor]="editorFor(tab)"
+          [codeView]="isCodeView(tab)"
+          (codeViewChange)="onCodeViewChange(tab, $event)"
+        />
+        @if (isCodeView(tab)) {
+          <textarea
+            hlmTextarea
+            class="min-h-40 w-full resize-y rounded-t-none rounded-b-md border border-input font-mono text-xs leading-relaxed"
+            [id]="tab + '-content'"
+            [ngModel]="contentModelFor(tab)"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onContentChange(tab, $event)"
+          ></textarea>
+        } @else {
+          <tiptap-editor [editor]="editorFor(tab)" />
+        }
+      </div>
+      @if (localeFieldError(tab, 'content'); as error) {
+        <p class="m-0 text-sm text-destructive">{{ error }}</p>
+      }
+    </div>
+
+    <div class="grid gap-2">
+      <label class="text-sm font-bold" [for]="tab + '-imageAlt'">Image alt</label>
+      <input
+        hlmInput
+        [id]="tab + '-imageAlt'"
+        formControlName="imageAlt"
+        [class.ring-destructive/20]="hasLocaleFieldError(tab, 'imageAlt')"
+      />
+      @if (localeFieldError(tab, 'imageAlt'); as error) {
+        <p class="m-0 text-sm text-destructive">{{ error }}</p>
+      }
+    </div>
+  </div>
+</ng-template>
+
+<hlm-alert-dialog [state]="unsavedDialogState()" (stateChange)="onUnsavedDialogStateChange($event)">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Unsaved changes</h2>
+      <p hlmAlertDialogDescription>
+        You have unsaved changes on this language. Save before switching or discard your edits.
+      </p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button hlmAlertDialogCancel type="button" (click)="cancelTabSwitch()">Cancel</button>
+      <button hlmBtn type="button" variant="outline" (click)="discardTabSwitch()">
+        Discard
+      </button>
+      <button hlmAlertDialogAction type="button" (click)="saveAndSwitchTab()">Save</button>
+    </hlm-alert-dialog-footer>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>

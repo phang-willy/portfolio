@@ -19,7 +19,7 @@ public class Project extends AuditableEntity {
   @Column(nullable = false, length = TITLE_MAX_LENGTH)
   private String title;
 
-  @Column(nullable = false, unique = true, length = SLUG_MAX_LENGTH)
+  @Column(nullable = false, length = SLUG_MAX_LENGTH)
   private String slug;
 
   @Column(length = DESCRIPTION_MAX_LENGTH)
@@ -109,5 +109,35 @@ public class Project extends AuditableEntity {
 
   public Instant getDeactivatedAt() {
     return deactivatedAt;
+  }
+
+  public void markDeactivated() {
+    this.deactivatedAt = Instant.now();
+  }
+
+  public void reactivate() {
+    this.deactivatedAt = null;
+  }
+
+  public void updateDetails(
+    String title,
+    String slug,
+    String description,
+    String content,
+    String productionLink,
+    String sourceCodeLink,
+    String imageLink,
+    String imageAlt,
+    String lang
+  ) {
+    this.title = title;
+    this.slug = slug;
+    this.description = description;
+    this.content = content;
+    this.productionLink = productionLink;
+    this.sourceCodeLink = sourceCodeLink;
+    this.imageLink = imageLink;
+    this.imageAlt = imageAlt;
+    this.lang = lang;
   }
 }

@@ -25,7 +25,7 @@ describe('StackService', () => {
   it('sends the honeypot field in the delete request body', () => {
     service.deleteStack('stack-id', { website: '' }).subscribe();
 
-    const request = http.expectOne('/api/admin/stacks/stack-id');
+    const request = http.expectOne('/api/admin/stack/stack-id');
     expect(request.request.method).toBe('DELETE');
     expect(request.request.body).toEqual({ website: '' });
     expect(request.request.withCredentials).toBe(true);

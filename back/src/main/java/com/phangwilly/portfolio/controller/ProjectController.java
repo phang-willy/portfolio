@@ -1,8 +1,7 @@
 package com.phangwilly.portfolio.controller;
 
-import com.phangwilly.portfolio.dto.ApiResponse;
 import com.phangwilly.portfolio.dto.ApiResponses;
-import com.phangwilly.portfolio.dto.PageResponse;
+import com.phangwilly.portfolio.dto.PaginatedApiResponse;
 import com.phangwilly.portfolio.dto.ProjectResponse;
 import com.phangwilly.portfolio.service.ProjectService;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +21,10 @@ public class ProjectController {
   }
 
   @GetMapping
-  public ResponseEntity<ApiResponse<PageResponse<ProjectResponse>>> getProjects(
+  public ResponseEntity<PaginatedApiResponse<ProjectResponse>> getProjects(
     @RequestParam(required = false) Integer page,
     @RequestParam(required = false) Integer size
   ) {
-    return ApiResponses.ok(projectService.getProjects(page, size));
+    return ApiResponses.okPaginated(projectService.getProjects(page, size));
   }
 }
