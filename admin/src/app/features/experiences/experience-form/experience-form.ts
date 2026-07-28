@@ -21,48 +21,46 @@ import { TiptapEditorDirective } from 'ngx-tiptap';
 import { EMPTY, catchError, finalize } from 'rxjs';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmComboboxImports } from '@spartan-ng/helm/combobox';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { ProjectTiptapToolbarComponent } from '@/app/features/projects/project-form/project-tiptap-toolbar';
-
-import { ProjectService } from '@/app/features/projects/project.service';
-import { StackNamePipe } from '@/app/features/projects/project-form/stack-name.pipe';
-import { StackService } from '@/app/features/stacks/stack.service';
+import { ExperienceContractTypeService } from '@/app/features/experience-contract-types/experience-contract-type.service';
+import { ExperienceService } from '@/app/features/experiences/experience.service';
 import { AdminAccessService } from '@/app/core/auth/admin-access.service';
 import { resolveAuthErrorMessage } from '@/app/core/auth/auth-error-message';
 import { AuthHoneypotFieldComponent } from '@/app/shared/components/auth-honeypot-field/auth-honeypot-field.component';
+import { ExperienceContractTypeAdminListItem } from '@/app/shared/models/experience-contract-type.model';
 import {
-  ProjectAdminDetail,
-  ProjectLocale,
-  ProjectLocaleInput,
-} from '@/app/shared/models/project.model';
-import { Stack } from '@/app/shared/models/stack.model';
+  ExperienceAdminDetail,
+  ExperienceInput,
+  ExperienceLocale,
+  ExperienceLocaleInput,
+} from '@/app/shared/models/experience.model';
 import {
-  ProjectFormValue,
-  ProjectLocaleField,
-  projectFormSchema,
-} from '@/app/shared/schemas/project.schema';
+  ExperienceFormValue,
+  ExperienceLocaleField,
+  ExperienceSharedField,
+  experienceFormSchema,
+} from '@/app/shared/schemas/experience.schema';
 import { HONEYPOT_FIELD_NAME, isHoneypotFilled } from '@/app/shared/utils/honeypot';
 import { slugify } from '@/app/shared/utils/slugify';
 import { zodIssuesToFieldErrors } from '@/app/shared/utils/zod-field-errors';
 
 type LocaleFormGroup = {
-  title: string;
-  description: string;
+  role: string;
+  summary: string;
   content: string;
-  imageAlt: string;
 };
 
 const ADMIN_ACTION_DENIED = 'Only administrators can perform this action.';
 const EMPTY_LOCALE: LocaleFormGroup = {
-  title: '',
-  description: '',
+  role: '',
+  summary: '',
   content: '',
-  imageAlt: '',
 };
 
 const EMPTY_EDITOR_HTML = /^<p>(?:<br\s*\/?>)?<\/p>$/i;
@@ -73,16 +71,16 @@ function normalizeEditorHtml(html: string): string {
 }
 
 @Component({
-  selector: 'app-project-form',
+  selector: 'app-experience-form',
   host: { class: 'block' },
   imports: [
     AuthHoneypotFieldComponent,
     FormsModule,
     HlmAlertDialogImports,
     HlmButtonImports,
-    HlmComboboxImports,
     HlmIcon,
     HlmInputImports,
+    HlmSelectImports,
     HlmSpinner,
     HlmTextareaImports,
     NgIcon,
@@ -90,65 +88,67 @@ function normalizeEditorHtml(html: string): string {
     ProjectTiptapToolbarComponent,
     ReactiveFormsModule,
     RouterLink,
-    StackNamePipe,
     TiptapEditorDirective,
   ],
-  templateUrl: './project-form.html',
-  styleUrl: './project-form.css',
+  templateUrl: './experience-form.html',
+  styleUrl: './experience-form.css',
 })
-export class ProjectFormComponent implements OnInit, OnDestroy {
+export class ExperienceFormComponent implements OnInit, OnDestroy {
   readonly mode = input.required<'create' | 'edit'>();
-  readonly projectId = input<string | null>(null);
+  readonly experienceId = input<string | null>(null);
 
   private readonly adminAccess = inject(AdminAccessService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly projectService = inject(ProjectService);
+  private readonly experienceService = inject(ExperienceService);
+  private readonly contractTypeService = inject(ExperienceContractTypeService);
   private readonly router = inject(Router);
-  private readonly stackService = inject(StackService);
 
-  protected readonly stacks = signal<readonly Stack[]>([]);
-  protected readonly selectedStackIds = signal<string[]>([]);
-  protected readonly activeTab = signal<ProjectLocale>('fr');
-  protected readonly pendingTab = signal<ProjectLocale | null>(null);
+  protected readonly contractTypes = signal<readonly ExperienceContractTypeAdminListItem[]>([]);
+  protected readonly activeTab = signal<ExperienceLocale>('fr');
+  protected readonly pendingTab = signal<ExperienceLocale | null>(null);
   protected readonly isLoading = signal(false);
   protected readonly isSaving = signal(false);
-  protected readonly isUploadingImage = signal(false);
   protected readonly hasSubmitted = signal(false);
   protected readonly zodFieldErrors = signal<Partial<Record<string, string>>>({});
   protected readonly unsavedDialogVisible = signal(false);
-  protected readonly slugManuallyEdited = signal(false);
-  protected readonly loadedProjectId = signal<string | null>(null);
+  protected readonly loadedExperienceId = signal<string | null>(null);
   protected readonly savedSnapshot = signal<string | null>(null);
-  protected readonly codeViewByTab = signal<Record<ProjectLocale, boolean>>({ fr: false, en: false });
+  protected readonly previewSlugFr = signal('');
+  protected readonly previewSlugEn = signal('');
+  protected readonly codeViewByTab = signal<Record<ExperienceLocale, boolean>>({
+    fr: false,
+    en: false,
+  });
 
   protected frEditor!: Editor;
   protected enEditor!: Editor;
 
-  protected readonly projectForm = this.formBuilder.nonNullable.group({
-    slug: [''],
+  protected readonly experienceForm = this.formBuilder.nonNullable.group({
+    company: [''],
+    yearStart: ['' as string | number],
+    yearEnd: ['' as string | number],
+    contractTypeId: [''],
     fr: this.formBuilder.nonNullable.group({ ...EMPTY_LOCALE }),
     en: this.formBuilder.nonNullable.group({ ...EMPTY_LOCALE }),
-    productionLink: [''],
-    sourceCodeLink: [''],
-    imageLink: [''],
     [HONEYPOT_FIELD_NAME]: [''],
   });
 
   protected readonly pageTitle = computed(() =>
-    this.mode() === 'create' ? 'Create - Project' : 'Edit - Project',
+    this.mode() === 'create' ? 'Create - Experience' : 'Edit - Experience',
   );
 
   ngOnInit(): void {
     this.frEditor = this.createEditor('fr');
     this.enEditor = this.createEditor('en');
-    this.loadStacks();
+    this.loadContractTypes();
 
-    if (this.mode() === 'edit' && this.projectId()) {
+    if (this.mode() === 'edit' && this.experienceId()) {
       this.isLoading.set(true);
-      this.loadProject(this.projectId()!);
+      this.loadExperience(this.experienceId()!);
     } else {
       this.syncEditorsToForm();
+      this.refreshSlugPreviews();
       this.captureSnapshot();
     }
   }
@@ -162,26 +162,26 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     return this.serializeForm() !== this.savedSnapshot();
   }
 
-  protected editorFor(tab: ProjectLocale): Editor {
+  protected editorFor(tab: ExperienceLocale): Editor {
     return tab === 'fr' ? this.frEditor : this.enEditor;
   }
 
-  protected contentModelFor(tab: ProjectLocale): string {
+  protected contentModelFor(tab: ExperienceLocale): string {
     return tab === 'fr'
-      ? this.projectForm.controls.fr.controls.content.value
-      : this.projectForm.controls.en.controls.content.value;
+      ? this.experienceForm.controls.fr.controls.content.value
+      : this.experienceForm.controls.en.controls.content.value;
   }
 
-  protected onContentChange(tab: ProjectLocale, value: string): void {
-    const group = tab === 'fr' ? this.projectForm.controls.fr : this.projectForm.controls.en;
+  protected onContentChange(tab: ExperienceLocale, value: string): void {
+    const group = tab === 'fr' ? this.experienceForm.controls.fr : this.experienceForm.controls.en;
     group.patchValue({ content: normalizeEditorHtml(value) }, { emitEvent: false });
   }
 
-  protected isCodeView(tab: ProjectLocale): boolean {
+  protected isCodeView(tab: ExperienceLocale): boolean {
     return this.codeViewByTab()[tab];
   }
 
-  protected onCodeViewChange(tab: ProjectLocale, enabled: boolean): void {
+  protected onCodeViewChange(tab: ExperienceLocale, enabled: boolean): void {
     if (enabled) {
       this.syncEditorsToForm();
       this.codeViewByTab.update((state) => ({ ...state, [tab]: true }));
@@ -193,20 +193,33 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     this.codeViewByTab.update((state) => ({ ...state, [tab]: false }));
   }
 
-  protected onTitleInput(tab: ProjectLocale): void {
-    if (tab !== 'fr' || this.slugManuallyEdited()) {
-      return;
+  protected onGlobalSlugSourceInput(): void {
+    this.refreshSlugPreviews();
+  }
+
+  protected onLocaleRoleInput(_tab: ExperienceLocale): void {
+    this.refreshSlugPreviews();
+  }
+
+  protected slugPreview(tab: ExperienceLocale): string {
+    return tab === 'fr' ? this.previewSlugFr() : this.previewSlugEn();
+  }
+
+  protected readonly contractTypeLabel = (contractTypeId: string | null | undefined): string => {
+    if (!contractTypeId) {
+      return 'None';
     }
 
-    const title = this.projectForm.controls.fr.controls.title.value;
-    this.projectForm.patchValue({ slug: slugify(title) });
-  }
+    const contractType = this.contractTypes().find((item) => item.id === contractTypeId);
+    if (!contractType) {
+      return contractTypeId;
+    }
 
-  protected onSlugInput(): void {
-    this.slugManuallyEdited.set(true);
-  }
+    const suffix = contractType.deactivatedAt === null ? '' : ' (inactive)';
+    return `${contractType.titleFr} / ${contractType.titleEn}${suffix}`;
+  };
 
-  protected requestTab(tab: ProjectLocale, event: Event): void {
+  protected requestTab(tab: ExperienceLocale, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
 
@@ -265,56 +278,22 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         this.activeTab.set(next);
       }
       this.pendingTab.set(null);
-      this.loadedProjectId.set(detail.id);
+      this.loadedExperienceId.set(detail.id);
     });
-  }
-
-  protected onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    input.value = '';
-
-    if (!file) {
-      return;
-    }
-
-    if (!this.ensureAdminAction()) {
-      return;
-    }
-
-    this.isUploadingImage.set(true);
-
-    this.projectService
-      .uploadImage(file)
-      .pipe(
-        catchError(() => {
-          this.notifyError('Unable to upload image. Please try again.');
-          return EMPTY;
-        }),
-        finalize(() => this.isUploadingImage.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((url) => {
-        this.projectForm.patchValue({ imageLink: url });
-      });
-  }
-
-  protected clearImage(): void {
-    this.projectForm.patchValue({ imageLink: '' });
   }
 
   protected submitForm(): void {
     this.submit((detail) => {
       if (this.mode() === 'create') {
-        void this.router.navigate(['/admin/projects']);
+        void this.router.navigate(['/admin/experiences']);
         return;
       }
 
-      this.loadedProjectId.set(detail.id);
+      this.loadedExperienceId.set(detail.id);
     });
   }
 
-  protected hasLocaleErrors(tab: ProjectLocale): boolean {
+  protected hasLocaleErrors(tab: ExperienceLocale): boolean {
     if (!this.hasSubmitted()) {
       return false;
     }
@@ -324,27 +303,26 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   }
 
   protected fieldError(path: string): string | null {
-    const zodError = this.zodFieldErrors()[path];
-    if (zodError) {
-      return zodError;
-    }
-
-    return null;
+    return this.zodFieldErrors()[path] ?? null;
   }
 
-  protected hasFieldError(path: string): boolean {
-    return Boolean(this.fieldError(path));
-  }
-
-  protected localeFieldError(tab: ProjectLocale, field: ProjectLocaleField): string | null {
+  protected localeFieldError(tab: ExperienceLocale, field: ExperienceLocaleField): string | null {
     return this.fieldError(`${tab}.${field}`);
   }
 
-  protected hasLocaleFieldError(tab: ProjectLocale, field: ProjectLocaleField): boolean {
+  protected hasLocaleFieldError(tab: ExperienceLocale, field: ExperienceLocaleField): boolean {
     return Boolean(this.localeFieldError(tab, field));
   }
 
-  private submit(onSuccess?: (detail: ProjectAdminDetail) => void): void {
+  protected sharedFieldError(field: ExperienceSharedField): string | null {
+    return this.fieldError(field);
+  }
+
+  protected hasSharedFieldError(field: ExperienceSharedField): boolean {
+    return Boolean(this.sharedFieldError(field));
+  }
+
+  private submit(onSuccess?: (detail: ExperienceAdminDetail) => void): void {
     this.syncEditorsToForm();
     this.hasSubmitted.set(true);
     this.zodFieldErrors.set({});
@@ -354,11 +332,11 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const parsed = projectFormSchema.safeParse(raw);
+    const parsed = experienceFormSchema.safeParse(raw);
     if (!parsed.success) {
       const fieldErrors = zodIssuesToFieldErrors(parsed.error);
       this.zodFieldErrors.set(fieldErrors);
-      this.projectForm.markAllAsTouched();
+      this.experienceForm.markAllAsTouched();
       this.handleValidationErrors(fieldErrors);
       return;
     }
@@ -367,27 +345,34 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const projectId = this.loadedProjectId() ?? this.projectId();
-    if (this.mode() === 'edit' && !projectId) {
-      this.notifyError('Unable to save project: missing identifier.');
+    const experienceId = this.loadedExperienceId() ?? this.experienceId();
+    if (this.mode() === 'edit' && !experienceId) {
+      this.notifyError('Unable to save experience: missing identifier.');
       return;
     }
 
     this.isSaving.set(true);
-    const payload = {
-      ...parsed.data,
+    const payload: ExperienceInput = {
+      company: parsed.data.company,
+      yearStart: parsed.data.yearStart,
+      yearEnd: parsed.data.yearEnd ?? null,
+      contractTypeId: parsed.data.contractTypeId ?? null,
+      fr: parsed.data.fr,
+      en: parsed.data.en,
       website: raw.website,
     };
 
     const request$ =
       this.mode() === 'create'
-        ? this.projectService.createProject(payload)
-        : this.projectService.updateProject(projectId!, payload);
+        ? this.experienceService.createExperience(payload)
+        : this.experienceService.updateExperience(experienceId!, payload);
 
     request$
       .pipe(
         catchError((error: unknown) => {
-          this.notifyError(resolveAuthErrorMessage(error, 'Unable to save project. Please try again.'));
+          this.notifyError(
+            resolveAuthErrorMessage(error, 'Unable to save experience. Please try again.'),
+          );
           return EMPTY;
         }),
         finalize(() => this.isSaving.set(false)),
@@ -395,89 +380,132 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       )
       .subscribe((detail) => {
         if (!detail) {
-          this.notifyError('Unable to save project. Please try again.');
+          this.notifyError('Unable to save experience. Please try again.');
           return;
         }
 
         this.applyDetail(detail);
-        this.loadedProjectId.set(detail.id);
+        this.loadedExperienceId.set(detail.id);
         this.captureSnapshot();
         this.notifySuccess(
-          this.mode() === 'create' ? 'Project created successfully.' : 'Project saved successfully.',
+          this.mode() === 'create'
+            ? 'Experience created successfully.'
+            : 'Experience saved successfully.',
         );
         onSuccess?.(detail);
       });
   }
 
-  private loadStacks(): void {
-    this.stackService
-      .getStacks(0, 200)
+  private loadContractTypes(): void {
+    this.contractTypeService
+      .getContractTypes(0, 200)
       .pipe(
         catchError(() => EMPTY),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((response) => {
-        this.stacks.set(response.data);
+        const sorted = [...response.data].sort((left, right) => {
+          const leftActive = left.deactivatedAt === null ? 0 : 1;
+          const rightActive = right.deactivatedAt === null ? 0 : 1;
+          if (leftActive !== rightActive) {
+            return leftActive - rightActive;
+          }
+
+          return left.titleFr.localeCompare(right.titleFr);
+        });
+        this.contractTypes.set(sorted);
       });
   }
 
-  private loadProject(id: string): void {
+  private loadExperience(id: string): void {
     this.isLoading.set(true);
 
-    this.projectService
-      .getProject(id)
+    this.experienceService
+      .getExperience(id)
       .pipe(
         catchError(() => {
-          this.notifyError('Unable to load project.');
+          this.notifyError('Unable to load experience.');
           return EMPTY;
         }),
         finalize(() => this.isLoading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((detail) => {
-        this.loadedProjectId.set(detail.id);
+        this.loadedExperienceId.set(detail.id);
         this.applyDetail(detail);
         this.captureSnapshot();
       });
   }
 
-  private applyDetail(detail: ProjectAdminDetail): void {
-    this.projectForm.patchValue({
-      slug: detail.slug,
+  private applyDetail(detail: ExperienceAdminDetail): void {
+    this.experienceForm.patchValue({
+      company: detail.company,
+      yearStart: detail.yearStart,
+      yearEnd: detail.yearEnd ?? '',
+      contractTypeId: detail.contractTypeId ?? '',
       fr: this.toLocaleGroup(detail.fr),
       en: this.toLocaleGroup(detail.en),
-      productionLink: detail.productionLink ?? '',
-      sourceCodeLink: detail.sourceCodeLink ?? '',
-      imageLink: detail.imageLink ?? '',
       [HONEYPOT_FIELD_NAME]: '',
     });
-    this.selectedStackIds.set([...detail.stackIds]);
-    this.slugManuallyEdited.set(true);
+    this.previewSlugFr.set(detail.slugFr);
+    this.previewSlugEn.set(detail.slugEn);
     this.frEditor.commands.setContent(detail.fr.content || '', { emitUpdate: false });
     this.enEditor.commands.setContent(detail.en.content || '', { emitUpdate: false });
   }
 
-  private toLocaleGroup(locale: ProjectLocaleInput): LocaleFormGroup {
+  private toLocaleGroup(locale: ExperienceLocaleInput): LocaleFormGroup {
     return {
-      title: locale.title,
-      description: locale.description ?? '',
+      role: locale.role,
+      summary: locale.summary ?? '',
       content: locale.content ?? '',
-      imageAlt: locale.imageAlt ?? '',
     };
   }
 
-  private isLocaleEmpty(tab: ProjectLocale): boolean {
-    const group = tab === 'fr' ? this.projectForm.controls.fr : this.projectForm.controls.en;
+  private isLocaleEmpty(tab: ExperienceLocale): boolean {
+    const group =
+      tab === 'fr' ? this.experienceForm.controls.fr : this.experienceForm.controls.en;
     const values = group.getRawValue();
     return (
-      values.title.trim().length === 0 &&
-      values.description.trim().length === 0 &&
-      normalizeEditorHtml(values.content).length === 0 &&
-      values.imageAlt.trim().length === 0
+      values.role.trim().length === 0 &&
+      values.summary.trim().length === 0 &&
+      normalizeEditorHtml(values.content).length === 0
     );
   }
 
-  private closeCodeView(tab: ProjectLocale): void {
+  private refreshSlugPreviews(): void {
+    const company = this.experienceForm.controls.company.value;
+    const yearStart = this.experienceForm.controls.yearStart.value;
+    const yearEnd = this.experienceForm.controls.yearEnd.value;
+    const roleFr = this.experienceForm.controls.fr.controls.role.value;
+    const roleEn = this.experienceForm.controls.en.controls.role.value;
+
+    this.previewSlugFr.set(this.buildLocaleSlug(company, roleFr, yearStart, yearEnd, 'fr'));
+    this.previewSlugEn.set(this.buildLocaleSlug(company, roleEn, yearStart, yearEnd, 'en'));
+  }
+
+  private buildLocaleSlug(
+    company: string,
+    role: string,
+    yearStart: string | number,
+    yearEnd: string | number,
+    lang: ExperienceLocale,
+  ): string {
+    const parts = [company, role, yearStart === '' ? '' : String(yearStart)];
+    if (yearEnd !== '' && yearEnd !== null && yearEnd !== undefined) {
+      parts.push(String(yearEnd));
+    }
+
+    const base = slugify(parts.filter((part) => String(part).trim().length > 0).join('-'));
+    const suffix = `-${lang}`;
+    const maxBaseLength = 255 - suffix.length;
+    if (base.length <= maxBaseLength) {
+      return `${base}${suffix}`;
+    }
+
+    return `${base.slice(0, maxBaseLength).replace(/-+$/g, '')}${suffix}`;
+  }
+
+  private closeCodeView(tab: ExperienceLocale): void {
     if (!this.isCodeView(tab)) {
       return;
     }
@@ -485,7 +513,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     this.onCodeViewChange(tab, false);
   }
 
-  private createEditor(tab: ProjectLocale): Editor {
+  private createEditor(tab: ExperienceLocale): Editor {
     return new Editor({
       extensions: [
         StarterKit.configure({
@@ -499,7 +527,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       editorProps: {
         attributes: {
           class: [
-            'project-editor-content',
+            'experience-editor-content',
             'min-w-0 max-w-none text-sm',
             'prose prose-sm dark:prose-invert',
             '[&_h1]:text-2xl [&_h1]:font-semibold',
@@ -521,46 +549,50 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
 
   private syncEditorsToForm(): void {
     const patch: Partial<{
-      fr: typeof this.projectForm.controls.fr.value;
-      en: typeof this.projectForm.controls.en.value;
+      fr: typeof this.experienceForm.controls.fr.value;
+      en: typeof this.experienceForm.controls.en.value;
     }> = {};
 
     if (!this.isCodeView('fr')) {
       patch.fr = {
-        ...this.projectForm.controls.fr.getRawValue(),
+        ...this.experienceForm.controls.fr.getRawValue(),
         content: normalizeEditorHtml(this.frEditor.getHTML()),
       };
     }
 
     if (!this.isCodeView('en')) {
       patch.en = {
-        ...this.projectForm.controls.en.getRawValue(),
+        ...this.experienceForm.controls.en.getRawValue(),
         content: normalizeEditorHtml(this.enEditor.getHTML()),
       };
     }
 
     if (patch.fr !== undefined || patch.en !== undefined) {
-      this.projectForm.patchValue(patch);
+      this.experienceForm.patchValue(patch);
     }
   }
 
-  private syncEditorFromForm(tab: ProjectLocale): void {
+  private syncEditorFromForm(tab: ExperienceLocale): void {
     const html = this.contentModelFor(tab);
     this.editorFor(tab).commands.setContent(html || '', { emitUpdate: false });
   }
 
-  private buildPayload(): ProjectFormValue & { website: string } {
+  private buildPayload(): ExperienceFormValue & { website: string } {
     this.syncEditorsToForm();
-    const raw = this.projectForm.getRawValue();
+    const raw = this.experienceForm.getRawValue();
+    const yearEndRaw = raw.yearEnd;
+    const contractTypeIdRaw = raw.contractTypeId;
 
     return {
-      slug: raw.slug,
+      company: raw.company,
+      yearStart: raw.yearStart as number,
+      yearEnd:
+        yearEndRaw === '' || yearEndRaw === null || yearEndRaw === undefined
+          ? null
+          : (yearEndRaw as number),
+      contractTypeId: contractTypeIdRaw === '' ? null : contractTypeIdRaw,
       fr: raw.fr,
       en: raw.en,
-      stackIds: this.selectedStackIds(),
-      productionLink: raw.productionLink,
-      sourceCodeLink: raw.sourceCodeLink,
-      imageLink: raw.imageLink,
       website: raw[HONEYPOT_FIELD_NAME],
     };
   }
@@ -579,17 +611,17 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const parsed = JSON.parse(snapshot) as ProjectFormValue & { website?: string };
-    this.projectForm.patchValue({
-      slug: parsed.slug,
+    const parsed = JSON.parse(snapshot) as ExperienceFormValue & { website?: string };
+    this.experienceForm.patchValue({
+      company: parsed.company,
+      yearStart: parsed.yearStart,
+      yearEnd: parsed.yearEnd ?? '',
+      contractTypeId: parsed.contractTypeId ?? '',
       fr: parsed.fr,
       en: parsed.en,
-      productionLink: parsed.productionLink,
-      sourceCodeLink: parsed.sourceCodeLink,
-      imageLink: parsed.imageLink,
       [HONEYPOT_FIELD_NAME]: parsed.website ?? '',
     });
-    this.selectedStackIds.set([...parsed.stackIds]);
+    this.refreshSlugPreviews();
     this.frEditor.commands.setContent(parsed.fr.content || '', { emitUpdate: false });
     this.enEditor.commands.setContent(parsed.en.content || '', { emitUpdate: false });
   }

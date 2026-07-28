@@ -124,6 +124,74 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'experiences',
+        data: {
+          breadcrumb: 'Experience',
+          breadcrumbLink: '/admin/experiences',
+          section: 'Content',
+          title: 'Experience',
+        },
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('@/app/features/experiences/experiences-list-page').then(
+                (module) => module.ExperiencesListPage,
+              ),
+          },
+          {
+            path: 'create',
+            loadComponent: () =>
+              import('@/app/features/experiences/experience-create-page').then(
+                (module) => module.ExperienceCreatePage,
+              ),
+            data: { breadcrumb: 'Create', title: 'Create' },
+          },
+          {
+            path: 'edit/:id',
+            loadComponent: () =>
+              import('@/app/features/experiences/experience-edit-page').then(
+                (module) => module.ExperienceEditPage,
+              ),
+            data: { breadcrumb: 'Edit', titleFromParam: 'id' },
+          },
+        ],
+      },
+      {
+        path: 'experience-contract-types',
+        data: {
+          breadcrumb: 'Contract type',
+          breadcrumbLink: '/admin/experience-contract-types',
+          section: 'Content',
+          title: 'Contract type',
+        },
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import(
+                '@/app/features/experience-contract-types/experience-contract-types-list-page'
+              ).then((module) => module.ExperienceContractTypesListPage),
+          },
+          {
+            path: 'create',
+            loadComponent: () =>
+              import(
+                '@/app/features/experience-contract-types/experience-contract-type-create-page'
+              ).then((module) => module.ExperienceContractTypeCreatePage),
+            data: { breadcrumb: 'Create', title: 'Create' },
+          },
+          {
+            path: 'edit/:id',
+            loadComponent: () =>
+              import(
+                '@/app/features/experience-contract-types/experience-contract-type-edit-page'
+              ).then((module) => module.ExperienceContractTypeEditPage),
+            data: { breadcrumb: 'Edit', titleFromParam: 'id' },
+          },
+        ],
+      },
+      {
         path: 'system',
         loadComponent: () =>
           import('@/app/features/admin/admin-placeholder-page').then(

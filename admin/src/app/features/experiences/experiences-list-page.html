@@ -2,13 +2,15 @@
   <section class="flex flex-wrap items-start justify-between gap-4">
     <div class="grid gap-2">
       <p class="m-0 text-xs font-extrabold uppercase text-primary">Content</p>
-      <h1 class="m-0 text-3xl font-bold text-foreground">Projects</h1>
-      <p class="m-0 text-muted-foreground">Manage portfolio projects in French and English.</p>
+      <h1 class="m-0 text-3xl font-bold text-foreground">Experiences</h1>
+      <p class="m-0 text-muted-foreground">
+        Manage professional experiences in French and English.
+      </p>
     </div>
 
-    <a hlmBtn routerLink="/admin/projects/create">
+    <a hlmBtn routerLink="/admin/experiences/create">
       <ng-icon hlm size="sm" name="lucidePlus" />
-      New project
+      New experience
     </a>
   </section>
 
@@ -68,19 +70,20 @@
           <tr hlmTr>
             <th hlmTh class="min-w-40 font-bold">
               <ng-container
-                *ngTemplateOutlet="sortHeader; context: { $implicit: 'slug', label: 'Slug' }"
+                *ngTemplateOutlet="sortHeader; context: { $implicit: 'company', label: 'Company' }"
               />
             </th>
             <th hlmTh class="min-w-48 font-bold">
               <ng-container
-                *ngTemplateOutlet="
-                  sortHeader;
-                  context: { $implicit: 'titleFr', label: 'Title (FR)' }
-                "
+                *ngTemplateOutlet="sortHeader; context: { $implicit: 'roleFr', label: 'Role (FR)' }"
               />
             </th>
-            <th hlmTh class="min-w-48 font-bold">Title (EN)</th>
-            <th hlmTh class="min-w-48 font-bold">Stacks</th>
+            <th hlmTh class="min-w-40 font-bold">Contract type</th>
+            <th hlmTh class="min-w-28 font-bold">
+              <ng-container
+                *ngTemplateOutlet="sortHeader; context: { $implicit: 'yearStart', label: 'Years' }"
+              />
+            </th>
             <th hlmTh class="min-w-32 font-bold">
               <ng-container
                 *ngTemplateOutlet="
@@ -105,35 +108,33 @@
             <tr hlmTr>
               <td hlmTd colspan="7" class="py-10 text-center text-muted-foreground">
                 <span class="inline-flex items-center justify-center gap-2">
-                  <hlm-spinner aria-label="Loading projects" />
-                  Loading projects...
+                  <hlm-spinner aria-label="Loading experiences" />
+                  Loading experiences...
                 </span>
               </td>
             </tr>
-          } @else if (paginatedProjects().length === 0) {
+          } @else if (paginatedItems().length === 0) {
             <tr hlmTr>
               <td hlmTd colspan="7" class="py-10 text-center text-muted-foreground">
                 <span class="inline-flex flex-col items-center gap-2">
                   <ng-icon hlm size="lg" name="lucideInbox" class="text-muted-foreground/70" />
-                  No projects found.
+                  No experiences found.
                 </span>
               </td>
             </tr>
           } @else {
-            @for (project of paginatedProjects(); track project.id) {
+            @for (item of paginatedItems(); track item.id) {
               <tr hlmTr>
                 <td hlmTd>
-                  <span class="font-semibold">{{ project.slug }}</span>
+                  <span class="font-semibold">{{ item.company }}</span>
                 </td>
-                <td hlmTd>{{ project.titleFr }}</td>
-                <td hlmTd>{{ project.titleEn }}</td>
-                <td hlmTd>{{ project.stackNames.join(', ') || '-' }}</td>
-                <td hlmTd>{{ project.createdAt | adminDate }}</td>
-                <td hlmTd>{{ project.updatedAt | adminDate }}</td>
+                <td hlmTd>{{ item.roleFr }}</td>
+                <td hlmTd>{{ contractTypeLabel(item) }}</td>
+                <td hlmTd>{{ yearsLabel(item) }}</td>
+                <td hlmTd>{{ item.createdAt | adminDate }}</td>
+                <td hlmTd>{{ item.updatedAt | adminDate }}</td>
                 <td hlmTd class="text-right">
-                  <ng-container
-                    *ngTemplateOutlet="projectActions; context: { $implicit: project }"
-                  />
+                  <ng-container *ngTemplateOutlet="itemActions; context: { $implicit: item }" />
                 </td>
               </tr>
             }
@@ -147,28 +148,34 @@
         <p
           class="flex items-center justify-center gap-2 px-4 py-10 text-center text-sm text-muted-foreground"
         >
-          <hlm-spinner aria-label="Loading projects" />
-          Loading projects...
+          <hlm-spinner aria-label="Loading experiences" />
+          Loading experiences...
         </p>
-      } @else if (paginatedProjects().length === 0) {
+      } @else if (paginatedItems().length === 0) {
         <p
           class="flex flex-col items-center gap-2 px-4 py-10 text-center text-sm text-muted-foreground"
         >
           <ng-icon hlm size="lg" name="lucideInbox" class="text-muted-foreground/70" />
-          No projects found.
+          No experiences found.
         </p>
       } @else {
         <div class="grid grid-cols-2 gap-2 border-b border-border px-4 py-3 text-xs">
           <ng-container
             *ngTemplateOutlet="
               sortHeader;
-              context: { $implicit: 'slug', label: 'Slug', compact: true }
+              context: { $implicit: 'company', label: 'Company', compact: true }
             "
           />
           <ng-container
             *ngTemplateOutlet="
               sortHeader;
-              context: { $implicit: 'titleFr', label: 'Title (FR)', compact: true }
+              context: { $implicit: 'roleFr', label: 'Role (FR)', compact: true }
+            "
+          />
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'yearStart', label: 'Years', compact: true }
             "
           />
           <ng-container
@@ -177,38 +184,32 @@
               context: { $implicit: 'createdAt', label: 'Created', compact: true }
             "
           />
-          <ng-container
-            *ngTemplateOutlet="
-              sortHeader;
-              context: { $implicit: 'updatedAt', label: 'Updated', compact: true }
-            "
-          />
         </div>
 
-        @for (project of paginatedProjects(); track project.id; let even = $even) {
+        @for (item of paginatedItems(); track item.id; let even = $even) {
           <article class="px-4 py-4" [class.bg-muted/30]="even">
             <dl class="grid grid-cols-[minmax(5.5rem,auto)_1fr] gap-x-4 gap-y-2 text-sm">
-              <dt class="font-semibold text-foreground">Slug:</dt>
-              <dd class="m-0 text-end font-semibold">{{ project.slug }}</dd>
+              <dt class="font-semibold text-foreground">Company:</dt>
+              <dd class="m-0 text-end font-semibold">{{ item.company }}</dd>
 
-              <dt class="font-semibold text-foreground">Title (FR):</dt>
-              <dd class="m-0 text-end">{{ project.titleFr }}</dd>
+              <dt class="font-semibold text-foreground">Role (FR):</dt>
+              <dd class="m-0 text-end">{{ item.roleFr }}</dd>
 
-              <dt class="font-semibold text-foreground">Title (EN):</dt>
-              <dd class="m-0 text-end">{{ project.titleEn }}</dd>
+              <dt class="font-semibold text-foreground">Contract:</dt>
+              <dd class="m-0 text-end">{{ contractTypeLabel(item) }}</dd>
 
-              <dt class="font-semibold text-foreground">Stacks:</dt>
-              <dd class="m-0 text-end">{{ project.stackNames.join(', ') || '-' }}</dd>
+              <dt class="font-semibold text-foreground">Years:</dt>
+              <dd class="m-0 text-end">{{ yearsLabel(item) }}</dd>
 
               <dt class="font-semibold text-foreground">Created:</dt>
-              <dd class="m-0 text-end">{{ project.createdAt | adminDate }}</dd>
+              <dd class="m-0 text-end">{{ item.createdAt | adminDate }}</dd>
 
               <dt class="font-semibold text-foreground">Updated:</dt>
-              <dd class="m-0 text-end">{{ project.updatedAt | adminDate }}</dd>
+              <dd class="m-0 text-end">{{ item.updatedAt | adminDate }}</dd>
 
               <dt class="font-semibold text-foreground">Actions:</dt>
               <dd class="m-0 flex justify-end">
-                <ng-container *ngTemplateOutlet="projectActions; context: { $implicit: project }" />
+                <ng-container *ngTemplateOutlet="itemActions; context: { $implicit: item }" />
               </dd>
             </dl>
           </article>
@@ -234,7 +235,7 @@
       </button>
     </ng-template>
 
-    <ng-template #projectActions let-project>
+    <ng-template #itemActions let-item>
       <div class="flex items-center justify-end gap-1">
         <a
           hlmBtn
@@ -242,12 +243,12 @@
           size="icon-sm"
           hlmTooltip="Edit"
           position="top"
-          [routerLink]="['/admin/projects/edit', project.id]"
-          [attr.aria-label]="'Edit ' + project.slug"
+          [routerLink]="['/admin/experiences/edit', item.id]"
+          [attr.aria-label]="'Edit ' + item.company"
         >
           <ng-icon hlm size="sm" name="lucidePencil" />
         </a>
-        @if (project.deactivatedAt === null) {
+        @if (item.deactivatedAt === null) {
           <button
             hlmBtn
             type="button"
@@ -256,8 +257,8 @@
             class="text-muted-foreground hover:text-foreground"
             hlmTooltip="Deactivate"
             position="top"
-            (click)="confirmDeactivate(project)"
-            [attr.aria-label]="'Deactivate ' + project.slug"
+            (click)="confirmDeactivate(item)"
+            [attr.aria-label]="'Deactivate ' + item.company"
           >
             <ng-icon hlm size="sm" name="lucideEyeOff" />
           </button>
@@ -270,8 +271,8 @@
             class="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
             hlmTooltip="Reactivate"
             position="top"
-            (click)="confirmReactivate(project)"
-            [attr.aria-label]="'Reactivate ' + project.slug"
+            (click)="confirmReactivate(item)"
+            [attr.aria-label]="'Reactivate ' + item.company"
           >
             <ng-icon hlm size="sm" name="lucideRotateCcw" />
           </button>
@@ -283,8 +284,8 @@
             class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
             hlmTooltip="Delete"
             position="top"
-            (click)="confirmDelete(project)"
-            [attr.aria-label]="'Delete ' + project.slug"
+            (click)="confirmDelete(item)"
+            [attr.aria-label]="'Delete ' + item.company"
           >
             <ng-icon hlm size="sm" name="lucideTrash2" />
           </button>
@@ -370,9 +371,11 @@
 >
   <hlm-alert-dialog-content *hlmAlertDialogPortal>
     <hlm-alert-dialog-header>
-      <h2 hlmAlertDialogTitle>Deactivate project</h2>
-      <p hlmAlertDialogDescription>
-        <strong>{{ deactivateTarget()?.slug }}</strong> will be deactivated.
+      <h2 hlmAlertDialogTitle>Deactivate experience</h2>
+      <p hlmAlertDialogDescription class="whitespace-pre-line">
+        This will deactivate <strong>{{ deactivateTarget()?.company }}</strong> -
+        <strong>{{ deactivateTarget()?.roleFr }}</strong
+        >. You can permanently delete it afterwards.
       </p>
     </hlm-alert-dialog-header>
     <form [formGroup]="deactivateForm" (ngSubmit)="acceptDeactivate()">
@@ -391,10 +394,10 @@
 >
   <hlm-alert-dialog-content *hlmAlertDialogPortal>
     <hlm-alert-dialog-header>
-      <h2 hlmAlertDialogTitle>Reactivate project</h2>
+      <h2 hlmAlertDialogTitle>Reactivate experience</h2>
       <p hlmAlertDialogDescription>
-        <strong>{{ reactivateTarget()?.slug }}</strong> will be reactivated. You can permanently
-        delete it afterwards.
+        <strong>{{ reactivateTarget()?.company }}</strong> -
+        <strong>{{ reactivateTarget()?.roleFr }}</strong> will be reactivated.
       </p>
     </hlm-alert-dialog-header>
     <form [formGroup]="reactivateForm" (ngSubmit)="acceptReactivate()">
@@ -410,9 +413,11 @@
 <hlm-alert-dialog [state]="deleteDialogState()" (stateChange)="onDeleteDialogStateChange($event)">
   <hlm-alert-dialog-content *hlmAlertDialogPortal>
     <hlm-alert-dialog-header>
-      <h2 hlmAlertDialogTitle>Delete project</h2>
+      <h2 hlmAlertDialogTitle>Delete experience</h2>
       <p hlmAlertDialogDescription>
-        <strong>{{ deleteTarget()?.slug }}</strong> will be permanently deleted from the database.
+        <strong>{{ deleteTarget()?.company }}</strong> -
+        <strong>{{ deleteTarget()?.roleFr }}</strong> <br />
+        will be permanently deleted from the database.
       </p>
     </hlm-alert-dialog-header>
     <form [formGroup]="deleteForm" (ngSubmit)="acceptDelete()">
