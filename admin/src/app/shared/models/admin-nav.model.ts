@@ -40,6 +40,16 @@ export const ADMIN_NAV_SECTIONS: readonly AdminNavSection[] = [
         icon: 'lucideCode',
         route: '/admin/stacks',
       },
+      {
+        label: 'Experiences',
+        icon: 'lucideBriefcase',
+        route: '/admin/experiences',
+      },
+      {
+        label: 'Contract types',
+        icon: 'lucideBadgeCheck',
+        route: '/admin/experience-contract-types',
+      },
     ],
   },
   {

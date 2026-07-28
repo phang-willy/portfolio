@@ -1,0 +1,247 @@
+<div class="grid content-start gap-6">
+  <section class="flex flex-wrap items-start justify-between gap-4">
+    <div class="grid gap-2">
+      <p class="m-0 text-xs font-extrabold uppercase text-primary">Content</p>
+      <h1 class="m-0 text-3xl font-bold text-foreground">{{ pageTitle() }}</h1>
+      <p class="m-0 text-muted-foreground">
+        Manage French and English content for a professional experience.
+      </p>
+    </div>
+
+    <a hlmBtn variant="outline" routerLink="/admin/experiences">
+      <ng-icon hlm size="sm" name="lucideArrowLeft" />
+      Back to list
+    </a>
+  </section>
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-2 text-muted-foreground">
+      <hlm-spinner size="sm" />
+      <span>Loading experience...</span>
+    </div>
+  } @else {
+    <form class="grid gap-6" [formGroup]="experienceForm" (ngSubmit)="submitForm()">
+      <section class="rounded-lg border border-border bg-card p-4 shadow-lg">
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="grid gap-2 md:col-span-2">
+            <label class="text-sm font-bold" for="company">Company</label>
+            <input
+              hlmInput
+              id="company"
+              formControlName="company"
+              autocomplete="organization"
+              [class.ring-destructive/20]="hasSharedFieldError('company')"
+              (input)="onGlobalSlugSourceInput()"
+            />
+            @if (sharedFieldError('company'); as error) {
+              <p class="m-0 text-sm text-destructive">{{ error }}</p>
+            }
+          </div>
+
+          <div class="grid gap-2">
+            <label class="text-sm font-bold" for="yearStart">Year start</label>
+            <input
+              hlmInput
+              id="yearStart"
+              formControlName="yearStart"
+              type="number"
+              min="1900"
+              max="2100"
+              [class.ring-destructive/20]="hasSharedFieldError('yearStart')"
+              (input)="onGlobalSlugSourceInput()"
+            />
+            @if (sharedFieldError('yearStart'); as error) {
+              <p class="m-0 text-sm text-destructive">{{ error }}</p>
+            }
+          </div>
+
+          <div class="grid gap-2">
+            <label class="text-sm font-bold" for="yearEnd">Year end</label>
+            <input
+              hlmInput
+              id="yearEnd"
+              formControlName="yearEnd"
+              type="number"
+              min="1900"
+              max="2100"
+              placeholder="Optional"
+              [class.ring-destructive/20]="hasSharedFieldError('yearEnd')"
+              (input)="onGlobalSlugSourceInput()"
+            />
+            @if (sharedFieldError('yearEnd'); as error) {
+              <p class="m-0 text-sm text-destructive">{{ error }}</p>
+            }
+          </div>
+
+          <div class="grid gap-2 md:col-span-2">
+            <label class="text-sm font-bold" for="contractTypeId">Contract type</label>
+            <div
+              hlmSelect
+              id="contractTypeId"
+              class="w-full"
+              [ngModel]="experienceForm.controls.contractTypeId.value"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="experienceForm.controls.contractTypeId.setValue($event)"
+              [itemToString]="contractTypeLabel"
+              [class.ring-destructive/20]="hasSharedFieldError('contractTypeId')"
+            >
+              <hlm-select-trigger class="w-full">
+                <hlm-select-value placeholder="Select a contract type" />
+              </hlm-select-trigger>
+              <hlm-select-content *hlmSelectPortal>
+                <hlm-select-item value="">None</hlm-select-item>
+                @for (contractType of contractTypes(); track contractType.id) {
+                  <hlm-select-item [value]="contractType.id">
+                    {{ contractTypeLabel(contractType.id) }}
+                  </hlm-select-item>
+                }
+              </hlm-select-content>
+            </div>
+            @if (sharedFieldError('contractTypeId'); as error) {
+              <p class="m-0 text-sm text-destructive">{{ error }}</p>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-lg border border-border bg-card p-4 shadow-lg">
+        <div class="flex flex-col gap-4">
+          <div
+            class="inline-flex w-fit rounded-lg bg-muted p-1"
+            role="tablist"
+            aria-label="Experience language"
+          >
+            <button
+              type="button"
+              hlmBtn
+              size="sm"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'fr'"
+              [variant]="activeTab() === 'fr' ? 'default' : 'ghost'"
+              [class.ring-2]="hasLocaleErrors('fr')"
+              [class.ring-destructive/40]="hasLocaleErrors('fr')"
+              (click)="requestTab('fr', $event)"
+            >
+              French
+            </button>
+            <button
+              type="button"
+              hlmBtn
+              size="sm"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'en'"
+              [variant]="activeTab() === 'en' ? 'default' : 'ghost'"
+              [class.ring-2]="hasLocaleErrors('en')"
+              [class.ring-destructive/40]="hasLocaleErrors('en')"
+              (click)="requestTab('en', $event)"
+            >
+              English
+            </button>
+          </div>
+
+          @if (activeTab() === 'fr') {
+            <ng-container *ngTemplateOutlet="localeFields; context: { $implicit: 'fr' }" />
+          } @else {
+            <ng-container *ngTemplateOutlet="localeFields; context: { $implicit: 'en' }" />
+          }
+        </div>
+      </section>
+
+      <app-auth-honeypot-field />
+
+      <div class="flex flex-wrap gap-2">
+        <button hlmBtn type="submit" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <hlm-spinner size="sm" />
+          }
+          {{ mode() === 'create' ? 'Create experience' : 'Save changes' }}
+        </button>
+        <a hlmBtn variant="outline" routerLink="/admin/experiences">Cancel</a>
+      </div>
+    </form>
+  }
+</div>
+
+<ng-template #localeFields let-tab>
+  <div
+    class="grid gap-4"
+    [formGroup]="tab === 'fr' ? experienceForm.controls.fr : experienceForm.controls.en"
+  >
+    <div class="grid gap-2">
+      <label class="text-sm font-bold" [for]="tab + '-role'">Role</label>
+      <input
+        hlmInput
+        [id]="tab + '-role'"
+        formControlName="role"
+        (input)="onLocaleRoleInput(tab)"
+        [class.ring-destructive/20]="hasLocaleFieldError(tab, 'role')"
+      />
+      @if (localeFieldError(tab, 'role'); as error) {
+        <p class="m-0 text-sm text-destructive">{{ error }}</p>
+      }
+    </div>
+
+    <div class="grid gap-1 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm">
+      <span class="text-muted-foreground">Slug ({{ tab }})</span>
+      <span class="font-mono text-foreground">{{ slugPreview(tab) || '—' }}</span>
+    </div>
+
+    <div class="grid gap-2">
+      <label class="text-sm font-bold" [for]="tab + '-summary'">Summary</label>
+      <textarea
+        hlmTextarea
+        [id]="tab + '-summary'"
+        rows="3"
+        formControlName="summary"
+        [class.ring-destructive/20]="hasLocaleFieldError(tab, 'summary')"
+      ></textarea>
+      @if (localeFieldError(tab, 'summary'); as error) {
+        <p class="m-0 text-sm text-destructive">{{ error }}</p>
+      }
+    </div>
+
+    <div class="grid gap-2">
+      <label class="text-sm font-bold" [for]="tab + '-content'">Content</label>
+      <div class="overflow-hidden rounded-md">
+        <app-project-tiptap-toolbar
+          [editor]="editorFor(tab)"
+          [codeView]="isCodeView(tab)"
+          (codeViewChange)="onCodeViewChange(tab, $event)"
+        />
+        @if (isCodeView(tab)) {
+          <textarea
+            hlmTextarea
+            class="min-h-40 w-full resize-y rounded-t-none rounded-b-md border border-input font-mono text-xs leading-relaxed"
+            [id]="tab + '-content'"
+            [ngModel]="contentModelFor(tab)"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onContentChange(tab, $event)"
+          ></textarea>
+        } @else {
+          <tiptap-editor [editor]="editorFor(tab)" />
+        }
+      </div>
+      @if (localeFieldError(tab, 'content'); as error) {
+        <p class="m-0 text-sm text-destructive">{{ error }}</p>
+      }
+    </div>
+  </div>
+</ng-template>
+
+<hlm-alert-dialog [state]="unsavedDialogState()" (stateChange)="onUnsavedDialogStateChange($event)">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Unsaved changes</h2>
+      <p hlmAlertDialogDescription>
+        You have unsaved changes on this language. Save before switching or discard your edits.
+      </p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button hlmAlertDialogCancel type="button" (click)="cancelTabSwitch()">Cancel</button>
+      <button hlmBtn type="button" variant="outline" (click)="discardTabSwitch()">
+        Discard
+      </button>
+      <button hlmAlertDialogAction type="button" (click)="saveAndSwitchTab()">Save</button>
+    </hlm-alert-dialog-footer>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>
