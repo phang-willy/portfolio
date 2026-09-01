@@ -2,6 +2,8 @@
   "/api": {
     "target": "http://back-dev:8000",
     "secure": false,
-    "changeOrigin": true
+    "changeOrigin": true,
+    "timeout": 0,
+    "proxyTimeout": 0
   }
 }

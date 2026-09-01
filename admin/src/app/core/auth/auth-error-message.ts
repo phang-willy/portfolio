@@ -13,7 +13,20 @@ export function resolveAuthErrorMessage(error: unknown, fallback: string): strin
     return 'The API is temporarily unavailable. Check that the backend is running.';
   }
 
-  const body = error.error;
+  const bodyMessage = readErrorBodyMessage(error.error);
+  if (bodyMessage) {
+    return bodyMessage;
+  }
+
+  return describeStatus(error.status) ?? fallback;
+}
+
+export function resolveApiErrorMessage(error: unknown, action: string): string {
+  const detail = resolveAuthErrorMessage(error, httpStatusFallback(error));
+  return `${action} ${detail}`;
+}
+
+function readErrorBodyMessage(body: unknown): string | null {
   if (typeof body === 'string' && body.trim()) {
     return body;
   }
@@ -22,7 +35,37 @@ export function resolveAuthErrorMessage(error: unknown, fallback: string): strin
     return body['message'];
   }
 
-  return fallback;
+  return null;
+}
+
+function describeStatus(status: number): string | null {
+  switch (status) {
+    case 401:
+      return 'Your session expired. Please sign in again.';
+    case 403:
+      return 'You do not have permission to do this.';
+    case 404:
+      return 'The requested resource was not found.';
+    case 429:
+      return 'Too many requests. Please wait and try again.';
+    default:
+      return null;
+  }
+}
+
+function httpStatusFallback(error: unknown): string {
+  if (!(error instanceof HttpErrorResponse) || !error.status) {
+    return 'An unexpected error occurred.';
+  }
+
+  const named = describeStatus(error.status);
+  if (named) {
+    return named;
+  }
+
+  const statusText = error.statusText?.trim();
+  const suffix = statusText && statusText !== 'Unknown Error' ? ` (${statusText})` : '';
+  return `The API returned HTTP ${error.status}${suffix}.`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -7,7 +7,11 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "email_queue")
@@ -16,6 +20,7 @@ public class EmailQueue extends UuidPrimaryKeyEntity {
   private static final int RECIPIENT_MAX_LENGTH = 320;
   private static final int SUBJECT_MAX_LENGTH = 255;
   private static final int STATUS_MAX_LENGTH = 20;
+  private static final int ERROR_HISTORY_MAX_ENTRIES = 50;
 
   @Column(nullable = false, length = RECIPIENT_MAX_LENGTH)
   private String recipient;
@@ -33,8 +38,9 @@ public class EmailQueue extends UuidPrimaryKeyEntity {
   @Column(nullable = false)
   private int attempts;
 
-  @Column(name = "last_error", columnDefinition = "text")
-  private String lastError;
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "last_error", columnDefinition = "jsonb")
+  private List<EmailQueueErrorEntry> lastError;
 
   @Column(name = "scheduled_at", nullable = false)
   private Instant scheduledAt;
@@ -76,8 +82,8 @@ public class EmailQueue extends UuidPrimaryKeyEntity {
     return attempts;
   }
 
-  public String getLastError() {
-    return lastError;
+  public List<EmailQueueErrorEntry> getLastError() {
+    return lastError == null ? List.of() : List.copyOf(lastError);
   }
 
   public Instant getScheduledAt() {
@@ -95,19 +101,34 @@ public class EmailQueue extends UuidPrimaryKeyEntity {
   public void markSent(Instant sentAt) {
     this.status = EmailQueueStatus.SENT;
     this.sentAt = sentAt;
-    this.lastError = null;
   }
 
-  public void markFailed(String lastError) {
+  public void markFailed(String lastError, Instant at) {
     this.status = EmailQueueStatus.FAILED;
     this.attempts++;
-    this.lastError = lastError;
+    appendError(lastError, at);
   }
 
-  public void rescheduleAfterFailure(String lastError, Instant scheduledAt) {
+  public void rescheduleAfterFailure(String lastError, Instant at, Instant scheduledAt) {
     this.status = EmailQueueStatus.PENDING;
     this.attempts++;
-    this.lastError = lastError;
+    appendError(lastError, at);
     this.scheduledAt = scheduledAt;
+  }
+
+  public void resend(Instant now) {
+    this.status = EmailQueueStatus.PENDING;
+    this.attempts = 0;
+    this.sentAt = null;
+    this.scheduledAt = now;
+  }
+
+  private void appendError(String message, Instant at) {
+    List<EmailQueueErrorEntry> history = lastError == null ? new ArrayList<>() : new ArrayList<>(lastError);
+    history.add(new EmailQueueErrorEntry(at, message));
+    if (history.size() > ERROR_HISTORY_MAX_ENTRIES) {
+      history.subList(0, history.size() - ERROR_HISTORY_MAX_ENTRIES).clear();
+    }
+    this.lastError = history;
   }
 }

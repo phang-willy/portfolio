@@ -11,6 +11,12 @@ const PARIS_CENTER: [number, number] = [2.3522, 48.8566];
 const CARTO_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
+function cartoTileUrl(subdomain: "a" | "b" | "c", path: string) {
+  const key = process.env.CARTO_API_KEY?.trim();
+  const url = `https://${subdomain}.basemaps.cartocdn.com/${path}/{z}/{x}/{y}.png`;
+  return key ? `${url}?key=${encodeURIComponent(key)}` : url;
+}
+
 /** Tuiles raster : évite les erreurs MapLibre « Expected number, found null » sur certains styles GL + MVT. */
 function cartoRasterStyle(dark: boolean): StyleSpecification {
   const path = dark ? "dark_all" : "light_all";
@@ -20,9 +26,9 @@ function cartoRasterStyle(dark: boolean): StyleSpecification {
       carto: {
         type: "raster",
         tiles: [
-          `https://a.basemaps.cartocdn.com/${path}/{z}/{x}/{y}.png`,
-          `https://b.basemaps.cartocdn.com/${path}/{z}/{x}/{y}.png`,
-          `https://c.basemaps.cartocdn.com/${path}/{z}/{x}/{y}.png`,
+          cartoTileUrl("a", path),
+          cartoTileUrl("b", path),
+          cartoTileUrl("c", path),
         ],
         tileSize: 256,
         attribution: CARTO_ATTRIBUTION,
@@ -45,6 +51,13 @@ const getHtmlDarkClassSnapshot = () =>
   document.documentElement.classList.contains("dark");
 
 const getHtmlDarkClassServerSnapshot = () => false;
+
+const collapseMapLibreAttribution = (map: maplibregl.Map) => {
+  const attrib = map.getContainer().querySelector(".maplibregl-ctrl-attrib");
+  if (!(attrib instanceof HTMLElement)) return;
+  attrib.removeAttribute("open");
+  attrib.classList.remove("maplibregl-compact-show");
+};
 
 const createParisMarkerElement = (availabilityLabel: string) => {
   const root = document.createElement("div");
@@ -96,7 +109,10 @@ export const ParisMap = () => {
     map.doubleClickZoom.disable();
     map.touchZoomRotate.disable();
 
-    const addMarker = () => {
+    collapseMapLibreAttribution(map);
+
+    const onReady = () => {
+      collapseMapLibreAttribution(map);
       new maplibregl.Marker({
         element: createParisMarkerElement(availabilityLabel),
         anchor: "bottom",
@@ -106,9 +122,9 @@ export const ParisMap = () => {
     };
 
     if (map.isStyleLoaded()) {
-      addMarker();
+      onReady();
     } else {
-      map.once("load", addMarker);
+      map.once("load", onReady);
     }
 
     return () => {

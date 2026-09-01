@@ -11,7 +11,8 @@ import { HlmSpinner } from '@spartan-ng/helm/spinner';
 
 import { AuthStateService } from '@/app/core/auth/auth-state.service';
 import { AuthService } from '@/app/core/auth/auth.service';
-import { ADMIN_NAV_SECTIONS } from '@/app/shared/models/admin-nav.model';
+import { EmailQueueService } from '@/app/features/email-queue/email-queue.service';
+import { ADMIN_NAV_SECTIONS, AdminNavItem } from '@/app/shared/models/admin-nav.model';
 
 @Component({
   selector: 'app-admin-sidebar',
@@ -32,6 +33,7 @@ export class AdminSidebarComponent {
   private readonly auth = inject(AuthService);
   private readonly authState = inject(AuthStateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly emailQueueService = inject(EmailQueueService);
   private readonly router = inject(Router);
 
   readonly compact = input(false);
@@ -42,6 +44,19 @@ export class AdminSidebarComponent {
   protected readonly navSections = ADMIN_NAV_SECTIONS;
   protected readonly currentUser$ = this.authState.currentUser$;
   protected readonly isLoggingOut = signal(false);
+  protected readonly failedEmailCount = this.emailQueueService.failedCount;
+
+  constructor() {
+    this.emailQueueService.ensureRealtime();
+  }
+
+  protected navItemAriaLabel(item: AdminNavItem): string | null {
+    if (item.badge !== 'email-queue-failed') {
+      return this.compact() ? item.label : null;
+    }
+
+    return `${item.label}, ${this.failedEmailCount()} failed`;
+  }
 
   protected userInitials(firstname: string, lastname: string): string {
     const first = firstname.trim().charAt(0);

@@ -5,7 +5,7 @@
 }
 
 .admin-nav-link {
-  @apply flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-foreground no-underline transition-colors;
+  @apply relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-foreground no-underline transition-colors;
 }
 
 .admin-nav-link:hover {
@@ -18,6 +18,22 @@
 
 .admin-nav-link-icon {
   @apply text-sm;
+}
+
+.admin-nav-link-compact {
+  @apply justify-center px-2;
+}
+
+.admin-nav-badge {
+  @apply ml-auto inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-muted px-1.5 text-[10px] font-extrabold text-muted-foreground;
+}
+
+.admin-nav-badge-alert {
+  @apply bg-destructive text-white;
+}
+
+.admin-nav-link-compact .admin-nav-badge {
+  @apply absolute top-0.5 right-0.5 ml-0 h-4 min-w-4 px-1 leading-4;
 }
 
 .admin-sidebar-user-card {

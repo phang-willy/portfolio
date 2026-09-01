@@ -199,6 +199,14 @@ export const routes: Routes = [
           ),
         data: { breadcrumb: 'API status', title: 'API status', section: 'System' },
       },
+      {
+        path: 'email-queue',
+        loadComponent: () =>
+          import('@/app/features/email-queue/email-queue-list-page').then(
+            (module) => module.EmailQueueListPage,
+          ),
+        data: { breadcrumb: 'Email queue', title: 'Email queue', section: 'System' },
+      },
     ],
   },
   {

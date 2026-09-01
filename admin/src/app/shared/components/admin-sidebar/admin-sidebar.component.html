@@ -44,14 +44,25 @@
             <li>
               <a
                 class="admin-nav-link"
+                [class.admin-nav-link-compact]="compact()"
                 [routerLink]="item.route"
                 routerLinkActive="admin-nav-link-active"
                 [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+                [attr.aria-label]="navItemAriaLabel(item)"
                 (click)="onNavigate()"
               >
                 <ng-icon hlm size="sm" [name]="item.icon" class="admin-nav-link-icon" />
                 @if (!compact()) {
-                  <span>{{ item.label }}</span>
+                  <span class="min-w-0 flex-1 truncate">{{ item.label }}</span>
+                }
+                @if (item.badge === 'email-queue-failed') {
+                  <span
+                    class="admin-nav-badge"
+                    [class.admin-nav-badge-alert]="failedEmailCount() > 0"
+                    aria-hidden="true"
+                  >
+                    {{ failedEmailCount() }}
+                  </span>
                 }
               </a>
             </li>
