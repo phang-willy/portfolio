@@ -1,8 +1,11 @@
+export type AdminNavBadge = 'email-queue-failed';
+
 export interface AdminNavItem {
   readonly label: string;
   readonly icon: string;
   readonly route: string;
   readonly exact?: boolean;
+  readonly badge?: AdminNavBadge;
 }
 
 export interface AdminNavSection {
@@ -59,6 +62,12 @@ export const ADMIN_NAV_SECTIONS: readonly AdminNavSection[] = [
         label: 'API status',
         icon: 'lucideServer',
         route: '/admin/system',
+      },
+      {
+        label: 'Email queue',
+        icon: 'lucideMail',
+        route: '/admin/email-queue',
+        badge: 'email-queue-failed',
       },
     ],
   },

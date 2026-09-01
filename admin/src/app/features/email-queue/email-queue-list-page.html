@@ -1,0 +1,438 @@
+<div class="grid content-start gap-6">
+  <section class="flex flex-wrap items-start justify-between gap-4">
+    <div class="grid gap-2">
+      <p class="m-0 text-xs font-extrabold uppercase text-primary">System</p>
+      <h1 class="m-0 text-3xl font-bold text-foreground">Email queue</h1>
+      <p class="m-0 text-muted-foreground">
+        Review queued and sent emails. Message bodies are never shown.
+      </p>
+    </div>
+  </section>
+
+  @if (errorMessage(); as message) {
+    <p
+      class="m-0 wrap-break-word rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+    >
+      {{ message }}
+    </p>
+  }
+
+  <section class="rounded-lg border border-border bg-card text-foreground shadow-lg">
+    <div
+      class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3 max-sm:flex-col max-sm:items-stretch"
+    >
+      <div
+        hlmSelect
+        class="w-full md:w-auto"
+        [ngModel]="rowsPerPage()"
+        (ngModelChange)="onRowsPerPageChange($event)"
+      >
+        <hlm-select-trigger class="w-full min-w-20">
+          <hlm-select-value placeholder="Rows per page" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          @for (rows of tableRowsOptions; track rows) {
+            <hlm-select-item [value]="rows">{{ rows }}</hlm-select-item>
+          }
+        </hlm-select-content>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 max-sm:w-full max-sm:justify-between">
+        <label class="text-sm text-muted-foreground" for="search">Search:</label>
+        <div class="relative w-full min-w-48 max-w-xs">
+          <ng-icon
+            hlm
+            size="sm"
+            name="lucideSearch"
+            class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            hlmInput
+            type="search"
+            id="search"
+            name="search"
+            class="w-full pl-9"
+            [value]="globalFilterValue()"
+            (input)="onGlobalFilter($event)"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div hlmTableContainer class="hidden overflow-x-auto md:block">
+      <table hlmTable class="w-full">
+        <thead hlmTHead>
+          <tr hlmTr>
+            <th hlmTh class="min-w-48 font-bold">
+              <ng-container
+                *ngTemplateOutlet="
+                  sortHeader;
+                  context: { $implicit: 'recipient', label: 'Recipient' }
+                "
+              />
+            </th>
+            <th hlmTh class="min-w-48 font-bold">
+              <ng-container
+                *ngTemplateOutlet="sortHeader; context: { $implicit: 'subject', label: 'Subject' }"
+              />
+            </th>
+            <th hlmTh class="min-w-28 font-bold">
+              <ng-container
+                *ngTemplateOutlet="sortHeader; context: { $implicit: 'status', label: 'Status' }"
+              />
+            </th>
+            <th hlmTh class="min-w-24 font-bold">
+              <ng-container
+                *ngTemplateOutlet="
+                  sortHeader;
+                  context: { $implicit: 'attempts', label: 'Attempts' }
+                "
+              />
+            </th>
+            <th hlmTh class="min-w-48 font-bold">Error history</th>
+            <th hlmTh class="min-w-32 font-bold">
+              <ng-container
+                *ngTemplateOutlet="
+                  sortHeader;
+                  context: { $implicit: 'scheduledAt', label: 'Scheduled' }
+                "
+              />
+            </th>
+            <th hlmTh class="min-w-32 font-bold">
+              <ng-container
+                *ngTemplateOutlet="sortHeader; context: { $implicit: 'sentAt', label: 'Sent' }"
+              />
+            </th>
+            <th hlmTh class="min-w-32 font-bold">
+              <ng-container
+                *ngTemplateOutlet="
+                  sortHeader;
+                  context: { $implicit: 'createdAt', label: 'Created' }
+                "
+              />
+            </th>
+          </tr>
+        </thead>
+        <tbody hlmTBody>
+          @if (isLoading()) {
+            <tr hlmTr>
+              <td hlmTd colspan="8" class="py-10 text-center text-muted-foreground">
+                <span class="inline-flex items-center justify-center gap-2">
+                  <hlm-spinner aria-label="Loading email queue" />
+                  Loading emails...
+                </span>
+              </td>
+            </tr>
+          } @else if (paginatedEmails().length === 0) {
+            <tr hlmTr>
+              <td hlmTd colspan="8" class="py-10 text-center text-muted-foreground">
+                <span class="inline-flex flex-col items-center gap-2">
+                  <ng-icon hlm size="lg" name="lucideInbox" class="text-muted-foreground/70" />
+                  No emails found.
+                </span>
+              </td>
+            </tr>
+          } @else {
+            @for (email of paginatedEmails(); track email.id) {
+              <tr hlmTr>
+                <td hlmTd>
+                  <span class="font-semibold">{{ email.recipient }}</span>
+                </td>
+                <td hlmTd>{{ email.subject }}</td>
+                <td hlmTd>
+                  <ng-container
+                    *ngTemplateOutlet="statusBadge; context: { $implicit: email.status }"
+                  />
+                </td>
+                <td hlmTd>
+                  <ng-container *ngTemplateOutlet="attemptsCell; context: { $implicit: email }" />
+                </td>
+                <td hlmTd>
+                  <ng-container
+                    *ngTemplateOutlet="errorHistoryCell; context: { $implicit: email }"
+                  />
+                </td>
+                <td hlmTd>{{ email.scheduledAt | adminDate }}</td>
+                <td hlmTd>{{ email.sentAt | adminDate }}</td>
+                <td hlmTd>{{ email.createdAt | adminDate }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divide-y divide-border md:hidden">
+      @if (isLoading()) {
+        <p
+          class="flex items-center justify-center gap-2 px-4 py-10 text-center text-sm text-muted-foreground"
+        >
+          <hlm-spinner aria-label="Loading email queue" />
+          Loading emails...
+        </p>
+      } @else if (paginatedEmails().length === 0) {
+        <p
+          class="flex flex-col items-center gap-2 px-4 py-10 text-center text-sm text-muted-foreground"
+        >
+          <ng-icon hlm size="lg" name="lucideInbox" class="text-muted-foreground/70" />
+          No emails found.
+        </p>
+      } @else {
+        <div class="grid grid-cols-2 gap-2 border-b border-border px-4 py-3 text-xs">
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'recipient', label: 'Recipient', compact: true }
+            "
+          />
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'subject', label: 'Subject', compact: true }
+            "
+          />
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'status', label: 'Status', compact: true }
+            "
+          />
+          <ng-container
+            *ngTemplateOutlet="
+              sortHeader;
+              context: { $implicit: 'createdAt', label: 'Created', compact: true }
+            "
+          />
+        </div>
+
+        @for (email of paginatedEmails(); track email.id; let even = $even) {
+          <article class="px-4 py-4" [class.bg-muted/30]="even">
+            <dl class="grid grid-cols-[minmax(5.5rem,auto)_1fr] gap-x-4 gap-y-2 text-sm">
+              <dt class="font-semibold text-foreground">Recipient:</dt>
+              <dd class="m-0 text-end font-semibold">{{ email.recipient }}</dd>
+
+              <dt class="font-semibold text-foreground">Subject:</dt>
+              <dd class="m-0 text-end">{{ email.subject }}</dd>
+
+              <dt class="font-semibold text-foreground">Status:</dt>
+              <dd class="m-0 flex justify-end">
+                <ng-container
+                  *ngTemplateOutlet="statusBadge; context: { $implicit: email.status }"
+                />
+              </dd>
+
+              <dt class="font-semibold text-foreground">Attempts:</dt>
+              <dd class="m-0 flex items-center justify-end">
+                <ng-container *ngTemplateOutlet="attemptsCell; context: { $implicit: email }" />
+              </dd>
+
+              @if (hasErrorHistory(email)) {
+                <dt class="font-semibold text-foreground">Error history:</dt>
+                <dd class="m-0 flex justify-end">
+                  <ng-container
+                    *ngTemplateOutlet="errorHistoryCell; context: { $implicit: email }"
+                  />
+                </dd>
+              }
+
+              <dt class="font-semibold text-foreground">Scheduled:</dt>
+              <dd class="m-0 text-end">{{ email.scheduledAt | adminDate }}</dd>
+
+              <dt class="font-semibold text-foreground">Sent:</dt>
+              <dd class="m-0 text-end">{{ email.sentAt | adminDate }}</dd>
+
+              <dt class="font-semibold text-foreground">Created:</dt>
+              <dd class="m-0 text-end">{{ email.createdAt | adminDate }}</dd>
+            </dl>
+          </article>
+        }
+      }
+    </div>
+
+    <ng-template #statusBadge let-status>
+      <span hlmBadge [variant]="statusBadgeVariant(status)">{{ statusLabel(status) }}</span>
+    </ng-template>
+
+    <ng-template #attemptsCell let-email>
+      <div class="flex items-center justify-center gap-1">
+        <span>{{ email.attempts }}/{{ email.maxAttempts }}</span>
+        @if (canResend(email)) {
+          <button
+            hlmBtn
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            class="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+            hlmTooltip="Resend"
+            position="top"
+            (click)="confirmResend(email)"
+            [attr.aria-label]="'Resend to ' + email.recipient"
+          >
+            <ng-icon hlm size="sm" name="lucideRotateCcw" />
+          </button>
+        }
+      </div>
+    </ng-template>
+
+    <ng-template #errorHistoryCell let-email>
+      @if (hasErrorHistory(email)) {
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          hlmTooltip="Error history"
+          position="top"
+          (click)="openErrorHistory(email)"
+          [attr.aria-label]="'View error history for ' + email.recipient"
+        >
+          <ng-icon hlm size="sm" name="lucideHistory" />
+        </button>
+      }
+    </ng-template>
+
+    <ng-template #sortHeader let-field let-label="label" let-compact="compact">
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5"
+        [class.font-semibold]="compact"
+        (click)="toggleSort(field)"
+      >
+        {{ label }}
+        <ng-icon
+          hlm
+          size="xs"
+          [name]="sortIcon(field)"
+          [class.text-primary]="isSorted(field)"
+          [class.text-muted-foreground/50]="!isSorted(field)"
+        />
+      </button>
+    </ng-template>
+
+    <div
+      class="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 max-sm:flex-col max-sm:items-stretch"
+    >
+      <span class="block min-w-max text-sm font-semibold text-muted-foreground">
+        {{ pageReport() }}
+      </span>
+
+      <div class="ml-auto flex items-center gap-1 max-sm:mx-auto">
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isFirstPage()"
+          (click)="changePage(1)"
+          aria-label="First page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronsLeft" />
+        </button>
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isFirstPage()"
+          (click)="changePage(currentPage() - 1)"
+          aria-label="Previous page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronLeft" />
+        </button>
+
+        @for (page of pageLinks(); track page) {
+          <button
+            hlmBtn
+            type="button"
+            size="icon-sm"
+            [variant]="currentPage() === page ? 'default' : 'ghost'"
+            (click)="changePage(page)"
+            [attr.aria-current]="currentPage() === page ? 'page' : null"
+            [attr.aria-label]="'Page ' + page"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isLastPage()"
+          (click)="changePage(currentPage() + 1)"
+          aria-label="Next page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronRight" />
+        </button>
+        <button
+          hlmBtn
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          [disabled]="isLastPage()"
+          (click)="changePage(totalPages())"
+          aria-label="Last page"
+        >
+          <ng-icon hlm size="sm" name="lucideChevronsRight" />
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<hlm-dialog [state]="errorDialogState()" (stateChanged)="onErrorDialogStateChange($event)">
+  <hlm-dialog-content *hlmDialogPortal="let ctx" class="min-w-0 overflow-x-hidden sm:max-w-lg">
+    <hlm-dialog-header>
+      <h2 hlmDialogTitle>Error history</h2>
+      <p hlmDialogDescription class="min-w-0 wrap-break-word">
+        {{ errorHistoryTarget()?.subject }} — {{ errorHistoryTarget()?.recipient }}
+      </p>
+    </hlm-dialog-header>
+
+    <div
+      class="max-h-[50vh] min-w-0 overflow-x-hidden overflow-y-auto overscroll-y-contain"
+      tabindex="0"
+      role="region"
+      aria-label="Error history entries"
+    >
+      @if (errorHistoryTarget(); as email) {
+        <ol class="m-0 grid min-w-0 list-none gap-3 p-0">
+          @for (error of errorHistory(email); track $index) {
+            <li class="min-w-0 overflow-hidden rounded-md border border-border bg-muted/40 p-3">
+              <p class="m-0 text-xs font-semibold text-muted-foreground">
+                {{ error.at | adminDate }}
+              </p>
+              <p class="m-0 mt-1 min-w-0 whitespace-pre-wrap break-all text-sm text-foreground">
+                {{ error.message }}
+              </p>
+            </li>
+          }
+        </ol>
+      }
+    </div>
+
+    <hlm-dialog-footer>
+      <button hlmBtn type="button" variant="ghost" (click)="closeErrorHistory()">Close</button>
+    </hlm-dialog-footer>
+  </hlm-dialog-content>
+</hlm-dialog>
+
+<hlm-alert-dialog [state]="resendDialogState()" (stateChange)="onResendDialogStateChange($event)">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Resend email</h2>
+      <p hlmAlertDialogDescription>
+        Queue <strong>{{ resendTarget()?.subject }}</strong> to
+        <strong>{{ resendTarget()?.recipient }}</strong> again. Previous errors stay in the history.
+      </p>
+    </hlm-alert-dialog-header>
+    <form [formGroup]="resendForm" (ngSubmit)="acceptResend()">
+      <app-auth-honeypot-field />
+      <hlm-alert-dialog-footer>
+        <button hlmAlertDialogCancel type="button" (click)="closeResendDialog()">Cancel</button>
+        <button hlmAlertDialogAction type="submit">Resend</button>
+      </hlm-alert-dialog-footer>
+    </form>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>

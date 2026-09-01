@@ -55,6 +55,9 @@ const contentSecurityPolicy = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  env: {
+    CARTO_API_KEY: env.CARTO_API_KEY,
+  },
   async headers() {
     if (process.env.NODE_ENV !== "production") {
       return [];

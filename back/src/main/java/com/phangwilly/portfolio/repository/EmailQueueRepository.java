@@ -15,4 +15,6 @@ public interface EmailQueueRepository extends JpaRepository<EmailQueue, UUID> {
     Instant scheduledAt,
     Pageable pageable
   );
+
+  long countByStatus(EmailQueueStatus status);
 }

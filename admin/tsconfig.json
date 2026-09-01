@@ -6,6 +6,7 @@
       "@spartan-ng/helm/utils": ["./src/app/shared/ui/utils/src/index.ts"],
       "@spartan-ng/helm/icon": ["./src/app/shared/ui/icon/src/index.ts"],
       "@spartan-ng/helm/button": ["./src/app/shared/ui/button/src/index.ts"],
+      "@spartan-ng/helm/badge": ["./src/app/shared/ui/badge/src/index.ts"],
       "@spartan-ng/helm/input": ["./src/app/shared/ui/input/src/index.ts"],
       "@spartan-ng/helm/textarea": ["./src/app/shared/ui/textarea/src/index.ts"],
       "@spartan-ng/helm/checkbox": ["./src/app/shared/ui/checkbox/src/index.ts"],
