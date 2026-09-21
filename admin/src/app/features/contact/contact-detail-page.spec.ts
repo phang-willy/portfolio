@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { Subject, of } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AdminAccessService } from '@/app/core/auth/admin-access.service';
 import { AuthStateService } from '@/app/core/auth/auth-state.service';
@@ -17,7 +17,7 @@ import { ContactService } from '@/app/features/contact/contact.service';
 import { contactStatusBadge } from '@/app/features/contact/contact-status';
 import { contactVisitStorageKey, hasOpenContactVisit } from '@/app/features/contact/contact-visit';
 import { provideAdminIcons } from '@/app/shared/icons/admin-icons';
-import { ContactAdminDetail, ContactAdminListItem, ContactPresenceEvent } from '@/app/shared/models/contact.model';
+import { ContactAdminDetail, ContactAdminListItem, ContactPresenceEvent, ContactPresenceState } from '@/app/shared/models/contact.model';
 
 registerLocaleData(localeFr);
 
@@ -144,6 +144,11 @@ describe('ContactDetailPage', () => {
     }).compileComponents();
   });
 
+  afterEach(() => {
+    sessionStorage.removeItem(contactVisitStorageKey('contact-id'));
+    sessionStorage.removeItem(presenceSessionStorageKey('contact-id'));
+  });
+
   function createHarness(): {
     fixture: ReturnType<typeof TestBed.createComponent<ContactDetailPage>>;
     reply: ContactReplyHarness;
@@ -214,6 +219,42 @@ describe('ContactDetailPage', () => {
 
     expect(text).toContain('History updated');
     expect(text).toContain('Léa Admin has been on this page since');
+  });
+
+  it('does not ask to refresh history for the visit that just opened the page', () => {
+    const { fixture } = createHarness();
+    changes$.next({
+      id: 'contact-id',
+      firstname: 'Léa',
+      lastname: 'Martin',
+      email: 'lea@example.test',
+      subject: 'Création de site',
+      status: 'READ',
+      createdAt: DETAIL.createdAt,
+      updatedAt: DETAIL.updatedAt,
+      firstReadAt: DETAIL.firstReadAt,
+    });
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('History updated');
+  });
+
+  it('ignores a late heartbeat from another enquiry', () => {
+    const late = new Subject<ContactPresenceState>();
+    heartbeat.mockReturnValue(late);
+    const { fixture } = createHarness();
+
+    late.next({
+      contactId: 'other-id',
+      readOnly: true,
+      occupant: { userId: 'other-id', name: 'Léa Admin', joinedAt: '2026-09-21T21:00:00.000Z' },
+      viewers: [{ userId: 'other-id', name: 'Léa Admin', joinedAt: '2026-09-21T21:00:00.000Z' }],
+    });
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).not.toContain('Read-only mode');
+    expect(text).not.toContain('Léa Admin has been on this page since');
   });
 
   it('asks to refresh history when this enquiry changes in realtime', () => {

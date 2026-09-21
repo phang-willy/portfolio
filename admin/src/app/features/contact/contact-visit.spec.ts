@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import {
   clearOpenContactVisit,
@@ -9,6 +9,10 @@ import {
 } from './contact-visit';
 
 describe('contact visit tracking', () => {
+  beforeEach(() => {
+    sessionStorage.removeItem(contactVisitStorageKey('contact-id'));
+  });
+
   afterEach(() => {
     sessionStorage.removeItem(contactVisitStorageKey('contact-id'));
   });

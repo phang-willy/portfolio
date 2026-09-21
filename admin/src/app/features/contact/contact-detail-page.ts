@@ -11,7 +11,7 @@ import { EMPTY, Subject, catchError, concatMap, distinctUntilChanged, filter, in
 
 import { AuthStateService } from '@/app/core/auth/auth-state.service';
 import { resolveApiErrorMessage } from '@/app/core/auth/auth-error-message';
-import { ContactAdminDetail, ContactPresenceViewer } from '@/app/shared/models/contact.model';
+import { ContactAdminDetail, ContactAdminListItem, ContactPresenceViewer } from '@/app/shared/models/contact.model';
 import { AdminDatePipe } from '@/app/shared/pipes/admin-date.pipe';
 import { ContactHistorySection } from './contact-history-section';
 import { clearPresenceSessionId, isPresenceReadOnly, occupantForUser, presenceSessionId } from './contact-presence';
@@ -42,6 +42,7 @@ export class ContactDetailPage {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly reload = new Subject<void>();
+  private readonly presenceSync = new Subject<{ id: string; session: string }>();
   private currentId: string | null = null;
   private presenceContactId: string | null = null;
   private presenceSession: string | null = null;
@@ -72,6 +73,18 @@ export class ContactDetailPage {
         this.leavePresence();
       }
     });
+    this.presenceSync.pipe(
+      switchMap(({ id, session }) => this.service.heartbeat(id, session).pipe(
+        catchError(() => EMPTY),
+        filter((state) =>
+          this.presenceContactId === id
+          && this.presenceSession === session
+          && state.contactId === id
+        ),
+        tap((state) => this.applyViewers(state.viewers)),
+      )),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe();
     interval(15_000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.syncPresence());
     this.service.presence$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
       if (event.contactId === this.currentId) {
@@ -97,7 +110,7 @@ export class ContactDetailPage {
         this.reload.pipe(map(() => this.contact() === null && !hasOpenContactVisit(id))),
         this.service.changes$.pipe(
           tap((item) => {
-            if (item && item.id === id) {
+            if (item?.id === id && isExternalContactUpdate(this.contact(), item)) {
               this.historyStale.set(true);
             }
           }),
@@ -165,10 +178,7 @@ export class ContactDetailPage {
     if (!id || !session) {
       return;
     }
-    this.service.heartbeat(id, session).subscribe({
-      next: (state) => this.applyViewers(state.viewers),
-      error: () => undefined,
-    });
+    this.presenceSync.next({ id, session });
   }
 
   private leavePresence(): void {
@@ -196,4 +206,19 @@ export class ContactDetailPage {
       this.historyStale.set(true);
     }
   }
+}
+
+function isExternalContactUpdate(
+  current: ContactAdminDetail | null,
+  incoming: ContactAdminListItem | null,
+): boolean {
+  if (!incoming || !current || current.id !== incoming.id) {
+    return false;
+  }
+  const previous = Date.parse(current.updatedAt);
+  const next = Date.parse(incoming.updatedAt);
+  if (Number.isNaN(previous) || Number.isNaN(next)) {
+    return incoming.updatedAt !== current.updatedAt;
+  }
+  return next > previous;
 }
