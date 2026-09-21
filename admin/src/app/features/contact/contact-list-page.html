@@ -1,0 +1,117 @@
+<div class="grid content-start gap-6">
+  <section class="flex flex-wrap items-start justify-between gap-4">
+    <div class="grid gap-2">
+      <p class="m-0 text-xs font-extrabold uppercase text-primary">Content</p>
+      <h1 class="m-0 text-3xl font-bold text-foreground">Contact</h1>
+      <p class="m-0 text-muted-foreground">Read enquiries, send replies and follow their history.</p>
+    </div>
+    <button hlmBtn variant="outline" type="button" (click)="refresh()" [disabled]="isLoading()">
+      <ng-icon hlm size="sm" name="lucideRotateCcw" /> Refresh
+    </button>
+  </section>
+
+  @if (errorMessage(); as message) {
+    <p role="alert" class="m-0 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{{ message }}</p>
+  }
+
+  <section class="min-w-0 rounded-lg border border-border bg-card text-foreground shadow-lg" aria-label="Contact enquiries" [attr.aria-busy]="isLoading()">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-3">
+      <div class="flex flex-wrap items-center gap-3">
+        <div hlmSelect [ngModel]="query().size" (ngModelChange)="onRowsChange($event)">
+          <hlm-select-trigger class="min-w-20" aria-label="Rows per page"><hlm-select-value /></hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            @for (rows of [10, 25, 50]; track rows) {
+              <hlm-select-item [value]="rows">{{ rows }}</hlm-select-item>
+            }
+          </hlm-select-content>
+        </div>
+        <div hlmSelect [ngModel]="query().status" (ngModelChange)="onStatusChange($event)">
+          <hlm-select-trigger class="min-w-36" aria-label="Filter by contact status"><hlm-select-value placeholder="All statuses" /></hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            <hlm-select-item value="">All statuses</hlm-select-item>
+            @for (status of statuses; track status) {
+              <hlm-select-item [value]="status">{{ statusLabels[status] }}</hlm-select-item>
+            }
+          </hlm-select-content>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 max-sm:w-full">
+        <label class="text-sm text-muted-foreground" for="contact-search">Search:</label>
+        <div class="relative w-full min-w-48 max-w-xs">
+          <ng-icon hlm size="sm" name="lucideSearch" class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground" />
+          <input hlmInput type="search" id="contact-search" maxlength="200" class="w-full pl-9" [value]="query().search" (input)="onSearch($event)" placeholder="Name, email or subject" />
+        </div>
+      </div>
+    </div>
+
+    <div hlmTableContainer class="hidden overflow-x-auto md:block">
+      <table hlmTable class="w-full">
+        <thead hlmTHead><tr hlmTr>
+          <th hlmTh class="font-bold">Email</th>
+          <th hlmTh class="font-bold">First name</th>
+          <th hlmTh class="font-bold">Last name</th>
+          <th hlmTh class="font-bold">Subject</th>
+          <th hlmTh class="font-bold">Status</th>
+          <th hlmTh class="font-bold">Created</th>
+          <th hlmTh class="font-bold">Updated</th>
+          <th hlmTh><span class="sr-only">Actions</span></th>
+        </tr></thead>
+        <tbody hlmTBody>
+          @if (isLoading() && contacts().length === 0) {
+            <tr hlmTr><td hlmTd colspan="8" class="py-10 text-center text-muted-foreground"><span class="inline-flex items-center gap-2"><hlm-spinner aria-label="Loading contacts" /> Loading contacts...</span></td></tr>
+          } @else if (contacts().length === 0) {
+            <tr hlmTr><td hlmTd colspan="8" class="py-10 text-center text-muted-foreground"><span class="inline-flex flex-col items-center gap-2"><ng-icon hlm size="lg" name="lucideInbox" /> No contacts found.</span></td></tr>
+          } @else {
+            @for (contact of contacts(); track contact.id) {
+              <tr hlmTr [class.bg-destructive/5]="contact.status === 'RECEIVED'">
+                <td hlmTd class="font-semibold">{{ contact.email }}</td>
+                <td hlmTd>{{ contact.firstname }}</td>
+                <td hlmTd>{{ contact.lastname }}</td>
+                <td hlmTd class="max-w-80 whitespace-normal wrap-break-word"><a class="font-semibold hover:underline" [routerLink]="['/admin/contact', contact.id]">{{ contact.subject }}</a></td>
+                <td hlmTd><span hlmBadge [variant]="statusBadge(contact.status)">{{ statusLabels[contact.status] }}</span></td>
+                <td hlmTd>{{ contact.createdAt | adminDate }}</td>
+                <td hlmTd>{{ contact.updatedAt | adminDate }}</td>
+                <td hlmTd><a hlmBtn variant="ghost" size="sm" [routerLink]="['/admin/contact', contact.id]" [attr.aria-label]="'Open enquiry: ' + contact.subject"><ng-icon hlm size="sm" name="lucideEye" /> Open</a></td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divide-y divide-border md:hidden">
+      @if (isLoading() && contacts().length === 0) {
+        <p class="flex items-center justify-center gap-2 px-4 py-10 text-sm text-muted-foreground"><hlm-spinner aria-label="Loading contacts" /> Loading contacts...</p>
+      } @else if (contacts().length === 0) {
+        <p class="px-4 py-10 text-center text-sm text-muted-foreground">No contacts found.</p>
+      } @else {
+        @for (contact of contacts(); track contact.id) {
+          <article class="grid gap-3 p-4" [class.bg-destructive/5]="contact.status === 'RECEIVED'">
+            <div class="flex items-start justify-between gap-3"><h2 class="m-0 min-w-0 wrap-break-word font-semibold">{{ contact.subject }}</h2><span hlmBadge [variant]="statusBadge(contact.status)">{{ statusLabels[contact.status] }}</span></div>
+            <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+              <dt class="text-muted-foreground">Email</dt><dd class="m-0 min-w-0 wrap-break-word text-right">{{ contact.email }}</dd>
+              <dt class="text-muted-foreground">First name</dt><dd class="m-0 text-right">{{ contact.firstname }}</dd>
+              <dt class="text-muted-foreground">Last name</dt><dd class="m-0 text-right">{{ contact.lastname }}</dd>
+              <dt class="text-muted-foreground">Created</dt><dd class="m-0 text-right">{{ contact.createdAt | adminDate }}</dd>
+              <dt class="text-muted-foreground">Updated</dt><dd class="m-0 text-right">{{ contact.updatedAt | adminDate }}</dd>
+            </dl>
+            <a hlmBtn variant="outline" [routerLink]="['/admin/contact', contact.id]">Open enquiry <ng-icon hlm size="sm" name="lucideChevronRight" /></a>
+          </article>
+        }
+      }
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3">
+      <span class="text-sm font-semibold text-muted-foreground" aria-live="polite">{{ pageReport() }}</span>
+      <nav class="flex items-center gap-1" aria-label="Contact pages">
+        <button hlmBtn variant="ghost" size="icon-sm" type="button" [disabled]="query().page === 0 || isLoading()" (click)="changePage(0)" aria-label="First page"><ng-icon hlm size="sm" name="lucideChevronsLeft" /></button>
+        <button hlmBtn variant="ghost" size="icon-sm" type="button" [disabled]="query().page === 0 || isLoading()" (click)="changePage(query().page - 1)" aria-label="Previous page"><ng-icon hlm size="sm" name="lucideChevronLeft" /></button>
+        @for (page of pageLinks(); track page) {
+          <button hlmBtn size="icon-sm" type="button" [variant]="query().page === page ? 'default' : 'ghost'" [disabled]="isLoading()" (click)="changePage(page)" [attr.aria-current]="query().page === page ? 'page' : null" [attr.aria-label]="'Page ' + (page + 1)">{{ page + 1 }}</button>
+        }
+        <button hlmBtn variant="ghost" size="icon-sm" type="button" [disabled]="query().page >= totalPages() - 1 || isLoading()" (click)="changePage(query().page + 1)" aria-label="Next page"><ng-icon hlm size="sm" name="lucideChevronRight" /></button>
+        <button hlmBtn variant="ghost" size="icon-sm" type="button" [disabled]="query().page >= totalPages() - 1 || isLoading()" (click)="changePage(totalPages() - 1)" aria-label="Last page"><ng-icon hlm size="sm" name="lucideChevronsRight" /></button>
+      </nav>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,81 @@
+<section class="min-w-0 rounded-lg border border-border bg-card shadow-sm" aria-labelledby="contact-history-heading">
+  <div class="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+    <h2 id="contact-history-heading" class="m-0 flex items-center gap-2 text-lg font-semibold">
+      <ng-icon hlm size="sm" name="lucideHistory" class="text-primary" /> History
+    </h2>
+    <button hlmBtn type="button" variant="ghost" size="icon-sm" aria-label="Refresh contact history" (click)="refresh.emit()">
+      <ng-icon hlm size="sm" name="lucideRotateCcw" />
+    </button>
+  </div>
+  <ul class="m-0 grid list-none gap-1 p-2">
+    @for (actor of actors(); track actor.key) {
+      <li>
+        <button
+          type="button"
+          class="flex w-full min-w-0 cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-muted/60"
+          [attr.aria-expanded]="historyTarget()?.key === actor.key"
+          [attr.aria-label]="'View history for ' + actor.name"
+          (click)="openHistory(actor)"
+        >
+          <div class="min-w-0 flex-1">
+            <p class="m-0 truncate font-semibold">{{ actor.name }}</p>
+            @if (actor.detail) {
+              <p class="mb-0 mt-0.5 truncate text-xs text-muted-foreground">{{ actor.detail }}</p>
+            }
+          </div>
+          <span hlmBadge [variant]="statusBadge(actor.latest.type)">{{ statusLabel(actor.latest.type) }}</span>
+          <time class="hidden shrink-0 text-xs text-muted-foreground sm:block" [attr.datetime]="actor.latest.createdAt">{{ actor.latest.createdAt | adminDate }}</time>
+          <ng-icon hlm size="sm" name="lucideHistory" class="shrink-0 text-muted-foreground" />
+        </button>
+      </li>
+    } @empty {
+      <li class="px-3 py-6 text-sm text-muted-foreground">No history available.</li>
+    }
+  </ul>
+</section>
+
+<hlm-dialog [state]="dialogState()" (stateChanged)="onDialogStateChange($event)">
+  <hlm-dialog-content *hlmDialogPortal="let ctx" class="min-w-0 overflow-x-hidden sm:max-w-lg lg:w-[30vw] lg:max-w-[30vw]">
+    <hlm-dialog-header>
+      <h2 hlmDialogTitle>{{ historyTarget()?.name }}</h2>
+      <p hlmDialogDescription class="min-w-0 wrap-break-word">
+        {{ historyTarget()?.detail || 'Activity on this enquiry' }}
+      </p>
+    </hlm-dialog-header>
+
+    <div class="max-h-[50vh] min-w-0 overflow-x-hidden overflow-y-auto overscroll-y-contain" tabindex="0" role="region" aria-label="Contact history entries">
+      @if (historyTarget(); as actor) {
+        <ol class="m-0 grid list-none gap-4 p-0">
+          @for (event of actor.events; track event.id) {
+            <li class="min-w-0 border-l-2 pl-4" [class.border-destructive]="event.type === 'RECEIVED'" [class.border-success]="event.type === 'READ'" [class.border-primary]="event.type === 'REPLIED'">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span hlmBadge [variant]="statusBadge(event.type)">{{ statusLabel(event.type) }}</span>
+                <time class="text-xs text-muted-foreground" [attr.datetime]="event.createdAt">{{ event.createdAt | adminDate }}</time>
+              </div>
+              @if (event.type === 'REPLIED') {
+                <div class="mt-3 grid min-w-0 gap-3 rounded-md border border-border bg-muted/25 p-3">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs text-muted-foreground">Email delivery:</span>
+                    <span hlmBadge [variant]="emailStatusBadge(event.emailStatus)">{{ emailStatusLabel(event.emailStatus) }}</span>
+                    @if (event.sentAt) { <span class="text-xs text-muted-foreground">{{ event.sentAt | adminDate }}</span> }
+                  </div>
+                  @if (event.emailStatus === 'FAILED') {
+                    <p class="m-0 text-xs text-muted-foreground">Check attempts and retry options in the <a routerLink="/admin/email-queue" class="text-primary underline">email queue</a>.</p>
+                  }
+                  <p class="m-0 wrap-break-word text-sm font-semibold">{{ event.subject }}</p>
+                  <p class="m-0 whitespace-pre-wrap wrap-break-word text-sm leading-6">{{ event.message }}</p>
+                </div>
+              } @else if (event.type === 'RECEIVED') {
+                <p class="mb-0 mt-1 text-xs text-muted-foreground">Enquiry received from {{ contact().email }}.</p>
+              }
+            </li>
+          }
+        </ol>
+      }
+    </div>
+
+    <hlm-dialog-footer>
+      <button hlmBtn type="button" variant="ghost" (click)="closeHistory()">Close</button>
+    </hlm-dialog-footer>
+  </hlm-dialog-content>
+</hlm-dialog>

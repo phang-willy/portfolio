@@ -12,6 +12,7 @@
       "@spartan-ng/helm/checkbox": ["./src/app/shared/ui/checkbox/src/index.ts"],
       "@spartan-ng/helm/select": ["./src/app/shared/ui/select/src/index.ts"],
       "@spartan-ng/helm/dialog": ["./src/app/shared/ui/dialog/src/index.ts"],
+      "@spartan-ng/helm/alert": ["./src/app/shared/ui/alert/src/index.ts"],
       "@spartan-ng/helm/alert-dialog": ["./src/app/shared/ui/alert-dialog/src/index.ts"],
       "@spartan-ng/helm/table": ["./src/app/shared/ui/table/src/index.ts"],
       "@spartan-ng/helm/breadcrumb": ["./src/app/shared/ui/breadcrumb/src/index.ts"],

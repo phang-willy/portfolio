@@ -1,25 +1,40 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { AuthStateService } from '@/app/core/auth/auth-state.service';
+import { ContactService } from '@/app/features/contact/contact.service';
 
 @Component({
   selector: 'app-admin-page',
-  imports: [AsyncPipe],
+  imports: [AsyncPipe, RouterLink],
   templateUrl: './admin-page.html',
   styleUrl: './admin-page.css',
 })
 export class AdminPage {
   private readonly authState = inject(AuthStateService);
+  private readonly contactService = inject(ContactService);
 
   protected readonly currentUser$ = this.authState.currentUser$;
+  protected readonly metrics = computed(() => {
+    const unread = this.contactService.unreadCount();
+    return [
+      {
+        label: 'Contact',
+        value: String(unread),
+        detail: unread === 1 ? '1 unread enquiry' : `${unread} unread enquiries`,
+        tone: 'primary',
+        href: '/admin/contact',
+      },
+      { label: 'Projects', value: '12', detail: '3 drafts', tone: 'emerald' },
+      { label: 'API health', value: 'UP', detail: 'localhost:8000', tone: 'green' },
+      { label: 'Deployments', value: '6', detail: '1 pending', tone: 'amber' },
+    ];
+  });
 
-  protected readonly metrics = [
-    { label: 'Messages', value: '18', detail: '+4 this week', tone: 'primary' },
-    { label: 'Projects', value: '12', detail: '3 drafts', tone: 'emerald' },
-    { label: 'API health', value: 'UP', detail: 'localhost:8000', tone: 'green' },
-    { label: 'Deployments', value: '6', detail: '1 pending', tone: 'amber' },
-  ];
+  constructor() {
+    this.contactService.ensureRealtime();
+  }
 
   protected readonly checks = [
     { service: 'Angular admin', endpoint: 'localhost:3001', status: 'Ready' },

@@ -3,6 +3,7 @@ package com.phangwilly.portfolio.service;
 import com.phangwilly.portfolio.config.EmailQueueProperties;
 import com.phangwilly.portfolio.dto.EmailQueueAdminListItem;
 import com.phangwilly.portfolio.enums.EmailQueueStatus;
+import com.phangwilly.portfolio.event.EmailDeliveryRequestedEvent;
 import com.phangwilly.portfolio.event.EmailQueueChangedEvent;
 import com.phangwilly.portfolio.exception.ApiException;
 import com.phangwilly.portfolio.model.EmailQueue;
@@ -12,6 +13,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -21,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class EmailQueueService {
 
-  private static final int LAST_ERROR_MAX_LENGTH = 2_000;
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmailQueueService.class);
   private static final String EMAIL_QUEUE_NOT_FOUND_CODE = "EMAIL_QUEUE_NOT_FOUND";
   private static final String EMAIL_QUEUE_NOT_FOUND_MESSAGE = "Email not found";
   private static final String EMAIL_QUEUE_NOT_FAILED_CODE = "EMAIL_QUEUE_NOT_FAILED";
@@ -29,7 +32,7 @@ public class EmailQueueService {
 
   private final EmailQueueRepository emailQueueRepository;
   private final EmailQueueProperties properties;
-  private final EmailSender emailSender;
+  private final EmailQueueDeliveryService deliveryService;
   private final EmailContentEncryptionService emailContentEncryptionService;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final Clock clock;
@@ -37,14 +40,14 @@ public class EmailQueueService {
   public EmailQueueService(
     EmailQueueRepository emailQueueRepository,
     EmailQueueProperties properties,
-    EmailSender emailSender,
+    EmailQueueDeliveryService deliveryService,
     EmailContentEncryptionService emailContentEncryptionService,
     ApplicationEventPublisher applicationEventPublisher,
     Clock clock
   ) {
     this.emailQueueRepository = emailQueueRepository;
     this.properties = properties;
-    this.emailSender = emailSender;
+    this.deliveryService = deliveryService;
     this.emailContentEncryptionService = emailContentEncryptionService;
     this.applicationEventPublisher = applicationEventPublisher;
     this.clock = clock;
@@ -52,10 +55,16 @@ public class EmailQueueService {
 
   @Transactional
   public EmailQueue enqueue(String recipient, String subject, String body) {
+    return enqueue(new EmailMessage(recipient, subject, body));
+  }
+
+  @Transactional
+  public EmailQueue enqueue(EmailMessage email) {
     EmailQueue saved = emailQueueRepository.saveAndFlush(new EmailQueue(
-      recipient,
-      subject,
-      emailContentEncryptionService.encrypt(body),
+      email.recipient(),
+      email.subject(),
+      emailContentEncryptionService.encrypt(email.body()),
+      email.html(),
       Instant.now(clock)
     ));
     publishChange(saved);
@@ -63,9 +72,14 @@ public class EmailQueueService {
   }
 
   @Transactional
+  public void requestDelivery(UUID id) {
+    applicationEventPublisher.publishEvent(new EmailDeliveryRequestedEvent(id));
+  }
+
+  @Transactional
   public EmailQueueAdminListItem resend(UUID id) {
     EmailQueue email = emailQueueRepository
-      .findById(id)
+      .findByIdForUpdate(id)
       .orElseThrow(() -> new ApiException(
         HttpStatus.NOT_FOUND,
         EMAIL_QUEUE_NOT_FOUND_CODE,
@@ -86,38 +100,23 @@ public class EmailQueueService {
     return toListItem(saved);
   }
 
-  @Transactional
   public void processPendingEmails() {
     Instant now = Instant.now(clock);
-    List<EmailQueue> pendingEmails = emailQueueRepository
-      .findByStatusAndScheduledAtLessThanEqualOrderByScheduledAtAsc(
+    List<UUID> pendingIds = emailQueueRepository
+      .findDueIds(
         EmailQueueStatus.PENDING,
         now,
         PageRequest.of(0, properties.getBatchSize())
       );
 
-    pendingEmails.forEach(email -> processEmail(email, now));
-  }
-
-  private void processEmail(EmailQueue email, Instant now) {
-    try {
-      emailSender.send(new EmailMessage(
-        email.getRecipient(),
-        email.getSubject(),
-        emailContentEncryptionService.decrypt(email.getBody())
-      ));
-      email.markSent(now);
-    } catch (Exception exception) {
-      String errorMessage = truncate(exception.getMessage());
-      if (email.getAttempts() + 1 >= properties.getMaxAttempts()) {
-        email.markFailed(errorMessage, now);
-      } else {
-        email.rescheduleAfterFailure(errorMessage, now, now.plus(properties.getRetryDelay()));
+    for (UUID id : pendingIds) {
+      try {
+        deliveryService.deliver(id);
+      } catch (RuntimeException exception) {
+        LOGGER.warn("Email delivery transaction failed for {}; scheduler will retry ({})",
+          id, exception.getClass().getSimpleName());
       }
     }
-
-    emailQueueRepository.save(email);
-    publishChange(email);
   }
 
   private EmailQueueAdminListItem toListItem(EmailQueue email) {
@@ -128,10 +127,4 @@ public class EmailQueueService {
     applicationEventPublisher.publishEvent(new EmailQueueChangedEvent(toListItem(email)));
   }
 
-  private static String truncate(String value) {
-    if (value == null || value.length() <= LAST_ERROR_MAX_LENGTH) {
-      return value;
-    }
-    return value.substring(0, LAST_ERROR_MAX_LENGTH);
-  }
 }

@@ -1,4 +1,4 @@
-export type AdminNavBadge = 'email-queue-failed';
+export type AdminNavBadge = 'email-queue-failed' | 'contact-unread';
 
 export interface AdminNavItem {
   readonly label: string;
@@ -29,9 +29,10 @@ export const ADMIN_NAV_SECTIONS: readonly AdminNavSection[] = [
     label: 'Content',
     items: [
       {
-        label: 'Messages',
+        label: 'Contact',
         icon: 'lucideInbox',
-        route: '/admin/messages',
+        route: '/admin/contact',
+        badge: 'contact-unread',
       },
       {
         label: 'Projects',

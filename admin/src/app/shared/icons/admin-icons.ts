@@ -53,6 +53,7 @@ import {
   lucideUnlink,
   lucideUpload,
   lucideUserPlus,
+  lucideUsers,
   lucideX,
 } from '@ng-icons/lucide';
 
@@ -109,6 +110,7 @@ export const ADMIN_ICONS = {
   lucideUnlink,
   lucideUpload,
   lucideUserPlus,
+  lucideUsers,
   lucideX,
 } as const;
 
