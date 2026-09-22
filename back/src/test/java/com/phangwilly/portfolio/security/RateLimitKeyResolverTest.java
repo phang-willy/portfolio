@@ -31,6 +31,21 @@ class RateLimitKeyResolverTest {
   }
 
   @Test
+  void resolvesAdminLimitFromRoleSuperAdminAuthority() {
+    try {
+      properties.setAdminRequestsPerSecond(100);
+      authenticate("super-admin-user", "ROLE_SUPER_ADMIN");
+
+      RateLimitKey key = resolver.resolve(new MockHttpServletRequest());
+
+      assertThat(key.bucketKey()).isEqualTo("admin:user:super-admin-user");
+      assertThat(key.requestsPerSecond()).isEqualTo(100);
+    } finally {
+      SecurityContextHolder.clearContext();
+    }
+  }
+
+  @Test
   void resolvesStandardLimitForAuthenticatedNonAdminUser() {
     try {
       properties.setStandardRequestsPerSecond(50);

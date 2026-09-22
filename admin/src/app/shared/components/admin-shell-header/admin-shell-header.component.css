@@ -8,6 +8,10 @@
   @apply flex h-10 shrink-0 items-center justify-center;
 }
 
+.admin-shell-header-actions {
+  @apply flex h-10 shrink-0 items-center gap-2;
+}
+
 :host ::ng-deep .admin-header-icon-btn {
   @apply size-10! min-h-10! min-w-10! p-0!;
 }

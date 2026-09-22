@@ -77,6 +77,24 @@ public class User extends UuidPrimaryKeyEntity {
     this.role = role == null ? UserRole.USER : role;
   }
 
+  public void rename(String lastname, String firstname) {
+    this.lastname = lastname;
+    this.firstname = firstname;
+  }
+
+  public void changeEmail(String email) {
+    this.email = email;
+    this.verifiedAt = null;
+  }
+
+  public void deactivate(Instant deactivatedAt) {
+    this.deactivatedAt = deactivatedAt;
+  }
+
+  public void activate() {
+    this.deactivatedAt = null;
+  }
+
   public Instant getCreatedAt() {
     return createdAt;
   }

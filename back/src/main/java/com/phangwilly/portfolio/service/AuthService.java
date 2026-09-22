@@ -12,6 +12,8 @@ import com.phangwilly.portfolio.dto.RegisterRequest;
 import com.phangwilly.portfolio.dto.ResetPasswordRequest;
 import com.phangwilly.portfolio.dto.UserResponse;
 import com.phangwilly.portfolio.dto.VerifyTwoFactorRequest;
+import com.phangwilly.portfolio.enums.UserHistoryType;
+import com.phangwilly.portfolio.enums.UserRole;
 import com.phangwilly.portfolio.exception.ApiException;
 import com.phangwilly.portfolio.model.EmailVerificationToken;
 import com.phangwilly.portfolio.model.ForgotPassword;
@@ -93,6 +95,7 @@ public class AuthService {
   private final TwoFactorCodeService twoFactorCodeService;
   private final JwtService jwtService;
   private final EmailQueueService emailQueueService;
+  private final UserHistoryService userHistoryService;
   private final Clock clock;
 
   public AuthService(
@@ -110,6 +113,7 @@ public class AuthService {
     TwoFactorCodeService twoFactorCodeService,
     JwtService jwtService,
     EmailQueueService emailQueueService,
+    UserHistoryService userHistoryService,
     Clock clock
   ) {
     this.authProperties = authProperties;
@@ -126,6 +130,7 @@ public class AuthService {
     this.twoFactorCodeService = twoFactorCodeService;
     this.jwtService = jwtService;
     this.emailQueueService = emailQueueService;
+    this.userHistoryService = userHistoryService;
     this.clock = clock;
   }
 
@@ -149,29 +154,22 @@ public class AuthService {
       );
     }
 
-    User user = userRepository.save(new User(
+    User user = new User(
       PersonNameFormatter.formatLastname(request.lastname()),
       PersonNameFormatter.formatFirstname(request.firstname()),
       email
-    ));
+    );
+    if (!userRepository.existsByRole(UserRole.SUPER_ADMIN)) {
+      user.changeRole(UserRole.SUPER_ADMIN);
+    }
+    user = userRepository.save(user);
 
     userPasswordRepository.save(new UserPassword(
       user,
       passwordEncoder.encode(request.password())
     ));
 
-    String token = secureTokenService.generateToken();
-    emailVerificationTokenRepository.save(new EmailVerificationToken(
-      user,
-      tokenHashService.hashToken(token),
-      Instant.now(clock).plus(AuthDurations.EMAIL_VERIFICATION_TOKEN_TTL)
-    ));
-
-    emailQueueService.enqueue(
-      user.getEmail(),
-      VERIFY_EMAIL_SUBJECT,
-      "Verify your email: " + buildAdminTokenUrl(VERIFY_EMAIL_FRONTEND_PATH, token)
-    );
+    queueEmailVerification(user);
 
     return new AuthMessageResponse(REGISTER_SUCCESS_MESSAGE);
   }
@@ -246,7 +244,9 @@ public class AuthService {
     ensureUserCanLogin(user, now);
 
     twoFactorAuth.verify(now);
-    return createSession(user, sessionDuration(request.rememberMe()), now);
+    AuthSession session = createSession(user, sessionDuration(request.rememberMe()), now);
+    userHistoryService.recordSelf(user, UserHistoryType.LOGIN, null);
+    return session;
   }
 
   @Transactional(readOnly = true)
@@ -280,17 +280,11 @@ public class AuthService {
   public AuthMessageResponse forgotPassword(ForgotPasswordRequest request) {
     String email = normalizeEmail(request.email());
     userRepository.findByEmailIgnoreCase(email).ifPresent(user -> {
-      String token = secureTokenService.generateToken();
-      forgotPasswordRepository.save(new ForgotPassword(
-        email,
-        tokenHashService.hashToken(token),
-        Instant.now(clock).plus(AuthDurations.FORGOT_PASSWORD_TOKEN_TTL)
-      ));
-
-      emailQueueService.enqueue(
-        user.getEmail(),
-        RESET_PASSWORD_SUBJECT,
-        "Reset your password: " + buildAdminTokenUrl(RESET_PASSWORD_FRONTEND_PATH, token)
+      queuePasswordResetEmail(user);
+      userHistoryService.recordSelf(
+        user,
+        UserHistoryType.PASSWORD_RESET_REQUESTED,
+        "Forgot-password form"
       );
     });
 
@@ -320,8 +314,39 @@ public class AuthService {
     password.updatePasswordHash(passwordEncoder.encode(request.password()));
     forgotPassword.consume(now);
     userSessionRepository.expireAllUserSessions(user.getId(), now);
+    userHistoryService.recordSelf(user, UserHistoryType.PASSWORD_CHANGED, "Reset form");
 
     return new AuthMessageResponse(RESET_PASSWORD_SUCCESS_MESSAGE);
+  }
+
+  @Transactional
+  public void queueEmailVerification(User user) {
+    String token = secureTokenService.generateToken();
+    emailVerificationTokenRepository.save(new EmailVerificationToken(
+      user,
+      tokenHashService.hashToken(token),
+      Instant.now(clock).plus(AuthDurations.EMAIL_VERIFICATION_TOKEN_TTL)
+    ));
+    emailQueueService.enqueue(
+      user.getEmail(),
+      VERIFY_EMAIL_SUBJECT,
+      "Verify your email: " + buildAdminTokenUrl(VERIFY_EMAIL_FRONTEND_PATH, token)
+    );
+  }
+
+  @Transactional
+  public void queuePasswordResetEmail(User user) {
+    String token = secureTokenService.generateToken();
+    forgotPasswordRepository.save(new ForgotPassword(
+      user.getEmail(),
+      tokenHashService.hashToken(token),
+      Instant.now(clock).plus(AuthDurations.FORGOT_PASSWORD_TOKEN_TTL)
+    ));
+    emailQueueService.enqueue(
+      user.getEmail(),
+      RESET_PASSWORD_SUBJECT,
+      "Reset your password: " + buildAdminTokenUrl(RESET_PASSWORD_FRONTEND_PATH, token)
+    );
   }
 
   private void ensureUserCanLogin(User user, Instant now) {

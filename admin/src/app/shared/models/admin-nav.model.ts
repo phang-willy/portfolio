@@ -23,6 +23,11 @@ export const ADMIN_NAV_SECTIONS: readonly AdminNavSection[] = [
         route: '/admin/dashboard',
         exact: true,
       },
+      {
+        label: 'Users',
+        icon: 'lucideUsers',
+        route: '/admin/user',
+      },
     ],
   },
   {
