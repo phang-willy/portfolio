@@ -64,6 +64,15 @@
                     {{ failedEmailCount() }}
                   </span>
                 }
+                @if (item.badge === 'contact-unread') {
+                  <span
+                    class="admin-nav-badge"
+                    [class.admin-nav-badge-alert]="unreadContactCount() > 0"
+                    aria-hidden="true"
+                  >
+                    {{ unreadContactCount() }}
+                  </span>
+                }
               </a>
             </li>
           }

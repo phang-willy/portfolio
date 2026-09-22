@@ -83,6 +83,37 @@ APP_AUTH_TOKEN_HASH_SECRET=change-this-dev-token-hash-secret-with-at-least-32-ch
 
 `email_queue` est traitee par un scheduler et envoyee via SMTP. En developpement Docker, Maildev est disponible avec `SMTP_HOST=maildev`, `SMTP_PORT=1025`, et son interface web sur `http://localhost:1080`.
 
+## Contacts dans l'admin
+
+La migration Flyway `V12` ajoute `contact` et `contact_history`. `V13` permet aux emails de la file de conserver leur format HTML et un objet complet. Ces migrations sont appliquees au demarrage de l'API.
+
+Les routes suivantes exigent une session administrateur :
+
+```text
+GET  /api/admin/contact?page=0&size=25&search=&status=RECEIVED
+GET  /api/admin/contact/{id}
+PUT  /api/admin/contact/{id}/read
+POST /api/admin/contact/{id}/reply
+GET  /api/admin/contact/unread-count
+GET  /api/admin/contact/stream
+```
+
+`search` et `status` sont facultatifs. Le statut vaut `RECEIVED`, `READ` ou `REPLIED`. Le detail en lecture seule ne change pas le statut ; l'ouverture de la fiche par l'admin appelle explicitement `PUT .../read` avec `{}` pour enregistrer chaque consultation et son auteur. La premiere consultation conserve sa date dans `first_read_at`. Une consultation ulterieure ne remet pas une demande repondue au statut lu.
+
+Une reponse accepte `{"message":"Votre reponse", "website":""}`. Le champ `website` est le honeypot ; il doit rester vide. Le serveur fixe le destinataire a l'adresse du contact et l'objet a `APP_TITLE - SUITE : objet de la demande`. Le message saisi est traite comme du texte et insere dans un email HTML contenant le recapitulatif de la demande. `APP_EMAIL_TIME_ZONE` regle le fuseau de la date affichee, avec `Europe/Paris` par defaut.
+
+La reponse, son auteur, son objet et son lien vers `email_queue` sont enregistres dans la meme transaction. L'envoi demarre apres validation de cette transaction ; un echec SMTP conserve la reponse et programme une nouvelle tentative. `REPLIED` signifie qu'une reponse a ete enregistree : son etat de livraison `PENDING`, `SENT` ou `FAILED` figure separement dans l'historique. Le verrouillage de la ligne d'email empeche le scheduler et le traitement immediat de l'envoyer simultanement.
+
+Le flux SSE `contact` actualise le compteur de demandes non lues et les fiches lors des consultations, reponses et changements d'etat de livraison. La reconnexion du navigateur recharge les donnees.
+
+Le front public n'est pas relie a ces tables et aucune route publique de reception n'est ajoutee. Le service interne de reception est pret pour une integration ulterieure. Les contacts peuvent etre prepares en base dans l'environnement de developpement pour tester l'admin.
+
+### SMTP
+
+En developpement, les emails restent dans MailDev. Pour utiliser un fournisseur SMTP en production, renseigner `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_USERNAME`, `SMTP_PASSWORD` et activer `SMTP_AUTH`, `SMTP_STARTTLS_ENABLE` et `SMTP_STARTTLS_REQUIRED` suivant sa configuration. Les delais de connexion, lecture et ecriture sont bornes par les variables `SMTP_*_TIMEOUT_MS` documentees dans `.env.exemple`.
+
+Les emails HTML utilisent [MimeMessageHelper](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/mail/javamail/MimeMessageHelper.html), et le declenchement de livraison utilise les [evenements lies aux transactions Spring](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html).
+
 ## Rate limiting
 
 Bucket4j applique un rate limiting sur `/api/**`.

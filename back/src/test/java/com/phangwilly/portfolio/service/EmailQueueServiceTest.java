@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.phangwilly.portfolio.config.EmailQueueProperties;
 import com.phangwilly.portfolio.enums.EmailQueueStatus;
+import com.phangwilly.portfolio.event.EmailDeliveryRequestedEvent;
 import com.phangwilly.portfolio.event.EmailQueueChangedEvent;
 import com.phangwilly.portfolio.exception.ApiException;
 import com.phangwilly.portfolio.model.EmailQueue;
@@ -43,7 +45,7 @@ class EmailQueueServiceTest {
   private EmailQueueRepository emailQueueRepository;
 
   @Mock
-  private EmailSender emailSender;
+  private EmailQueueDeliveryService deliveryService;
 
   @Mock
   private EmailContentEncryptionService emailContentEncryptionService;
@@ -58,7 +60,7 @@ class EmailQueueServiceTest {
     service = new EmailQueueService(
       emailQueueRepository,
       new EmailQueueProperties(),
-      emailSender,
+      deliveryService,
       emailContentEncryptionService,
       applicationEventPublisher,
       Clock.fixed(NOW, ZoneOffset.UTC)
@@ -87,50 +89,60 @@ class EmailQueueServiceTest {
   }
 
   @Test
-  void processPendingEmailsAppendsFailureToHistoryAndReschedules() throws Exception {
-    EmailQueue email = queuedEmail();
-    when(emailQueueRepository.findByStatusAndScheduledAtLessThanEqualOrderByScheduledAtAsc(
+  void processPendingEmailsDelegatesEachEmailToDeliveryWorker() {
+    when(emailQueueRepository.findDueIds(
       any(),
       any(),
       any(Pageable.class)
-    )).thenReturn(List.of(email));
-    when(emailContentEncryptionService.decrypt("enc:v1:cipher")).thenReturn("SECRET BODY");
-    doThrow(new RuntimeException("smtp timeout")).when(emailSender).send(any());
+    )).thenReturn(List.of(EMAIL_ID));
 
     service.processPendingEmails();
 
-    assertThat(email.getStatus()).isEqualTo(EmailQueueStatus.PENDING);
-    assertThat(email.getAttempts()).isEqualTo(1);
-    assertThat(email.getLastError()).containsExactly(new EmailQueueErrorEntry(NOW, "smtp timeout"));
-    verify(emailQueueRepository).save(email);
+    verify(deliveryService).deliver(EMAIL_ID);
   }
 
   @Test
-  void processPendingEmailsMarksFailedWhenMaxAttemptsReached() throws Exception {
-    EmailQueue email = queuedEmail();
-    email.rescheduleAfterFailure("first", NOW, NOW);
-    email.rescheduleAfterFailure("second", NOW, NOW);
-    when(emailQueueRepository.findByStatusAndScheduledAtLessThanEqualOrderByScheduledAtAsc(
+  void processPendingEmailsContinuesAfterWorkerTransactionFailure() {
+    UUID secondId = UUID.randomUUID();
+    when(emailQueueRepository.findDueIds(
       any(),
       any(),
       any(Pageable.class)
-    )).thenReturn(List.of(email));
-    when(emailContentEncryptionService.decrypt("enc:v1:cipher")).thenReturn("SECRET BODY");
-    doThrow(new RuntimeException("smtp down")).when(emailSender).send(any());
+    )).thenReturn(List.of(EMAIL_ID, secondId));
+    doThrow(new RuntimeException("database unavailable")).when(deliveryService).deliver(EMAIL_ID);
 
     service.processPendingEmails();
 
-    assertThat(email.getStatus()).isEqualTo(EmailQueueStatus.FAILED);
-    assertThat(email.getAttempts()).isEqualTo(3);
-    assertThat(email.getLastError()).hasSize(3);
-    assertThat(email.getLastError().get(2)).isEqualTo(new EmailQueueErrorEntry(NOW, "smtp down"));
+    verify(deliveryService).deliver(secondId);
+  }
+
+  @Test
+  void enqueuePreservesEncryptedHtmlForRetries() {
+    String body = "<h1>Réponse</h1>";
+    when(emailContentEncryptionService.encrypt(body)).thenReturn("enc:v1:cipher");
+    when(emailQueueRepository.saveAndFlush(any(EmailQueue.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    EmailQueue saved = service.enqueue(new EmailMessage("user@example.com", "Contact reply", body, true));
+
+    assertThat(saved.getBody()).isEqualTo("enc:v1:cipher");
+    assertThat(saved.isHtml()).isTrue();
+    assertThat(saved.getStatus()).isEqualTo(EmailQueueStatus.PENDING);
+    verifyNoInteractions(deliveryService);
+  }
+
+  @Test
+  void requestDeliveryPublishesEventWithoutSendingBeforeCommit() {
+    service.requestDelivery(EMAIL_ID);
+
+    verify(applicationEventPublisher).publishEvent(new EmailDeliveryRequestedEvent(EMAIL_ID));
+    verifyNoInteractions(deliveryService);
   }
 
   @Test
   void resendResetsFailedEmailAndKeepsHistory() throws Exception {
     EmailQueue email = queuedEmail();
     email.markFailed("smtp down", NOW);
-    when(emailQueueRepository.findById(EMAIL_ID)).thenReturn(Optional.of(email));
+    when(emailQueueRepository.findByIdForUpdate(EMAIL_ID)).thenReturn(Optional.of(email));
     when(emailQueueRepository.saveAndFlush(email)).thenReturn(email);
 
     var item = service.resend(EMAIL_ID);
@@ -144,7 +156,7 @@ class EmailQueueServiceTest {
 
   @Test
   void resendRejectsUnknownEmail() {
-    when(emailQueueRepository.findById(EMAIL_ID)).thenReturn(Optional.empty());
+    when(emailQueueRepository.findByIdForUpdate(EMAIL_ID)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> service.resend(EMAIL_ID))
       .isInstanceOf(ApiException.class)
@@ -154,7 +166,7 @@ class EmailQueueServiceTest {
 
   @Test
   void resendRejectsNonFailedEmail() throws Exception {
-    when(emailQueueRepository.findById(EMAIL_ID)).thenReturn(Optional.of(queuedEmail()));
+    when(emailQueueRepository.findByIdForUpdate(EMAIL_ID)).thenReturn(Optional.of(queuedEmail()));
 
     assertThatThrownBy(() -> service.resend(EMAIL_ID))
       .isInstanceOf(ApiException.class)

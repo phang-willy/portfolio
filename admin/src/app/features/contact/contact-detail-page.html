@@ -1,0 +1,53 @@
+<div class="grid content-start gap-6">
+  <a hlmBtn variant="ghost" class="w-fit" routerLink="/admin/contact"><ng-icon hlm size="sm" name="lucideArrowLeft" /> Back to contacts</a>
+
+  @if (loadError(); as error) {
+    <div role="alert" class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"><p class="m-0">{{ error }}</p><button hlmBtn type="button" variant="outline" (click)="refresh()">Try again</button></div>
+  }
+  @if (isLoading()) {
+    <p class="flex items-center gap-2 py-10 text-muted-foreground"><hlm-spinner aria-label="Loading contact" /> Loading contact...</p>
+  }
+
+  @if (contact(); as item) {
+    <header class="flex flex-wrap items-start justify-between gap-4">
+      <div class="grid min-w-0 gap-2">
+        <p class="m-0 text-xs font-extrabold uppercase text-primary">Contact enquiry</p>
+        <h1 class="m-0 wrap-break-word text-3xl font-bold text-foreground">{{ item.subject }}</h1>
+        <p class="m-0 text-sm text-muted-foreground">Received {{ item.createdAt | adminDate }} · Updated {{ item.updatedAt | adminDate }}</p>
+      </div>
+      <span hlmBadge [variant]="statusBadge(item.status)">{{ statusLabel(item.status) }}</span>
+    </header>
+
+    @if (occupant(); as viewer) {
+      <hlm-alert>
+        <ng-icon hlm size="sm" name="lucideUsers" />
+        <h4 hlmAlertTitle>{{ readOnly() ? 'Read-only mode' : 'Someone else is viewing' }}</h4>
+        <p hlmAlertDescription>
+          {{ viewer.name }} has been on this page since {{ viewer.joinedAt | adminDate }}.
+          @if (readOnly()) {
+            You can review this enquiry, but replies are disabled until they leave.
+          }
+        </p>
+      </hlm-alert>
+    }
+
+    @if (historyStale()) {
+      <hlm-alert>
+        <ng-icon hlm size="sm" name="lucideHistory" />
+        <h4 hlmAlertTitle>History updated</h4>
+        <p hlmAlertDescription>Someone else opened or updated this enquiry. Refresh to see the latest history.</p>
+        <div hlmAlertAction>
+          <button hlmBtn type="button" size="xs" (click)="refresh()">Refresh</button>
+        </div>
+      </hlm-alert>
+    }
+
+    <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.8fr)]">
+      <div class="grid min-w-0 gap-6">
+        <app-contact-request-section [contact]="item" />
+        <app-contact-reply-section [contact]="item" [readOnly]="readOnly()" (replied)="onReplied($event)" />
+      </div>
+      <app-contact-history-section [contact]="item" (refresh)="refresh()" />
+    </div>
+  }
+</div>

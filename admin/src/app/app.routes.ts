@@ -77,11 +77,23 @@ export const routes: Routes = [
       },
       {
         path: 'messages',
-        loadComponent: () =>
-          import('@/app/features/admin/admin-placeholder-page').then(
-            (module) => module.AdminPlaceholderPage,
-          ),
-        data: { breadcrumb: 'Messages', title: 'Messages', section: 'Content' },
+        pathMatch: 'full',
+        redirectTo: 'contact',
+      },
+      {
+        path: 'contact',
+        data: { breadcrumb: 'Contact', breadcrumbLink: '/admin/contact', title: 'Contact', section: 'Content' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('@/app/features/contact/contact-list-page').then((module) => module.ContactListPage),
+          },
+          {
+            path: ':id',
+            loadComponent: () => import('@/app/features/contact/contact-detail-page').then((module) => module.ContactDetailPage),
+            data: { breadcrumb: 'Enquiry', title: 'Enquiry' },
+          },
+        ],
       },
       {
         path: 'stacks',

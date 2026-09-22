@@ -12,6 +12,7 @@ import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { AuthStateService } from '@/app/core/auth/auth-state.service';
 import { AuthService } from '@/app/core/auth/auth.service';
 import { EmailQueueService } from '@/app/features/email-queue/email-queue.service';
+import { ContactService } from '@/app/features/contact/contact.service';
 import { ADMIN_NAV_SECTIONS, AdminNavItem } from '@/app/shared/models/admin-nav.model';
 
 @Component({
@@ -34,6 +35,7 @@ export class AdminSidebarComponent {
   private readonly authState = inject(AuthStateService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly emailQueueService = inject(EmailQueueService);
+  private readonly contactService = inject(ContactService);
   private readonly router = inject(Router);
 
   readonly compact = input(false);
@@ -45,12 +47,17 @@ export class AdminSidebarComponent {
   protected readonly currentUser$ = this.authState.currentUser$;
   protected readonly isLoggingOut = signal(false);
   protected readonly failedEmailCount = this.emailQueueService.failedCount;
+  protected readonly unreadContactCount = this.contactService.unreadCount;
 
   constructor() {
     this.emailQueueService.ensureRealtime();
+    this.contactService.ensureRealtime();
   }
 
   protected navItemAriaLabel(item: AdminNavItem): string | null {
+    if (item.badge === 'contact-unread') {
+      return `${item.label}, ${this.unreadContactCount()} unread`;
+    }
     if (item.badge !== 'email-queue-failed') {
       return this.compact() ? item.label : null;
     }

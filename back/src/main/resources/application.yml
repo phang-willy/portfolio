@@ -37,6 +37,16 @@ spring:
   mail:
     host: ${SMTP_HOST:localhost}
     port: ${SMTP_PORT:1025}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail.smtp:
+        auth: ${SMTP_AUTH:false}
+        starttls.enable: ${SMTP_STARTTLS_ENABLE:false}
+        starttls.required: ${SMTP_STARTTLS_REQUIRED:false}
+        connectiontimeout: ${SMTP_CONNECTION_TIMEOUT_MS:5000}
+        timeout: ${SMTP_READ_TIMEOUT_MS:10000}
+        writetimeout: ${SMTP_WRITE_TIMEOUT_MS:10000}
 
 management:
   endpoint:
@@ -60,6 +70,7 @@ info:
     name: portfolio-api
 
 app:
+  title: ${APP_TITLE:Portfolio}
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001}
   auth:
@@ -79,6 +90,7 @@ app:
     max-attempts: ${APP_EMAIL_QUEUE_MAX_ATTEMPTS:3}
   email:
     from: ${SMTP_FROM:noreply@phangwilly.local}
+    time-zone: ${APP_EMAIL_TIME_ZONE:Europe/Paris}
   rate-limit:
     enabled: ${APP_RATE_LIMIT_ENABLED:true}
     admin-requests-per-second: ${APP_RATE_LIMIT_ADMIN_REQUESTS_PER_SECOND:100}

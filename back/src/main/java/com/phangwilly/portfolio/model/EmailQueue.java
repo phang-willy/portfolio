@@ -18,18 +18,20 @@ import org.hibernate.type.SqlTypes;
 public class EmailQueue extends UuidPrimaryKeyEntity {
 
   private static final int RECIPIENT_MAX_LENGTH = 320;
-  private static final int SUBJECT_MAX_LENGTH = 255;
   private static final int STATUS_MAX_LENGTH = 20;
   private static final int ERROR_HISTORY_MAX_ENTRIES = 50;
 
   @Column(nullable = false, length = RECIPIENT_MAX_LENGTH)
   private String recipient;
 
-  @Column(nullable = false, length = SUBJECT_MAX_LENGTH)
+  @Column(nullable = false, columnDefinition = "text")
   private String subject;
 
   @Column(nullable = false, columnDefinition = "text")
   private String body;
+
+  @Column(nullable = false)
+  private boolean html;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = STATUS_MAX_LENGTH)
@@ -56,9 +58,14 @@ public class EmailQueue extends UuidPrimaryKeyEntity {
   }
 
   public EmailQueue(String recipient, String subject, String body, Instant scheduledAt) {
+    this(recipient, subject, body, false, scheduledAt);
+  }
+
+  public EmailQueue(String recipient, String subject, String body, boolean html, Instant scheduledAt) {
     this.recipient = recipient;
     this.subject = subject;
     this.body = body;
+    this.html = html;
     this.scheduledAt = scheduledAt;
   }
 
@@ -72,6 +79,10 @@ public class EmailQueue extends UuidPrimaryKeyEntity {
 
   public String getBody() {
     return body;
+  }
+
+  public boolean isHtml() {
+    return html;
   }
 
   public EmailQueueStatus getStatus() {
