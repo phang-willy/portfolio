@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { EMPTY, Observable, expand, map, reduce } from 'rxjs';
 
 import { ApiResponse, PaginatedApiResponse } from '@/app/shared/models/api-response.model';
 import {
@@ -13,15 +13,38 @@ import {
 import { environment } from '@/environments/environment';
 
 const API_URL = `${environment.apiUrl.replace(/\/+$/, '')}/admin/user`;
+const USER_PAGE_SIZE = 200;
 
 @Injectable({ providedIn: 'root' })
 export class UserAdminService {
   private readonly http = inject(HttpClient);
 
-  getUsers(page = 0, size = 200): Observable<UserPage<UserAdminListItem>> {
+  getUsers(): Observable<UserPage<UserAdminListItem>> {
+    return this.fetchUsers(0).pipe(
+      expand((page) => {
+        const nextPage = page.pagination.page + 1;
+        if (nextPage >= page.pagination.totalPages) {
+          return EMPTY;
+        }
+
+        return this.fetchUsers(nextPage);
+      }),
+      reduce((combined, page) => ({
+        data: [...combined.data, ...page.data],
+        pagination: {
+          page: 0,
+          size: combined.data.length + page.data.length,
+          totalItems: page.pagination.totalItems,
+          totalPages: page.pagination.totalPages === 0 ? 0 : 1,
+        },
+      })),
+    );
+  }
+
+  private fetchUsers(page: number): Observable<UserPage<UserAdminListItem>> {
     return this.http
       .get<PaginatedApiResponse<UserAdminListItem>>(API_URL, {
-        params: { page, size },
+        params: { page, size: USER_PAGE_SIZE },
         withCredentials: true,
       })
       .pipe(map((response) => ({ data: response.data, pagination: response.pagination })));

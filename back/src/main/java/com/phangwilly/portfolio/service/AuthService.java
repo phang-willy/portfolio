@@ -13,6 +13,7 @@ import com.phangwilly.portfolio.dto.ResetPasswordRequest;
 import com.phangwilly.portfolio.dto.UserResponse;
 import com.phangwilly.portfolio.dto.VerifyTwoFactorRequest;
 import com.phangwilly.portfolio.enums.UserHistoryType;
+import com.phangwilly.portfolio.enums.UserRole;
 import com.phangwilly.portfolio.exception.ApiException;
 import com.phangwilly.portfolio.model.EmailVerificationToken;
 import com.phangwilly.portfolio.model.ForgotPassword;
@@ -153,11 +154,15 @@ public class AuthService {
       );
     }
 
-    User user = userRepository.save(new User(
+    User user = new User(
       PersonNameFormatter.formatLastname(request.lastname()),
       PersonNameFormatter.formatFirstname(request.firstname()),
       email
-    ));
+    );
+    if (!userRepository.existsByRole(UserRole.SUPER_ADMIN)) {
+      user.changeRole(UserRole.SUPER_ADMIN);
+    }
+    user = userRepository.save(user);
 
     userPasswordRepository.save(new UserPassword(
       user,
