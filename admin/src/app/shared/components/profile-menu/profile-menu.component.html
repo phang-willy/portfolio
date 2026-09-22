@@ -1,0 +1,54 @@
+<button
+  type="button"
+  class="inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-border bg-card text-foreground shadow-lg transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+  aria-label="Account menu"
+  aria-haspopup="menu"
+  [attr.aria-expanded]="isOpen()"
+  (click)="toggleMenu($event)"
+>
+  <ng-icon hlm size="sm" name="lucideUser" />
+</button>
+
+@if (isOpen()) {
+  <div
+    class="absolute top-12 right-0 grid min-w-44 gap-1 rounded-md border border-border bg-card p-1 text-foreground shadow-xl"
+    role="menu"
+    aria-label="Account"
+  >
+    <a
+      routerLink="/profile"
+      routerLinkActive="bg-muted text-foreground"
+      class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded border-0 bg-transparent px-2.5 text-left text-sm font-bold text-foreground no-underline transition-colors hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground focus:outline-none"
+      role="menuitem"
+      (click)="closeMenu()"
+    >
+      <ng-icon hlm size="sm" name="lucideUser" />
+      <span>Profile</span>
+    </a>
+    <a
+      routerLink="/notification"
+      routerLinkActive="bg-muted text-foreground"
+      class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded border-0 bg-transparent px-2.5 text-left text-sm font-bold text-foreground no-underline transition-colors hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground focus:outline-none"
+      role="menuitem"
+      (click)="closeMenu()"
+    >
+      <ng-icon hlm size="sm" name="lucideBell" />
+      <span>Notifications</span>
+    </a>
+    <div class="my-1 h-px bg-border" role="separator"></div>
+    <button
+      type="button"
+      class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded border-0 bg-transparent px-2.5 text-left text-sm font-bold text-foreground transition-colors hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+      role="menuitem"
+      [disabled]="isLoggingOut()"
+      (click)="logout($event)"
+    >
+      @if (isLoggingOut()) {
+        <hlm-spinner aria-label="Logging out" />
+      } @else {
+        <ng-icon hlm size="sm" name="lucideLogOut" />
+      }
+      <span>Logout</span>
+    </button>
+  </div>
+}

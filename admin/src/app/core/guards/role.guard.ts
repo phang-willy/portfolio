@@ -4,10 +4,9 @@ import { map } from 'rxjs';
 
 import { AuthService } from '@/app/core/auth/auth.service';
 import { User } from '@/app/shared/models/user.model';
+import { ADMIN_ACCESS_ROLES } from '@/app/shared/models/user-role';
 
-const ADMIN_ROLE = 'ADMIN';
-
-export const adminRoleGuard = roleGuard([ADMIN_ROLE]);
+export const adminRoleGuard = roleGuard(ADMIN_ACCESS_ROLES);
 
 export function roleGuard(allowedRoles: readonly string[]): CanActivateFn {
   return () => {

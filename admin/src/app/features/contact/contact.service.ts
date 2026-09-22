@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, Subscription, map, takeUntil, tap } from 'rxjs';
 
 import { AuthStateService } from '@/app/core/auth/auth-state.service';
+import { isAdminRole } from '@/app/shared/models/user-role';
 import { ApiResponse, PaginatedApiResponse } from '@/app/shared/models/api-response.model';
 import {
   ContactAdminDetail,
@@ -40,7 +41,7 @@ export class ContactService {
 
   constructor() {
     this.authState.currentUser$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
-      if (!user || user.role !== 'ADMIN') {
+      if (!isAdminRole(user?.role)) {
         this.disconnect();
         return;
       }
@@ -50,7 +51,7 @@ export class ContactService {
   }
 
   ensureRealtime(): void {
-    if (this.started || this.authState.getCurrentUser()?.role !== 'ADMIN') {
+    if (this.started || !isAdminRole(this.authState.getCurrentUser()?.role)) {
       return;
     }
     this.started = true;

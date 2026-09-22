@@ -59,6 +59,36 @@ export const routes: Routes = [
     data: { title: 'Reset password' },
   },
   {
+    path: 'profile',
+    loadComponent: () =>
+      import('@/app/features/admin/admin-shell/admin-shell').then((module) => module.AdminShell),
+    canActivate: [authGuard, adminRoleGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('@/app/features/profile/profile-page').then((module) => module.ProfilePage),
+        data: { breadcrumb: 'Profile', title: 'Profile' },
+      },
+    ],
+  },
+  {
+    path: 'notification',
+    loadComponent: () =>
+      import('@/app/features/admin/admin-shell/admin-shell').then((module) => module.AdminShell),
+    canActivate: [authGuard, adminRoleGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('@/app/features/admin/admin-placeholder-page').then(
+            (module) => module.AdminPlaceholderPage,
+          ),
+        data: { breadcrumb: 'Notifications', title: 'Notifications', section: 'Account' },
+      },
+    ],
+  },
+  {
     path: 'admin',
     loadComponent: () =>
       import('@/app/features/admin/admin-shell/admin-shell').then((module) => module.AdminShell),
@@ -74,6 +104,28 @@ export const routes: Routes = [
         loadComponent: () =>
           import('@/app/features/admin/admin-page').then((module) => module.AdminPage),
         data: { breadcrumb: 'Dashboard', title: 'Dashboard' },
+      },
+      {
+        path: 'user',
+        data: {
+          breadcrumb: 'Users',
+          breadcrumbLink: '/admin/user',
+          section: 'Platform',
+          title: 'Users',
+        },
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('@/app/features/users/user-list-page').then((module) => module.UserListPage),
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('@/app/features/users/user-detail-page').then((module) => module.UserDetailPage),
+            data: { breadcrumb: 'User', title: 'User' },
+          },
+        ],
       },
       {
         path: 'messages',

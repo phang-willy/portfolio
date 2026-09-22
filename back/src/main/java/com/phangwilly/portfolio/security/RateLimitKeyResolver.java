@@ -12,7 +12,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class RateLimitKeyResolver {
 
-  private static final Set<String> ADMIN_AUTHORITIES = Set.of("ROLE_ADMIN", "ADMIN");
+  private static final Set<String> ADMIN_AUTHORITIES = Set.of(
+    "ROLE_SUPER_ADMIN",
+    "SUPER_ADMIN",
+    "ROLE_ADMIN",
+    "ADMIN"
+  );
   private static final String ADMIN_BUCKET_PREFIX = "admin";
   private static final String STANDARD_BUCKET_PREFIX = "standard";
   private static final String ANONYMOUS_BUCKET_PREFIX = "anonymous";

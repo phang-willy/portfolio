@@ -32,7 +32,7 @@ public class CurrentUserService {
   public AuthenticatedUser requireAdmin() {
     AuthenticatedUser user = getCurrentUser();
 
-    if (user.role() != UserRole.ADMIN) {
+    if (!user.role().canAccessAdmin()) {
       throw new ApiException(
         HttpStatus.FORBIDDEN,
         ACCESS_DENIED_CODE,
