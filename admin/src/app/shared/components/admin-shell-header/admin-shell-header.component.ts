@@ -7,6 +7,7 @@ import { HlmBreadcrumbImports } from '@spartan-ng/helm/breadcrumb';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 
+import { NotificationBellComponent } from '@/app/shared/components/notification-bell/notification-bell.component';
 import { ProfileMenuComponent } from '@/app/shared/components/profile-menu/profile-menu.component';
 import { ThemeToggleComponent } from '@/app/shared/components/theme-toggle/theme-toggle.component';
 
@@ -18,7 +19,15 @@ interface AdminBreadcrumbItem {
 
 @Component({
   selector: 'app-admin-shell-header',
-  imports: [HlmBreadcrumbImports, HlmButtonImports, HlmIcon, NgIcon, ProfileMenuComponent, ThemeToggleComponent],
+  imports: [
+    HlmBreadcrumbImports,
+    HlmButtonImports,
+    HlmIcon,
+    NgIcon,
+    NotificationBellComponent,
+    ProfileMenuComponent,
+    ThemeToggleComponent,
+  ],
   templateUrl: './admin-shell-header.component.html',
   styleUrl: './admin-shell-header.component.css',
 })

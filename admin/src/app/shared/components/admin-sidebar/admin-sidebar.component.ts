@@ -13,6 +13,8 @@ import { AuthStateService } from '@/app/core/auth/auth-state.service';
 import { AuthService } from '@/app/core/auth/auth.service';
 import { EmailQueueService } from '@/app/features/email-queue/email-queue.service';
 import { ContactService } from '@/app/features/contact/contact.service';
+import { NotificationService } from '@/app/features/notification/notification.service';
+import { ServiceHealthService } from '@/app/features/service-health/service-health.service';
 import { ADMIN_NAV_SECTIONS, AdminNavItem } from '@/app/shared/models/admin-nav.model';
 
 @Component({
@@ -36,6 +38,8 @@ export class AdminSidebarComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly emailQueueService = inject(EmailQueueService);
   private readonly contactService = inject(ContactService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly serviceHealth = inject(ServiceHealthService);
   private readonly router = inject(Router);
 
   readonly compact = input(false);
@@ -52,6 +56,8 @@ export class AdminSidebarComponent {
   constructor() {
     this.emailQueueService.ensureRealtime();
     this.contactService.ensureRealtime();
+    this.notificationService.ensureRealtime();
+    this.serviceHealth.ensureRealtime();
   }
 
   protected navItemAriaLabel(item: AdminNavItem): string | null {

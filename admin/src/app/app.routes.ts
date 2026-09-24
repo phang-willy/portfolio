@@ -81,8 +81,8 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('@/app/features/admin/admin-placeholder-page').then(
-            (module) => module.AdminPlaceholderPage,
+          import('@/app/features/notification/notification-page').then(
+            (module) => module.NotificationPage,
           ),
         data: { breadcrumb: 'Notifications', title: 'Notifications', section: 'Account' },
       },

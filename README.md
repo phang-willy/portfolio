@@ -48,12 +48,12 @@ URLs locales :
 - Admin : http://localhost:3001
 - API : http://localhost:8000/api/health
 - Actuator : http://localhost:8000/actuator/health
-- Adminer : http://localhost:8080
 
 ## Docker developpement
 
 Le projet utilise un seul fichier `compose.yml` avec des profiles Docker Compose.
-Le profile `dev` demarre les variantes hot reload des services, plus MailDev.
+Le profile `dev` demarre les variantes hot reload des services, plus MailDev et Adminer.
+Les profiles `prod` et un deploiement pre-prod ne lancent ni MailDev ni Adminer.
 
 Dans `.env`, utilise le profile `dev` :
 
@@ -74,6 +74,7 @@ Ensuite, garde les conteneurs ouverts :
 - les changements Java dans `back/` sont recompiles dans le conteneur, puis relancent Spring Boot via DevTools ;
 - au demarrage, `front-dev` et `admin-dev` synchronisent les dependances npm dans leurs volumes `node_modules` ;
 - MailDev est disponible sur http://localhost:1080 et son SMTP sur `localhost:1025` ;
+- Adminer est disponible sur http://localhost:8080 ;
 - `down` n'est utile que si tu veux supprimer/recreer les conteneurs ou repartir d'un etat propre.
 
 Ne lance pas `dev` et `prod` en meme temps : les deux profiles exposent les memes ports publics (`3000`, `3001`, `8000`).

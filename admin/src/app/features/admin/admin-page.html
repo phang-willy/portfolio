@@ -32,6 +32,7 @@
           [class.border-t-primary]="metric.tone === 'primary'"
           [class.border-t-emerald-500]="metric.tone === 'emerald' || metric.tone === 'green'"
           [class.border-t-amber-500]="metric.tone === 'amber'"
+          [class.border-t-red-500]="metric.tone === 'red'"
         >
           <span class="font-bold text-muted-foreground">{{ metric.label }}</span>
           <strong class="text-3xl leading-none text-foreground">{{ metric.value }}</strong>
@@ -42,27 +43,72 @@
   </section>
 
   <section class="grid gap-3 rounded-lg border border-border bg-card p-5 shadow-lg">
-    <div class="grid gap-0.5" role="table" aria-label="Protected services">
+    <div class="grid gap-0.5" role="table" aria-live="polite" aria-label="Service health">
       <div
-        class="grid min-h-9 grid-cols-[minmax(150px,1fr)_minmax(160px,1fr)_minmax(110px,0.6fr)] items-center gap-3 rounded-lg px-3 text-xs font-extrabold uppercase text-muted-foreground max-sm:grid-cols-1"
+        class="grid min-h-9 grid-cols-[minmax(150px,1fr)_minmax(160px,1.2fr)_minmax(200px,0.9fr)] items-center gap-3 rounded-lg px-3 text-xs font-extrabold uppercase text-muted-foreground max-sm:grid-cols-1"
         role="row"
       >
         <span role="columnheader">Service</span>
         <span role="columnheader">Endpoint</span>
         <span role="columnheader">Status</span>
       </div>
-      @for (check of checks; track check.service) {
+      @if (checks().length === 0) {
         <div
-          class="grid min-h-13.5 grid-cols-[minmax(150px,1fr)_minmax(160px,1fr)_minmax(110px,0.6fr)] items-center gap-3 rounded-lg bg-background px-3 max-sm:grid-cols-1 max-sm:p-3"
+          class="grid min-h-13.5 grid-cols-[minmax(150px,1fr)_minmax(160px,1.2fr)_minmax(200px,0.9fr)] items-center gap-3 rounded-lg bg-background px-3 max-sm:grid-cols-1 max-sm:p-3"
+          role="row"
+        >
+          <span role="cell">Checking services</span>
+          <span role="cell"></span>
+          <strong role="cell">…</strong>
+        </div>
+      }
+      @for (check of checks(); track check.code) {
+        <div
+          class="grid min-h-13.5 grid-cols-[minmax(150px,1fr)_minmax(160px,1.2fr)_minmax(200px,0.9fr)] items-center gap-3 rounded-lg bg-background px-3 max-sm:grid-cols-1 max-sm:p-3"
           role="row"
         >
           <span role="cell">{{ check.service }}</span>
-          <code
-            class="w-fit max-w-full rounded-md bg-muted px-2 py-1 text-foreground break-all"
-            role="cell"
-            >{{ check.endpoint }}</code
-          >
-          <strong class="status-text-success" role="cell">{{ check.status }}</strong>
+          @if (serviceHref(check.endpoint); as href) {
+            <a
+              class="w-fit max-w-full rounded-md bg-muted px-2 py-1 text-foreground break-all underline-offset-2 hover:underline"
+              role="cell"
+              [href]="href"
+              target="_blank"
+              rel="noopener noreferrer"
+              >{{ check.endpoint }}</a
+            >
+          } @else {
+            <code
+              class="w-fit max-w-full rounded-md bg-muted px-2 py-1 text-foreground break-all"
+              role="cell"
+              >{{ check.endpoint }}</code
+            >
+          }
+          <span class="flex flex-wrap items-center gap-2" role="cell">
+            <strong
+              [class.status-text-success]="check.status === 'UP'"
+              [class.status-text-danger]="check.status === 'DOWN'"
+              >{{ check.status }}</strong
+            >
+            @if (check.status === 'DOWN' && check.restartable) {
+              <button
+                hlmBtn
+                type="button"
+                size="sm"
+                class="h-8 gap-2 px-2.5"
+                [disabled]="!!restartProgress()[check.code]"
+                [attr.aria-label]="restartLabel(check.service, restartProgress()[check.code])"
+                (click)="restart(check.code)"
+              >
+                @if (restartProgress()[check.code]; as progress) {
+                  <hlm-spinner [attr.aria-label]="'Restart attempt ' + progress.attempt" />
+                  {{ progress.attempt }}/{{ progress.maxAttempts }}
+                } @else {
+                  Restart
+                }
+              </button>
+            }
+          </span>
         </div>
       }
     </div>

@@ -91,6 +91,26 @@ app:
   email:
     from: ${SMTP_FROM:noreply@phangwilly.local}
     time-zone: ${APP_EMAIL_TIME_ZONE:Europe/Paris}
+  service-health:
+    interval-millis: ${APP_SERVICE_HEALTH_INTERVAL_MILLIS:15000}
+    timeout-millis: ${APP_SERVICE_HEALTH_TIMEOUT_MILLIS:3000}
+    site-url: ${SITE_URL:}
+    admin-base-url: ${APP_ADMIN_BASE_URL:}
+    api-base-url: ${APP_PUBLIC_BASE_URL:}
+    front-probe-url: ${APP_SERVICE_HEALTH_FRONT_URL:${SITE_URL:}}
+    admin-probe-url: ${APP_SERVICE_HEALTH_ADMIN_URL:${APP_ADMIN_BASE_URL:}}
+    adminer-probe-url: ${APP_SERVICE_HEALTH_ADMINER_URL:}
+    adminer-public-url: ${APP_SERVICE_HEALTH_ADMINER_PUBLIC_URL:}
+    mail-web-probe-url: ${APP_SERVICE_HEALTH_MAIL_WEB_URL:}
+    mail-web-public-url: ${APP_SERVICE_HEALTH_MAIL_WEB_PUBLIC_URL:}
+    smtp-host: ${SMTP_HOST:}
+    smtp-port: ${SMTP_PORT:0}
+    server-port: ${SERVER_PORT:8000}
+    datasource-url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/portfolio}
+    restart-services: ${APP_SERVICE_HEALTH_RESTART_SERVICES:}
+    compose-project: ${APP_SERVICE_HEALTH_COMPOSE_PROJECT:portfolio}
+    docker-socket: ${APP_SERVICE_HEALTH_DOCKER_SOCKET:/var/run/docker.sock}
+    restart-probe-delay-millis: ${APP_SERVICE_HEALTH_RESTART_DELAY_MILLIS:3000}
   rate-limit:
     enabled: ${APP_RATE_LIMIT_ENABLED:true}
     admin-requests-per-second: ${APP_RATE_LIMIT_ADMIN_REQUESTS_PER_SECOND:100}
