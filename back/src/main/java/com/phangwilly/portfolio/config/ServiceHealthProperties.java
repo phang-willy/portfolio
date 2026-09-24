@@ -18,6 +18,7 @@ public class ServiceHealthProperties {
   private static final int DEFAULT_TIMEOUT_MILLIS = 3000;
   private static final int DEFAULT_SERVER_PORT = 8000;
   private static final long DEFAULT_RESTART_PROBE_DELAY_MILLIS = 3000;
+  private static final long DEFAULT_STARTUP_GRACE_MILLIS = 180_000;
   private static final String DEFAULT_COMPOSE_PROJECT = "portfolio";
   private static final String DEFAULT_DOCKER_SOCKET = "/var/run/docker.sock";
 
@@ -39,6 +40,7 @@ public class ServiceHealthProperties {
   private String composeProject = DEFAULT_COMPOSE_PROJECT;
   private String dockerSocket = DEFAULT_DOCKER_SOCKET;
   private long restartProbeDelayMillis = DEFAULT_RESTART_PROBE_DELAY_MILLIS;
+  private long startupGraceMillis = DEFAULT_STARTUP_GRACE_MILLIS;
 
   public int getTimeoutMillis() {
     return timeoutMillis < 200 ? DEFAULT_TIMEOUT_MILLIS : timeoutMillis;
@@ -116,6 +118,10 @@ public class ServiceHealthProperties {
     this.restartProbeDelayMillis = restartProbeDelayMillis;
   }
 
+  public void setStartupGraceMillis(long startupGraceMillis) {
+    this.startupGraceMillis = startupGraceMillis;
+  }
+
   public boolean restartable(String code) {
     return composeService(code) != null;
   }
@@ -143,6 +149,10 @@ public class ServiceHealthProperties {
 
   public long restartProbeDelayMillis() {
     return Math.max(0, restartProbeDelayMillis);
+  }
+
+  public long startupGraceMillis() {
+    return Math.max(0, startupGraceMillis);
   }
 
   public List<ServiceHealthTarget> targets() {

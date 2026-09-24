@@ -37,4 +37,12 @@ public final class ServiceHealthTracker {
     statusByCode.keySet().retainAll(seen);
     return List.copyOf(failures);
   }
+
+  public void recordRecoveries(List<ServiceHealthCheck> checks) {
+    for (ServiceHealthCheck check : checks) {
+      if (!check.down()) {
+        statusByCode.put(check.code(), check.status());
+      }
+    }
+  }
 }

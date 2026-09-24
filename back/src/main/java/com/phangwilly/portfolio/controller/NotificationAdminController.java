@@ -62,6 +62,16 @@ public class NotificationAdminController {
     return ApiResponses.ok(notificationService.markRead(id));
   }
 
+  @PutMapping("/read")
+  public ResponseEntity<ApiResponse<NotificationUnreadCountResponse>> markAllRead(
+    @Valid @RequestBody NotificationReadRequest request
+  ) {
+    if (Honeypot.isFilled(request.website())) {
+      return ApiResponses.ok(new NotificationUnreadCountResponse(0));
+    }
+    return ApiResponses.ok(notificationService.markAllRead());
+  }
+
   @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public SseEmitter stream(HttpServletResponse response) {
     response.setHeader("Cache-Control", "no-cache");

@@ -111,6 +111,7 @@ app:
     compose-project: ${APP_SERVICE_HEALTH_COMPOSE_PROJECT:portfolio}
     docker-socket: ${APP_SERVICE_HEALTH_DOCKER_SOCKET:/var/run/docker.sock}
     restart-probe-delay-millis: ${APP_SERVICE_HEALTH_RESTART_DELAY_MILLIS:3000}
+    startup-grace-millis: ${APP_SERVICE_HEALTH_STARTUP_GRACE_MILLIS:180000}
   rate-limit:
     enabled: ${APP_RATE_LIMIT_ENABLED:true}
     admin-requests-per-second: ${APP_RATE_LIMIT_ADMIN_REQUESTS_PER_SECOND:100}

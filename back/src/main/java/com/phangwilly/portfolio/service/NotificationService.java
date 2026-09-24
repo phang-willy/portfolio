@@ -98,6 +98,16 @@ public class NotificationService {
     return NotificationResponse.from(notification, true);
   }
 
+  @Transactional
+  public NotificationUnreadCountResponse markAllRead() {
+    AuthenticatedUser user = currentUserService.requireAdmin();
+    Instant readAt = Instant.now(clock);
+    for (Notification notification : notificationRepository.findUnread(user.id())) {
+      readRepository.save(new NotificationRead(new NotificationReadId(notification.getId(), user.id()), readAt));
+    }
+    return new NotificationUnreadCountResponse(0);
+  }
+
   private Set<UUID> readIds(UUID userId, List<Notification> notifications) {
     if (notifications.isEmpty()) {
       return Set.of();

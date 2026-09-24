@@ -33,6 +33,7 @@ public class ServiceHealthMonitor {
   private final NotificationService notificationService;
   private final Clock clock;
   private final AtomicBoolean started = new AtomicBoolean(false);
+  private Instant notificationsFrom = Instant.EPOCH;
 
   public ServiceHealthMonitor(
     ServiceHealthProperties properties,
@@ -60,6 +61,8 @@ public class ServiceHealthMonitor {
       log.warn("Could not restore service health state", exception);
     }
     started.set(true);
+    long graceMillis = properties.startupGraceMillis();
+    notificationsFrom = graceMillis <= 0 ? Instant.EPOCH : Instant.now(clock).plusMillis(graceMillis);
     check();
   }
 
@@ -82,8 +85,12 @@ public class ServiceHealthMonitor {
         log.warn("Service health check aborted", exception);
         return;
       }
-      List<ServiceHealthCheck> failures = tracker.record(checks);
       realtimeService.broadcast(checks);
+      if (Instant.now(clock).isBefore(notificationsFrom)) {
+        tracker.recordRecoveries(checks);
+        return;
+      }
+      List<ServiceHealthCheck> failures = tracker.record(checks);
       try {
         stateService.save(checks);
       } catch (RuntimeException exception) {

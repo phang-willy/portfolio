@@ -154,7 +154,7 @@ services:
       start_period: 45s
     restart: unless-stopped
     group_add:
-      - "0"
+      - "${DOCKER_GID:-0}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:

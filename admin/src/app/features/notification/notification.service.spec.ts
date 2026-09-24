@@ -159,4 +159,55 @@ describe('NotificationService', () => {
     expect(service.unreadCount()).toBe(0);
     expect(service.notifications().every((item) => item.read)).toBe(true);
   });
+
+  it('loads notifications past the first page', () => {
+    authState.setUser(ADMIN);
+    http.expectOne('/api/admin/notification/unread-count').flush({
+      success: true,
+      code: 200,
+      message: 'OK',
+      data: { count: 0 },
+    });
+
+    service.load();
+
+    http.expectOne((request) => request.params.get('page') === '0').flush({
+      success: true,
+      code: 200,
+      message: 'OK',
+      data: [ALERT],
+      pagination: { page: 0, size: 50, totalItems: 2, totalPages: 2 },
+    });
+    const older = { ...ALERT, id: 'older-notification', title: 'Mail is down' };
+    http.expectOne((request) => request.params.get('page') === '1').flush({
+      success: true,
+      code: 200,
+      message: 'OK',
+      data: [older],
+      pagination: { page: 1, size: 50, totalItems: 2, totalPages: 2 },
+    });
+
+    expect(service.notifications().map((item) => item.id)).toEqual([ALERT.id, older.id]);
+  });
+
+  it('marks every unread notification from the server', () => {
+    authState.setUser(ADMIN);
+    http.expectOne('/api/admin/notification/unread-count').flush({
+      success: true,
+      code: 200,
+      message: 'OK',
+      data: { count: 0 },
+    });
+    MockEventSource.instances[0]?.emit('notification', JSON.stringify(ALERT));
+
+    service.markAllRead().subscribe();
+
+    const request = http.expectOne('/api/admin/notification/read');
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({ website: '' });
+    request.flush({ success: true, code: 200, message: 'OK', data: { count: 0 } });
+
+    expect(service.unreadCount()).toBe(0);
+    expect(service.notifications()[0]?.read).toBe(true);
+  });
 });

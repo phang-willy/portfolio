@@ -61,18 +61,31 @@ export class NotificationService {
     }
     this.isLoading.set(this.notifications().length === 0);
     this.loadError.set(null);
+    this.fetchPage(0, []);
+  }
+
+  private fetchPage(page: number, accumulated: readonly AdminNotification[]): void {
     this.http
       .get<PaginatedApiResponse<AdminNotification>>(API_URL, {
-        params: { page: 0, size: 50 },
+        params: { page, size: 50 },
         withCredentials: true,
       })
       .subscribe({
         next: (response) => {
+          const items = accumulated.concat(response.data ?? []);
+          const totalPages = response.pagination?.totalPages ?? 0;
+          if (page + 1 < totalPages) {
+            this.fetchPage(page + 1, items);
+            return;
+          }
           this.isLoading.set(false);
-          this.notifications.set(response.data);
+          this.notifications.set(items);
         },
         error: () => {
           this.isLoading.set(false);
+          if (accumulated.length > 0) {
+            this.notifications.set(accumulated);
+          }
           this.loadError.set('Unable to load notifications.');
         },
       });
@@ -110,6 +123,19 @@ export class NotificationService {
       return of([]);
     }
     return forkJoin(unreadIds.map((id) => this.markRead(id)));
+  }
+
+  markAllRead(): Observable<void> {
+    return this.http
+      .put<ApiResponse<{ count: number }>>(`${API_URL}/read`, { website: '' }, { withCredentials: true })
+      .pipe(
+        tap(() => {
+          this.countRevision++;
+          this.unreadCount.set(0);
+          this.notifications.update((items) => items.map((item) => (item.read ? item : { ...item, read: true })));
+        }),
+        map(() => undefined),
+      );
   }
 
   private refreshUnreadCount(): void {

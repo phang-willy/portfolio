@@ -69,6 +69,20 @@ class ServiceHealthMonitorTest {
     verify(notificationService, never()).notifyDown(any());
   }
 
+  @Test
+  void doesNotNotifyWhileDependentsAreStillStarting() {
+    when(properties.startupGraceMillis()).thenReturn(60_000L);
+    when(properties.targets()).thenReturn(List.of(FRONT));
+    when(stateService.load()).thenReturn(Map.of("front", ServiceHealthCheck.UP));
+    when(probe.probe(any(), any())).thenReturn(down());
+
+    monitor().onReady();
+
+    verify(notificationService, never()).notifyDown(any());
+    verify(stateService, never()).save(any());
+    verify(realtimeService).broadcast(any());
+  }
+
   private ServiceHealthMonitor monitor() {
     return new ServiceHealthMonitor(
       properties,
