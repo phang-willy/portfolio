@@ -4,6 +4,14 @@
   @apply text-green-700;
 }
 
+.status-text-danger {
+  @apply text-red-700;
+}
+
 :host-context(html.dark) .status-text-success {
   @apply text-green-300;
+}
+
+:host-context(html.dark) .status-text-danger {
+  @apply text-red-300;
 }

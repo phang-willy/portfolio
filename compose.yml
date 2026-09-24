@@ -133,6 +133,10 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/${POSTGRES_DB:-portfolio}}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${POSTGRES_USER:-portfolio}}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      APP_SERVICE_HEALTH_FRONT_URL: http://front:3000
+      APP_SERVICE_HEALTH_ADMIN_URL: http://admin:3001
+      APP_SERVICE_HEALTH_COMPOSE_PROJECT: portfolio
+      APP_SERVICE_HEALTH_RESTART_SERVICES: front=front,admin=admin,api=back,postgres=postgres
     ports:
       - "${BACK_BIND_ADDRESS:-127.0.0.1}:${BACK_PORT:-8000}:8000"
     depends_on:
@@ -149,6 +153,10 @@ services:
       retries: 5
       start_period: 45s
     restart: unless-stopped
+    group_add:
+      - "${DOCKER_GID:-0}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - portfolio
 
@@ -181,14 +189,27 @@ services:
     environment:
       APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001}
       SERVER_PORT: "8000"
-      SMTP_HOST: ${SMTP_HOST:-maildev}
-      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_HOST: maildev
+      SMTP_PORT: "1025"
+      SMTP_AUTH: "false"
+      SMTP_STARTTLS_ENABLE: "false"
+      SMTP_STARTTLS_REQUIRED: "false"
+      SMTP_USERNAME: ""
+      SMTP_PASSWORD: ""
       SMTP_FROM: ${SMTP_FROM:-noreply@phangwilly.local}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-${POSTGRES_PASSWORD:-portfolio_change_me}}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/${POSTGRES_DB:-portfolio}}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${POSTGRES_USER:-portfolio}}
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
       SPRING_PROFILES_ACTIVE: dev
+      APP_SERVICE_HEALTH_FRONT_URL: http://front-dev:3000
+      APP_SERVICE_HEALTH_ADMIN_URL: http://admin-dev:3001
+      APP_SERVICE_HEALTH_ADMINER_URL: http://adminer:8080
+      APP_SERVICE_HEALTH_ADMINER_PUBLIC_URL: http://${ADMINER_BIND_ADDRESS:-127.0.0.1}:${ADMINER_PORT:-8080}
+      APP_SERVICE_HEALTH_MAIL_WEB_URL: http://maildev:1080
+      APP_SERVICE_HEALTH_MAIL_WEB_PUBLIC_URL: http://127.0.0.1:${MAILDEV_WEB_PORT:-1080}
+      APP_SERVICE_HEALTH_COMPOSE_PROJECT: portfolio
+      APP_SERVICE_HEALTH_RESTART_SERVICES: front=front-dev,admin=admin-dev,api=back-dev,postgres=postgres,smtp=maildev,adminer=adminer,mail=maildev
     ports:
       - "${BACK_BIND_ADDRESS:-127.0.0.1}:${BACK_PORT:-8000}:8000"
     depends_on:
@@ -211,6 +232,7 @@ services:
       - ./back:/workspace
       - maven_cache:/root/.m2
       - back_target:/workspace/target
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - portfolio
 
@@ -247,6 +269,8 @@ services:
       - portfolio
 
   adminer:
+    profiles:
+      - dev
     image: adminer:4
     environment:
       ADMINER_DEFAULT_SERVER: postgres
