@@ -3,8 +3,8 @@ package com.phangwilly.portfolio.controller;
 import com.phangwilly.portfolio.dto.ApiResponses;
 import com.phangwilly.portfolio.dto.PaginatedApiResponse;
 import com.phangwilly.portfolio.dto.ProjectResponse;
+import com.phangwilly.portfolio.service.ProjectImageService;
 import com.phangwilly.portfolio.service.ProjectService;
-import com.phangwilly.portfolio.service.ProjectAdminService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectController {
 
   private final ProjectService projectService;
-  private final ProjectAdminService projectAdminService;
+  private final ProjectImageService projectImageService;
 
-  public ProjectController(ProjectService projectService, ProjectAdminService projectAdminService) {
+  public ProjectController(ProjectService projectService, ProjectImageService projectImageService) {
     this.projectService = projectService;
-    this.projectAdminService = projectAdminService;
+    this.projectImageService = projectImageService;
   }
 
   @GetMapping
@@ -35,9 +35,9 @@ public class ProjectController {
 
   @GetMapping("/image/{filename}")
   public ResponseEntity<Resource> getImage(@PathVariable String filename) {
-    Resource resource = projectAdminService.loadImage(filename);
+    Resource resource = projectImageService.loadImage(filename);
     return ResponseEntity.ok()
-      .contentType(projectAdminService.resolveImageMediaType(filename))
+      .contentType(projectImageService.resolveImageMediaType(filename))
       .body(resource);
   }
 }

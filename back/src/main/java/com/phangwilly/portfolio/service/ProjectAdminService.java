@@ -1,6 +1,5 @@
 package com.phangwilly.portfolio.service;
 
-import com.phangwilly.portfolio.config.ProjectImageProperties;
 import com.phangwilly.portfolio.dto.PageResponse;
 import com.phangwilly.portfolio.dto.PaginationRequest;
 import com.phangwilly.portfolio.dto.ProjectAdminDetail;
@@ -16,11 +15,6 @@ import com.phangwilly.portfolio.repository.ProjectRepository;
 import com.phangwilly.portfolio.repository.ProjectStackRepository;
 import com.phangwilly.portfolio.repository.StackRepository;
 import com.phangwilly.portfolio.security.CurrentUserService;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,15 +25,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -54,7 +44,6 @@ public class ProjectAdminService {
   private static final String PROJECT_NOT_DEACTIVATED_CODE = "PROJECT_NOT_DEACTIVATED";
   private static final String PROJECT_NOT_DEACTIVATED_MESSAGE =
     "Project must be deactivated before it can be permanently deleted";
-  private static final String INVALID_IMAGE_CODE = "INVALID_IMAGE";
   private static final String LANG_FR = "fr";
   private static final String LANG_EN = "en";
   private static final Sort SLUG_SORT = Sort.by(Sort.Direction.ASC, "slug");
@@ -63,20 +52,20 @@ public class ProjectAdminService {
   private final ProjectStackRepository projectStackRepository;
   private final StackRepository stackRepository;
   private final CurrentUserService currentUserService;
-  private final ProjectImageProperties projectImageProperties;
+  private final ProjectImageService projectImageService;
 
   public ProjectAdminService(
     ProjectRepository projectRepository,
     ProjectStackRepository projectStackRepository,
     StackRepository stackRepository,
     CurrentUserService currentUserService,
-    ProjectImageProperties projectImageProperties
+    ProjectImageService projectImageService
   ) {
     this.projectRepository = projectRepository;
     this.projectStackRepository = projectStackRepository;
     this.stackRepository = stackRepository;
     this.currentUserService = currentUserService;
-    this.projectImageProperties = projectImageProperties;
+    this.projectImageService = projectImageService;
   }
 
   @Transactional(readOnly = true)
@@ -208,76 +197,7 @@ public class ProjectAdminService {
   @Transactional
   public ProjectImageUploadResponse uploadImage(MultipartFile file) {
     currentUserService.requireAdmin();
-
-    if (file == null || file.isEmpty()) {
-      throw badRequest(INVALID_IMAGE_CODE, "Image file is required");
-    }
-
-    if (file.getSize() > projectImageProperties.getMaxBytes()) {
-      throw badRequest(INVALID_IMAGE_CODE, "Image file is too large");
-    }
-
-    String contentType = file.getContentType();
-    if (contentType == null || !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) {
-      throw badRequest(INVALID_IMAGE_CODE, "Only image files are allowed");
-    }
-
-    String extension = resolveExtension(file.getOriginalFilename(), contentType);
-    String filename = UUID.randomUUID() + extension;
-    Path uploadDir = Path.of(projectImageProperties.getUploadDir()).toAbsolutePath().normalize();
-
-    try {
-      Files.createDirectories(uploadDir);
-      Path destination = uploadDir.resolve(filename).normalize();
-      if (!destination.startsWith(uploadDir)) {
-        throw badRequest(INVALID_IMAGE_CODE, "Invalid image filename");
-      }
-
-      try (InputStream inputStream = file.getInputStream()) {
-        Files.copy(inputStream, destination, StandardCopyOption.REPLACE_EXISTING);
-      }
-    } catch (IOException exception) {
-      throw new ApiException(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        "IMAGE_UPLOAD_FAILED",
-        "Unable to store image"
-      );
-    }
-
-    return new ProjectImageUploadResponse("/api/project/image/" + filename);
-  }
-
-  @Transactional(readOnly = true)
-  public Resource loadImage(String filename) {
-    String safeName = Path.of(filename).getFileName().toString();
-    if (!safeName.equals(filename)) {
-      throw notFound();
-    }
-
-    Path uploadDir = Path.of(projectImageProperties.getUploadDir()).toAbsolutePath().normalize();
-    Path imagePath = uploadDir.resolve(safeName).normalize();
-    if (!imagePath.startsWith(uploadDir) || !Files.isRegularFile(imagePath)) {
-      throw notFound();
-    }
-
-    return new FileSystemResource(imagePath);
-  }
-
-  @Transactional(readOnly = true)
-  public MediaType resolveImageMediaType(String filename) {
-    String extension = StringUtils.getFilenameExtension(filename);
-    if (extension == null) {
-      return MediaType.APPLICATION_OCTET_STREAM;
-    }
-
-    return switch (extension.toLowerCase(Locale.ROOT)) {
-      case "png" -> MediaType.IMAGE_PNG;
-      case "jpg", "jpeg" -> MediaType.IMAGE_JPEG;
-      case "gif" -> MediaType.IMAGE_GIF;
-      case "webp" -> MediaType.parseMediaType("image/webp");
-      case "svg" -> MediaType.parseMediaType("image/svg+xml");
-      default -> MediaType.APPLICATION_OCTET_STREAM;
-    };
+    return projectImageService.storeImage(file);
   }
 
   private ProjectAdminListItem toListItem(String slug) {
@@ -481,22 +401,6 @@ public class ProjectAdminService {
     return trimmed.isEmpty() ? null : trimmed;
   }
 
-  private static String resolveExtension(String originalFilename, String contentType) {
-    String extension = StringUtils.getFilenameExtension(originalFilename);
-    if (extension != null && !extension.isBlank()) {
-      return "." + extension.toLowerCase(Locale.ROOT);
-    }
-
-    return switch (contentType.toLowerCase(Locale.ROOT)) {
-      case "image/png" -> ".png";
-      case "image/jpeg" -> ".jpg";
-      case "image/gif" -> ".gif";
-      case "image/webp" -> ".webp";
-      case "image/svg+xml" -> ".svg";
-      default -> "";
-    };
-  }
-
   private static ApiException notFound() {
     return notFound(PROJECT_NOT_FOUND_CODE, PROJECT_NOT_FOUND_MESSAGE);
   }
@@ -507,9 +411,5 @@ public class ProjectAdminService {
 
   private static ApiException conflict(String code, String message) {
     return new ApiException(HttpStatus.CONFLICT, code, message);
-  }
-
-  private static ApiException badRequest(String code, String message) {
-    return new ApiException(HttpStatus.BAD_REQUEST, code, message);
   }
 }
