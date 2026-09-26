@@ -3,14 +3,13 @@ import type { ExperienceItem } from "@/app/(main)/sections/experiences-section";
 import type { ServiceItem } from "@/app/(main)/sections/services-section";
 import type { ProjectItem } from "@/app/(main)/sections/projects-section";
 import type { AppLocale } from "@/features/i18n/config/locales";
-import experienceData from "@/data/experience.json";
+import type { PortfolioExperience } from "@/lib/api/experiences";
 import linkData from "@/data/link.json";
 import serviceData from "@/data/service.json";
 import type { ProjectRecord, RawProjectRecord } from "@/lib/projects";
 
 type LinkEntry = (typeof linkData)["links"][number];
 type ServiceEntry = (typeof serviceData)["services"][number];
-type ExperienceEntry = (typeof experienceData)["experiences"][number];
 
 function pickUrl(link: LinkEntry, locale: AppLocale): string {
   return link.language[locale].url;
@@ -45,24 +44,32 @@ function serviceEntryToItem(s: ServiceEntry, locale: AppLocale): ServiceItem {
   };
 }
 
-export function experiencesForLocale(locale: AppLocale): Array<ExperienceItem> {
-  return [...experienceData.experiences]
-    .sort((a, b) => Number(b.startYear) - Number(a.startYear))
-    .map((e) => experienceEntryToItem(e, locale));
+export function experienceItemsForLocale(
+  experiences: Array<PortfolioExperience>,
+  locale: AppLocale,
+): Array<ExperienceItem> {
+  return experiences.map((experience) =>
+    experienceItemForLocale(experience, locale),
+  );
 }
 
-function experienceEntryToItem(
-  e: ExperienceEntry,
+export function experienceItemForLocale(
+  experience: PortfolioExperience,
   locale: AppLocale,
 ): ExperienceItem {
-  const tr = e.language[locale];
+  const preferred = experience.language[locale];
+  const fallback =
+    locale === "fr" ? experience.language.en : experience.language.fr;
+  const localized = preferred.role.trim() ? preferred : fallback;
+
   return {
-    role: tr.role,
-    company: tr.company,
-    contractType: tr.contractType,
-    summary: tr.summary,
-    startYear: e.startYear,
-    endYear: e.endYear,
+    id: experience.id,
+    role: localized.role,
+    company: experience.company,
+    contractType: localized.contractType,
+    summary: localized.summary,
+    startYear: String(experience.yearStart),
+    endYear: experience.yearEnd == null ? "" : String(experience.yearEnd),
   };
 }
 
@@ -71,12 +78,21 @@ export function projectRecordForLocale(
   project: RawProjectRecord,
   locale: AppLocale,
 ): ProjectRecord {
-  const tr = project.language[locale];
+  const preferred = project.language[locale];
+  const fallback =
+    locale === "fr" ? project.language.en : project.language.fr;
+  const tr = preferred.name.trim() ? preferred : fallback;
   return {
-    ...project,
+    id: project.id,
+    image: project.image,
+    links: project.links,
+    stacks: project.stacks,
+    createdAt: project.createdAt,
+    updatedAt: project.updatedAt,
     name: tr.name,
     description: tr.description,
     imageAlt: tr.imageAlt,
+    content: tr.content,
   };
 }
 

@@ -5,9 +5,10 @@ import { projectRecordForLocale } from "@/features/i18n/lib/localized-site-data"
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { appName } from "@/lib/app-name";
 import { PROJECT_IMAGE_FALLBACK_PATH } from "@/lib/project-image";
-import { getProjectById, getProjectsByCreatedAtDesc } from "@/lib/projects";
+import { getProjectById } from "@/lib/projects";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 
 type ProjectPageParams = {
   params: Promise<{ id: string }>;
@@ -15,27 +16,24 @@ type ProjectPageParams = {
 
 type ProjectPageProps = ProjectPageParams & { locale: AppLocale };
 
-export async function generateStaticParams() {
-  return (await getProjectsByCreatedAtDesc()).map((p) => ({ id: p.id }));
-}
-
 export async function generateProjectMetadata({
   params,
   locale,
 }: ProjectPageProps): Promise<Metadata> {
+  await connection();
   const { id } = await params;
   const raw = await getProjectById(id);
   const d = getDictionary(locale);
 
   if (!raw) {
     return {
-      title: `${appName} - ${d.meta.projectFallbackTitle}`,
+      title: `${appName} - ${d.project.fallbackTitle}`,
       openGraph: openGraphLocaleFields(locale),
     };
   }
 
   const project = projectRecordForLocale(raw, locale);
-  const kind = d.meta.projectFallbackTitle;
+  const kind = d.project.fallbackTitle;
 
   return {
     title: `${appName} - ${kind} - ${project.name}`,
@@ -51,6 +49,7 @@ export async function generateProjectMetadata({
 }
 
 export async function ProjectDetailPage({ params, locale }: ProjectPageProps) {
+  await connection();
   const { id } = await params;
   const raw = await getProjectById(id);
   if (!raw) notFound();

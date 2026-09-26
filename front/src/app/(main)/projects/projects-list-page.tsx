@@ -6,21 +6,23 @@ import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { appName } from "@/lib/app-name";
 import { getProjectsByCreatedAtDesc } from "@/lib/projects";
 import type { Metadata } from "next";
+import { connection } from "next/server";
 
 export function buildProjectsListMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
-    title: `${appName} - ${d.meta.projectsTitle}`,
-    description: `${appName} - ${d.meta.projectsDescription}`,
+    title: `${appName} - ${d.project.metaTitle}`,
+    description: `${appName} - ${d.project.metaDescription}`,
     openGraph: {
-      title: `${appName} - ${d.meta.projectsTitle}`,
-      description: `${appName} - ${d.meta.projectsDescription}`,
+      title: `${appName} - ${d.project.metaTitle}`,
+      description: `${appName} - ${d.project.metaDescription}`,
       ...openGraphLocaleFields(locale),
     },
   };
 }
 
 export async function ProjectsListPage({ locale }: { locale: AppLocale }) {
+  await connection();
   const projects = (await getProjectsByCreatedAtDesc()).map((p) =>
     projectRecordForLocale(p, locale),
   );
@@ -34,18 +36,26 @@ export async function ProjectsListPage({ locale }: { locale: AppLocale }) {
       >
         <div className="grid grid-cols-1 gap-8">
           <h1 id="projects-page-title" className="text-3xl font-bold">
-            {d.projectsPage.title}
+            {d.project.page.title}
           </h1>
           <p className="text-base text-muted-foreground leading-8 max-w-xl">
-            {d.projectsPage.intro}
+            {d.project.page.intro}
           </p>
         </div>
-        <div className="hidden md:block">
-          <p className="text-center text-gray-500 leading-8">
-            {d.projectsPage.hoverHintDesktop}
+        {projects.length === 0 ? (
+          <p className="text-lg text-muted-foreground leading-8">
+            {d.project.empty}
           </p>
-        </div>
-        <ProjectsPageGrid projects={projects} locale={locale} />
+        ) : (
+          <>
+            <div className="hidden md:block">
+              <p className="text-center text-gray-500 leading-8">
+                {d.project.page.hoverHintDesktop}
+              </p>
+            </div>
+            <ProjectsPageGrid projects={projects} locale={locale} />
+          </>
+        )}
       </section>
     </>
   );

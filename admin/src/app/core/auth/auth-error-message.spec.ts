@@ -9,6 +9,15 @@ describe('resolveAuthErrorMessage', () => {
     expect(resolveAuthErrorMessage(error, 'Fallback')).toContain('Unable to reach the API');
   });
 
+  it('shows the API message when the sitemap call fails upstream', () => {
+    const error = new HttpErrorResponse({
+      status: 502,
+      statusText: 'Bad Gateway',
+      error: { success: false, code: 502, message: 'The portfolio site is unavailable' },
+    });
+    expect(resolveAuthErrorMessage(error, 'Fallback')).toBe('The portfolio site is unavailable');
+  });
+
   it('uses the API error message when present', () => {
     const error = new HttpErrorResponse({
       status: 500,

@@ -90,7 +90,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         >
           <h2 id="projects-heading">
             <span className="bg-main transition-colors duration-200 text-white px-6 py-3 rounded-full">
-              {t.projects.badge}
+              {t.project.badge}
             </span>
           </h2>
         </div>
@@ -102,7 +102,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                 : "opacity-0 -translate-x-8"
             }`}
           >
-            {t.projects.title}
+            {t.project.title}
           </h3>
           <p
             className={`text-lg text-gray-500 leading-8 max-w-xl xl:justify-self-end transition-all ${APPEAR_DURATION_CLASS} ease-out ${
@@ -111,49 +111,55 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                 : "opacity-0 -translate-x-8"
             }`}
           >
-            {t.projects.description}
+            {t.project.description}
           </p>
         </div>
       </div>
-      <div
-        className={`hidden md:block transition-opacity duration-300 ${
-          visibleMap["hover-hint"] ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        <p className="text-center text-gray-500 leading-8">
-          {t.projects.hoverHint}
-        </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-        {projects.map((project, index) => (
-          <ProjectCard
-            key={project.title}
-            imageSrc={project.imageSrc}
-            imageAlt={project.imageAlt}
-            title={project.title}
-            description={project.description}
-            href={buildLocalizedPathname(`/projects/${project.id}`, locale)}
-            cardRef={(node) => {
-              projectCardRefs.current[index] = node;
-            }}
-            dataProjectIndex={index}
-            visibilityClass={
-              visibleProjectCards[index]
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 -translate-x-8"
-            }
-          />
-        ))}
-      </div>
-      <footer className="flex justify-center">
-        <Link
-          href={projectsHref}
-          className="group bg-main text-white px-8 py-4 rounded-full hover:bg-main/80 focus:bg-main/80 transition-colors duration-200 flex items-center gap-8 w-auto"
-        >
-          <LuArrowRight className="w-8 h-8 transition-transform duration-200 group-hover:translate-x-1 group-focus:translate-x-1" />
-          <span>{t.projects.seeAll}</span>
-        </Link>
-      </footer>
+      {projects.length === 0 ? (
+        <p className="text-lg text-gray-500 leading-8">{t.project.empty}</p>
+      ) : (
+        <>
+          <div
+            className={`hidden md:block transition-opacity duration-300 ${
+              visibleMap["hover-hint"] ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <p className="text-center text-gray-500 leading-8">
+              {t.project.hoverHint}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+            {projects.map((project, index) => (
+              <ProjectCard
+                key={project.title}
+                imageSrc={project.imageSrc}
+                imageAlt={project.imageAlt}
+                title={project.title}
+                description={project.description}
+                href={buildLocalizedPathname(`/projects/${project.id}`, locale)}
+                cardRef={(node) => {
+                  projectCardRefs.current[index] = node;
+                }}
+                dataProjectIndex={index}
+                visibilityClass={
+                  visibleProjectCards[index]
+                    ? "opacity-100 translate-x-0"
+                    : "opacity-0 -translate-x-8"
+                }
+              />
+            ))}
+          </div>
+          <footer className="flex justify-center">
+            <Link
+              href={projectsHref}
+              className="group bg-main text-white px-8 py-4 rounded-full hover:bg-main/80 focus:bg-main/80 transition-colors duration-200 flex items-center gap-8 w-auto"
+            >
+              <LuArrowRight className="w-8 h-8 transition-transform duration-200 group-hover:translate-x-1 group-focus:translate-x-1" />
+              <span>{t.project.seeAll}</span>
+            </Link>
+          </footer>
+        </>
+      )}
     </section>
   );
 }

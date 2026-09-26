@@ -10,6 +10,7 @@ import {
 import { useAppearSequence } from "@/features/animations/hooks/use-appear-sequence";
 
 export type ExperienceItem = {
+  id: string;
   role: string;
   company: string;
   contractType: string;
@@ -107,9 +108,14 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
         </div>
       </div>
       <div>
+        {experiences.length === 0 ? (
+          <p className="container mx-auto px-4 text-lg text-gray-500 leading-8">
+            {t.experiences.empty}
+          </p>
+        ) : null}
         {experiences.map((experience, index) => (
           <article
-            key={`${experience.company}-${experience.startYear}-${experience.endYear}`}
+            key={experience.id}
             ref={(node) => {
               experienceCardRefs.current[index] = node;
             }}
@@ -132,8 +138,12 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
                 <div className="text-gray-500 flex flex-col gap-2">
                   <p className="flex items-center gap-1">
                     <span>{experience.company}</span>
-                    <span>-</span>
-                    <span>{experience.contractType}</span>
+                    {experience.contractType ? (
+                      <>
+                        <span>-</span>
+                        <span>{experience.contractType}</span>
+                      </>
+                    ) : null}
                   </p>
                   <p>{experience.summary}</p>
                 </div>
@@ -141,7 +151,9 @@ export function ExperiencesSection({ experiences }: ExperiencesSectionProps) {
               <div className="order-1 md:order-2 flex flex-row gap-2 text-4xl md:text-6xl font-semibold uppercase md:justify-end items-center tracking-tight">
                 <span>{experience.startYear}</span>
                 <span>-</span>
-                <span>{experience.endYear}</span>
+                <span>
+                  {experience.endYear || t.experiences.present}
+                </span>
               </div>
             </div>
           </article>

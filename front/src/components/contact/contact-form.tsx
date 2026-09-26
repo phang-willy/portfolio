@@ -83,49 +83,49 @@ export function ContactForm({ className }: ContactFormProps) {
       [
         {
           key: "firstName" as const,
-          label: t.contactForm.fields.firstName,
+          label: t.contact.form.fields.firstName,
           type: "text" as const,
           autoComplete: "given-name",
           required: true,
         },
         {
           key: "lastName" as const,
-          label: t.contactForm.fields.lastName,
+          label: t.contact.form.fields.lastName,
           type: "text" as const,
           autoComplete: "family-name",
           required: true,
         },
         {
           key: "email" as const,
-          label: t.contactForm.fields.email,
+          label: t.contact.form.fields.email,
           type: "email" as const,
           autoComplete: "email",
           required: true,
         },
         {
           key: "phone" as const,
-          label: t.contactForm.fields.phone,
+          label: t.contact.form.fields.phone,
           type: "tel" as const,
           autoComplete: "tel",
           required: true,
         },
         {
           key: "company" as const,
-          label: t.contactForm.fields.company,
+          label: t.contact.form.fields.company,
           type: "text" as const,
           autoComplete: "organization",
           required: false,
         },
         {
           key: "title" as const,
-          label: t.contactForm.fields.title,
+          label: t.contact.form.fields.title,
           type: "text" as const,
           autoComplete: "organization-title",
           required: true,
         },
         {
           key: "message" as const,
-          label: t.contactForm.fields.message,
+          label: t.contact.form.fields.message,
           type: "textarea" as const,
           autoComplete: "off",
           required: true,
@@ -162,7 +162,7 @@ export function ContactForm({ className }: ContactFormProps) {
         if (res.status === 429) {
           setServiceCheck({
             phase: "blocked",
-            message: data.message ?? t.contactForm.errors.rateLimitHealthcheck,
+            message: data.message ?? t.contact.form.errors.rateLimitHealthcheck,
             reason: "RATE_LIMITED",
           });
           return;
@@ -172,7 +172,7 @@ export function ContactForm({ className }: ContactFormProps) {
         } else {
           setServiceCheck({
             phase: "blocked",
-            message: data.message ?? t.contactForm.errors.unavailableGeneric,
+            message: data.message ?? t.contact.form.errors.unavailableGeneric,
             reason: data.reason,
           });
         }
@@ -180,7 +180,7 @@ export function ContactForm({ className }: ContactFormProps) {
         if (!cancelled) {
           setServiceCheck({
             phase: "blocked",
-            message: t.contactForm.errors.unavailableGeneric,
+            message: t.contact.form.errors.unavailableGeneric,
             reason: "NETWORK",
           });
         }
@@ -245,7 +245,7 @@ export function ContactForm({ className }: ContactFormProps) {
       try {
         payload = (await response.json()) as ContactApiResponse;
       } catch {
-        setFormError(t.contactForm.errors.invalidServerResponse);
+        setFormError(t.contact.form.errors.invalidServerResponse);
         return;
       }
 
@@ -263,7 +263,7 @@ export function ContactForm({ className }: ContactFormProps) {
         if (payload.ok === false && payload.error === "CONTACT_UNAVAILABLE") {
           setServiceCheck({
             phase: "blocked",
-            message: payload.message ?? t.contactForm.errors.unavailableGeneric,
+            message: payload.message ?? t.contact.form.errors.unavailableGeneric,
             reason: payload.reason,
           });
           return;
@@ -272,18 +272,18 @@ export function ContactForm({ className }: ContactFormProps) {
         const message =
           payload.ok === false && payload.message
             ? payload.message
-            : t.contactForm.errors.genericSubmit;
+            : t.contact.form.errors.genericSubmit;
         setFormError(message);
         return;
       }
 
       setValues(emptyValues);
-      setSuccessMessage(t.contactForm.success);
+      setSuccessMessage(t.contact.form.success);
       requestAnimationFrame(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
     } catch {
-      setFormError(t.contactForm.errors.network);
+      setFormError(t.contact.form.errors.network);
     } finally {
       setIsSubmitting(false);
     }
@@ -368,7 +368,7 @@ export function ContactForm({ className }: ContactFormProps) {
                   </span>
                 ) : (
                   <span className="text-black/50 dark:text-white/50 font-normal text-xs ml-1">
-                    {t.contactForm.optional}
+                    {t.contact.form.optional}
                   </span>
                 )}
               </label>
@@ -435,7 +435,7 @@ export function ContactForm({ className }: ContactFormProps) {
             disabled={submitDisabled}
             aria-busy={isSubmitting}
             title={
-              submitBlockedHint ? t.contactForm.submitHintBlocked : undefined
+              submitBlockedHint ? t.contact.form.submitHintBlocked : undefined
             }
             className="gap-2"
           >
@@ -445,18 +445,18 @@ export function ContactForm({ className }: ContactFormProps) {
                   className="size-4 shrink-0 animate-spin"
                   aria-hidden
                 />
-                <span>{t.contactForm.submitSending}</span>
+                <span>{t.contact.form.submitSending}</span>
               </>
             ) : serviceCheck.phase === "blocked" ? (
-              t.contactForm.submitUnavailable
+              t.contact.form.submitUnavailable
             ) : (
-              t.contactForm.submit
+              t.contact.form.submit
             )}
           </Button>
           <p className="text-sm text-black/60 dark:text-white/60">
             {submitBlockedHint
-              ? t.contactForm.submitHintFooter
-              : t.contactForm.submitHintRequired}
+              ? t.contact.form.submitHintFooter
+              : t.contact.form.submitHintRequired}
           </p>
         </div>
       </form>

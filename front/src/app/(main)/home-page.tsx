@@ -11,16 +11,18 @@ import { StacksSection } from "@/app/(main)/sections/stacks-section";
 import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import {
-  experiencesForLocale,
+  experienceItemsForLocale,
   projectItemsForLocale,
   servicesForLocale,
   socialLinksForLocale,
 } from "@/features/i18n/lib/localized-site-data";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { appName } from "@/lib/app-name";
+import { loadPublicExperiences } from "@/lib/api/experiences";
 import { getGithubStats } from "@/lib/github-stats";
 import { getProjectsByUpdatedAtDesc } from "@/lib/projects";
 import type { Metadata } from "next";
+import { connection } from "next/server";
 
 export function buildHomeMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
@@ -36,13 +38,17 @@ export function buildHomeMetadata(locale: AppLocale): Metadata {
 }
 
 export async function HomePage({ locale }: { locale: AppLocale }) {
+  await connection();
   const githubStats = await getGithubStats();
 
   const socialLinks: Array<SocialLink> = socialLinksForLocale(locale);
 
   const services = servicesForLocale(locale);
 
-  const experiences = experiencesForLocale(locale);
+  const experiences = experienceItemsForLocale(
+    await loadPublicExperiences(),
+    locale,
+  );
 
   const sortedProjects = await getProjectsByUpdatedAtDesc();
   const projects = projectItemsForLocale(sortedProjects.slice(0, 4), locale);

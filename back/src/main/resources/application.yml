@@ -112,6 +112,10 @@ app:
     docker-socket: ${APP_SERVICE_HEALTH_DOCKER_SOCKET:/var/run/docker.sock}
     restart-probe-delay-millis: ${APP_SERVICE_HEALTH_RESTART_DELAY_MILLIS:3000}
     startup-grace-millis: ${APP_SERVICE_HEALTH_STARTUP_GRACE_MILLIS:180000}
+  sitemap:
+    front-url: ${APP_SITEMAP_FRONT_URL:${APP_SERVICE_HEALTH_FRONT_URL:}}
+    token: ${SITEMAP_GENERATE_TOKEN:}
+    timeout-millis: ${APP_SITEMAP_TIMEOUT_MILLIS:20000}
   rate-limit:
     enabled: ${APP_RATE_LIMIT_ENABLED:true}
     admin-requests-per-second: ${APP_RATE_LIMIT_ADMIN_REQUESTS_PER_SECOND:100}

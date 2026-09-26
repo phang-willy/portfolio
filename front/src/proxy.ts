@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { LOCALE_COOKIE_NAME } from "@/features/i18n/lib/locale-cookie";
 import { resolveRootLocalePreference } from "@/features/i18n/lib/resolve-root-locale-preference";
+import { requestWantsSitemapHtml } from "@/lib/sitemap-html-request";
 
 function applySecurityHeaders(res: NextResponse, request: NextRequest) {
   res.headers.set("X-Content-Type-Options", "nosniff");
@@ -23,6 +24,18 @@ function applySecurityHeaders(res: NextResponse, request: NextRequest) {
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  if (
+    pathname === "/sitemap.xml" &&
+    requestWantsSitemapHtml(
+      request.headers.get("accept"),
+      request.headers.get("user-agent"),
+    )
+  ) {
+    const res = NextResponse.rewrite(new URL("/sitemap-view", request.url));
+    applySecurityHeaders(res, request);
+    return res;
+  }
 
   if (pathname === "/" || pathname === "") {
     const preferred = resolveRootLocalePreference({

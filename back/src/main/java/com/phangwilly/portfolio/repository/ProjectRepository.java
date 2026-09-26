@@ -13,6 +13,14 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
 
   Page<Project> findByDeletedAtIsNullAndDeactivatedAtIsNull(Pageable pageable);
 
+  @Query(
+    """
+    SELECT p FROM Project p
+    WHERE p.deletedAt IS NULL AND p.deactivatedAt IS NULL
+    """
+  )
+  List<Project> findPublicProjects();
+
   Page<Project> findByDeletedAtIsNull(Pageable pageable);
 
   Optional<Project> findByIdAndDeletedAtIsNull(UUID id);

@@ -2,7 +2,7 @@
  * Génère `public/sitemap.xml` à partir de la même logique que l’ancien `app/sitemap.ts`
  * (`getSitemapRecords` dans `src/lib/sitemap-entries.ts`).
  *
- * Usage : `npm run generate:sitemap`
+ * Usage : `npm run generate:sitemap`, ou le bouton « Generate sitemap » du dashboard admin.
  * Cron (ex. tous les jours à 2:00) :
  *   0 2 * * * cd /chemin/vers/portfolio/front && npm run generate:sitemap
  *
@@ -14,10 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import {
-  getSitemapRecords,
-  recordsToSitemapXml,
-} from "../src/lib/sitemap-entries";
+import { writePublicSitemap } from "../src/lib/sitemap-file";
 
 function loadEnvFile(envPath: string) {
   try {
@@ -43,20 +40,15 @@ async function main() {
     path.join(process.cwd(), "..", ".env"),
     path.join(process.cwd(), ".env.local"),
     path.join(process.cwd(), "..", ".env.local"),
+    path.join(process.cwd(), ".env.exemple"),
+    path.join(process.cwd(), "..", ".env.exemple"),
   ].forEach(loadEnvFile);
 
-  const records = await getSitemapRecords();
-  const xml = recordsToSitemapXml(records);
-
-  const outDir = path.join(process.cwd(), "public");
-  if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir, { recursive: true });
-  }
-  const outFile = path.join(outDir, "sitemap.xml");
-  fs.writeFileSync(outFile, xml, "utf8");
+  const urlCount = await writePublicSitemap();
+  const outFile = path.join(process.cwd(), "public", "sitemap.xml");
 
   console.log(
-    `[generate-sitemap-xml] Écrit ${records.length} URL(s) → ${path.relative(process.cwd(), outFile)}`,
+    `[generate-sitemap-xml] Écrit ${urlCount} URL(s) → ${path.relative(process.cwd(), outFile)}`,
   );
 }
 

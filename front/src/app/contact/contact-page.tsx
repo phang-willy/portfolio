@@ -10,11 +10,11 @@ import Link from "next/link";
 export function buildContactMetadata(locale: AppLocale): Metadata {
   const d = getDictionary(locale);
   return {
-    title: `${appName} - ${d.meta.contactTitle}`,
-    description: `${appName} - ${d.meta.contactDescription}`,
+    title: `${appName} - ${d.contact.metaTitle}`,
+    description: `${appName} - ${d.contact.metaDescription}`,
     openGraph: {
-      title: `${appName} - ${d.meta.contactTitle}`,
-      description: `${appName} - ${d.meta.contactDescription}`,
+      title: `${appName} - ${d.contact.metaTitle}`,
+      description: `${appName} - ${d.contact.metaDescription}`,
       ...openGraphLocaleFields(locale),
     },
   };
@@ -31,20 +31,20 @@ export function ContactPage({ locale }: { locale: AppLocale }) {
     >
       <div className="mx-auto max-w-2xl">
         <h1 id="contact-page-title" className="text-3xl font-bold">
-          {d.contactPage.title}
+          {d.contact.title}
         </h1>
         <p className="mt-4 text-base text-black/70 dark:text-white/70">
-          {d.contactPage.intro}
+          {d.contact.intro}
         </p>
         <p className="mt-3 text-sm text-black/60 dark:text-white/60">
-          {d.contactPage.legalLeadIn}{" "}
+          {d.contact.legalLeadIn}{" "}
           <Link
             href={legalsHref}
             className="text-main underline-offset-2 hover:underline focus-visible:underline"
           >
-            {d.contactPage.legalLink}
+            {d.contact.legalLink}
           </Link>
-          {d.contactPage.legalSuffix}
+          {d.contact.legalSuffix}
         </p>
         <ContactForm className="mt-8" />
       </div>
