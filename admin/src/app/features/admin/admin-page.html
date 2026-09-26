@@ -113,4 +113,28 @@
       }
     </div>
   </section>
+
+  <section class="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border bg-card p-5 shadow-lg">
+    <div class="grid gap-1">
+      <h2 class="m-0 text-lg font-bold text-foreground">Sitemap</h2>
+      <p class="m-0 max-w-xl text-sm text-muted-foreground">
+        Regenerate sitemap.xml from the published pages and projects.
+      </p>
+    </div>
+    <button
+      hlmBtn
+      type="button"
+      class="gap-2"
+      [disabled]="sitemapPending()"
+      aria-label="Generate sitemap.xml"
+      (click)="generateSitemap()"
+    >
+      @if (sitemapPending()) {
+        <hlm-spinner aria-label="Generating sitemap" />
+        Generating
+      } @else {
+        Generate sitemap
+      }
+    </button>
+  </section>
 </div>

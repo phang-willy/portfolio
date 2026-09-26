@@ -2,21 +2,14 @@ export const fr = {
   meta: {
     homeTitle: "Portfolio - Développeur Full Stack",
     homeDescription: "Portfolio - Développeur Full Stack",
-    projectsTitle: "Projets",
-    projectsDescription:
-      "Venez découvrir mes projets avec leur contexte, les technologies utilisées et les résultats obtenus.",
-    contactTitle: "Contact",
-    contactDescription:
-      "Contactez pour une mission, une collaboration ou un échange.",
     legalsTitle: "Mentions légales",
     legalsDescription:
       "Informations légales du site: éditeur, hébergement et conditions d'utilisation.",
-    projectFallbackTitle: "Projet",
     stacksMarqueeAria:
       "Technologies et outils - défilement des compétences techniques",
   },
   a11y: {
-    opensInNewWindow: "s’ouvre dans une nouvelle fenêtre",
+    opensInNewWindow: "s'ouvre dans une nouvelle fenêtre",
   },
   nav: {
     homeSr: "Accueil",
@@ -87,14 +80,38 @@ export const fr = {
     title: "Un aperçu de mon parcours",
     description:
       "Un résumé des étapes marquantes de mon parcours de développeur.",
+    present: "Aujourd'hui",
+    empty: "Aucune expérience pour le moment.",
   },
-  projects: {
+  project: {
+    metaTitle: "Projets",
+    metaDescription:
+      "Venez découvrir mes projets avec leur contexte, les technologies utilisées et les résultats obtenus.",
+    fallbackTitle: "Projet",
     badge: "Projets",
     title: "Explorer mes projets",
     description:
       "Découvrez mes projets avec leur contexte, les technologies utilisées",
     hoverHint: "Passer votre souris sur un projet pour en savoir plus.",
     seeAll: "Voir tous les projets",
+    empty: "Aucun projet pour le moment.",
+    page: {
+      title: "Explorer mes projets",
+      intro:
+        "Venez découvrir mes projets avec leur contexte, les technologies utilisées et les résultats obtenus.",
+      hoverHintDesktop: "Passer votre souris sur un projet pour en savoir plus.",
+    },
+    detail: {
+      backToProjects: "Retour aux projets",
+      heroPreview: "Aperçu",
+      stacks: "Stacks / Tags",
+      links: "Liens",
+      siteDemo: "Site / démo",
+      sourceCode: "Code source",
+      information: "Informations",
+      created: "Création :",
+      updated: "Dernière mise à jour :",
+    },
   },
   message: {
     quote1a: "Si vous êtes arrivé.e jusqu'ici, merci pour votre temps.",
@@ -109,24 +126,10 @@ export const fr = {
     profileAlt: "PHANG Willy - Développeur Full Stack",
     sectionAriaLabel: "Message",
   },
-  projectsPage: {
-    title: "Explorer mes projets",
-    intro:
-      "Venez découvrir mes projets avec leur contexte, les technologies utilisées et les résultats obtenus.",
-    hoverHintDesktop: "Passer votre souris sur un projet pour en savoir plus.",
-  },
-  projectDetail: {
-    backToProjects: "Retour aux projets",
-    heroPreview: "Aperçu",
-    stacks: "Stacks / Tags",
-    links: "Liens",
-    siteDemo: "Site / démo",
-    sourceCode: "Code source",
-    information: "Informations",
-    created: "Création :",
-    updated: "Dernière mise à jour :",
-  },
-  contactPage: {
+  contact: {
+    metaTitle: "Contact",
+    metaDescription:
+      "Contactez pour une mission, une collaboration ou un échange.",
     title: "Contact",
     intro:
       "Vous pouvez me contacter pour une mission, une collaboration ou simplement échanger autour d'un projet web. Utilise le formulaire ci-dessous : je réponds dès que possible.",
@@ -134,36 +137,36 @@ export const fr = {
       "En envoyant ce formulaire, vous acceptez le traitement des données indiquées dans les",
     legalLink: "mentions légales",
     legalSuffix: ".",
-  },
-  contactForm: {
-    optional: "(facultatif)",
-    submitSending: "Envoi en cours…",
-    submitUnavailable: "Indisponible",
-    submit: "Envoyer",
-    submitHintBlocked:
-      "Remplissez tous les champs obligatoires pour activer l'envoi.",
-    submitHintFooter:
-      "Complétez tous les champs obligatoires : le bouton d'envoi s'activera automatiquement.",
-    submitHintRequired: "Les champs marqués d'un astérisque sont obligatoires.",
-    success: "Votre message a bien été envoyé. Merci !",
-    errors: {
-      rateLimitHealthcheck:
-        "Trop de vérifications du service. Patientez puis rechargez la page.",
-      invalidServerResponse:
-        "Réponse du serveur invalide. Réessayez plus tard.",
-      genericSubmit: "Une erreur est survenue. Réessayez plus tard.",
-      network: "Impossible de contacter le serveur. Vérifiez votre connexion.",
-      unavailableGeneric:
-        "Le formulaire de contact est momentanément indisponible.\nNous vous prions de nous excuser pour la gêne occasionnée.\nPour toute demande, merci de vous reporter aux coordonnées figurant dans les mentions légales.",
-    },
-    fields: {
-      firstName: "Prénom",
-      lastName: "Nom",
-      email: "Adresse email",
-      phone: "Téléphone",
-      company: "Entreprise",
-      title: "Titre",
-      message: "Message",
+    form: {
+      optional: "(facultatif)",
+      submitSending: "Envoi en cours…",
+      submitUnavailable: "Indisponible",
+      submit: "Envoyer",
+      submitHintBlocked:
+        "Remplissez tous les champs obligatoires pour activer l'envoi.",
+      submitHintFooter:
+        "Complétez tous les champs obligatoires : le bouton d'envoi s'activera automatiquement.",
+      submitHintRequired: "Les champs marqués d'un astérisque sont obligatoires.",
+      success: "Votre message a bien été envoyé. Merci !",
+      errors: {
+        rateLimitHealthcheck:
+          "Trop de vérifications du service. Patientez puis rechargez la page.",
+        invalidServerResponse:
+          "Réponse du serveur invalide. Réessayez plus tard.",
+        genericSubmit: "Une erreur est survenue. Réessayez plus tard.",
+        network: "Impossible de contacter le serveur. Vérifiez votre connexion.",
+        unavailableGeneric:
+          "Le formulaire de contact est momentanément indisponible.\nNous vous prions de nous excuser pour la gêne occasionnée.\nPour toute demande, merci de vous reporter aux coordonnées figurant dans les mentions légales.",
+      },
+      fields: {
+        firstName: "Prénom",
+        lastName: "Nom",
+        email: "Adresse email",
+        phone: "Téléphone",
+        company: "Entreprise",
+        title: "Titre",
+        message: "Message",
+      },
     },
   },
   legals: {

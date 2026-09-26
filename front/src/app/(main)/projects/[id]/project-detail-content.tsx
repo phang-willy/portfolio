@@ -23,10 +23,10 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
   const githubUrl = project.links.github;
   const linkItems = [
     externalUrl
-      ? { href: externalUrl, label: t.projectDetail.siteDemo }
+      ? { href: externalUrl, label: t.project.detail.siteDemo }
       : undefined,
     githubUrl
-      ? { href: githubUrl, label: t.projectDetail.sourceCode }
+      ? { href: githubUrl, label: t.project.detail.sourceCode }
       : undefined,
   ].filter((item): item is { href: string; label: string } => Boolean(item));
 
@@ -58,7 +58,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
       <div className="flex flex-col gap-10">
         <section
           id="back-to-projects"
-          aria-label={t.projectDetail.backToProjects}
+          aria-label={t.project.detail.backToProjects}
           ref={setBlockRef(0)}
           style={getBlockStyle(0)}
           className={getBlockShellClassName(0)}
@@ -69,13 +69,13 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
             className="inline-flex items-center gap-2 text-white px-4 py-2 rounded-full transition-colors w-fit bg-main hover:bg-main/80 focus-visible:bg-main/80"
           >
             <LuArrowLeft className="size-4" aria-hidden />
-            {t.projectDetail.backToProjects}
+            {t.project.detail.backToProjects}
           </Link>
         </section>
 
         <section
           id="thumbnail"
-          aria-label={`${project.name} - ${t.projectDetail.heroPreview}`}
+          aria-label={`${project.name} - ${t.project.detail.heroPreview}`}
           ref={setBlockRef(1)}
           style={getBlockStyle(1)}
           className={getBlockShellClassName(
@@ -112,6 +112,11 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
           <p className="text-lg text-muted-foreground leading-8">
             {project.description}
           </p>
+          {project.content && project.content !== project.description ? (
+            <p className="whitespace-pre-wrap text-lg text-muted-foreground leading-8">
+              {project.content}
+            </p>
+          ) : null}
         </section>
 
         <section
@@ -129,7 +134,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
               id="project-detail-stacks-heading"
               className="text-xl font-semibold"
             >
-              {t.projectDetail.stacks}
+              {t.project.detail.stacks}
             </h2>
           </div>
           <ul className="flex list-none flex-wrap gap-2 p-0">
@@ -165,7 +170,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
               id="project-detail-links-heading"
               className="text-xl font-semibold"
             >
-              {t.projectDetail.links}
+              {t.project.detail.links}
             </h2>
           </div>
           <ul className="flex list-none flex-col gap-2 p-0 sm:flex-row sm:flex-wrap sm:gap-6">
@@ -204,15 +209,15 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
             id="project-detail-information-heading"
             className="text-xl font-semibold"
           >
-            {t.projectDetail.information}
+            {t.project.detail.information}
           </h2>
           <div className="flex flex-col gap-2">
             <p className="text-sm text-muted-foreground">
-              {t.projectDetail.created}{" "}
+              {t.project.detail.created}{" "}
               {formatDateForLocale(project.createdAt, locale)}
             </p>
             <p className="text-sm text-muted-foreground">
-              {t.projectDetail.updated}{" "}
+              {t.project.detail.updated}{" "}
               {formatDateForLocale(project.updatedAt, locale)}
             </p>
           </div>

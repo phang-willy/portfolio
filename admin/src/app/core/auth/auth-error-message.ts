@@ -9,13 +9,13 @@ export function resolveAuthErrorMessage(error: unknown, fallback: string): strin
     return 'Unable to reach the API. Make sure the backend is running on port 8000.';
   }
 
-  if (error.status >= 502 && error.status <= 504) {
-    return 'The API is temporarily unavailable. Check that the backend is running.';
-  }
-
   const bodyMessage = readErrorBodyMessage(error.error);
   if (bodyMessage) {
     return bodyMessage;
+  }
+
+  if (error.status >= 502 && error.status <= 504) {
+    return 'The API is temporarily unavailable. Check that the backend is running.';
   }
 
   return describeStatus(error.status) ?? fallback;

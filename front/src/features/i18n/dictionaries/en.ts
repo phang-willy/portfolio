@@ -4,16 +4,9 @@ export const en: Dictionary = {
   meta: {
     homeTitle: "Portfolio - Full Stack Developer",
     homeDescription: "Portfolio - Full Stack Developer",
-    projectsTitle: "Projects",
-    projectsDescription:
-      "Explore my projects: context, tech stack, and outcomes.",
-    contactTitle: "Contact",
-    contactDescription:
-      "Reach out for a mission, a collaboration, or a conversation.",
     legalsTitle: "Legal notice",
     legalsDescription:
       "Legal information about this site: publisher, hosting, and terms of use.",
-    projectFallbackTitle: "Project",
     stacksMarqueeAria: "Technologies and tools - scrolling skills strip",
   },
   a11y: {
@@ -87,46 +80,56 @@ export const en: Dictionary = {
     badge: "Experience",
     title: "A snapshot of my journey",
     description: "Key milestones in my path as a developer.",
+    present: "Present",
+    empty: "No experience to show yet.",
   },
-  projects: {
+  project: {
+    metaTitle: "Projects",
+    metaDescription:
+      "Explore my projects: context, tech stack, and outcomes.",
+    fallbackTitle: "Project",
     badge: "Projects",
     title: "Explore my projects",
     description:
       "Discover my projects with their context and the technologies used",
     hoverHint: "Hover a project on desktop to learn more.",
     seeAll: "View all projects",
+    empty: "No projects to show yet.",
+    page: {
+      title: "Explore my projects",
+      intro:
+        "Discover my projects with their context, the technologies used, and the results achieved.",
+      hoverHintDesktop: "Hover a project on desktop to learn more.",
+    },
+    detail: {
+      backToProjects: "Back to projects",
+      heroPreview: "Preview",
+      stacks: "Stacks / Tags",
+      links: "Links",
+      siteDemo: "Live site / demo",
+      sourceCode: "Source code",
+      information: "Details",
+      created: "Created:",
+      updated: "Last updated:",
+    },
   },
   message: {
-    quote1a: "If you've made it this far, thank you for your time.",
+    quote1a: "If you have made it this far, thank you for your time.",
     quote1b:
-      "I enjoy building useful, performant, polished products-with the same standards whether it's a marketing site, a business app, or an e-commerce platform.",
+      "I enjoy building useful, performant, polished products-with the same standards whether it is a marketing site, a business app, or an e-commerce platform.",
     quote2:
       "My goal is simple: help you turn an idea into a concrete, durable, pleasant-to-use solution.",
     quote3:
-      "If my approach resonates with you, I'd be glad to discuss your project.",
+      "If my approach resonates with you, I would be glad to discuss your project.",
     name: "Willy PHANG",
     role: "Full Stack Developer",
     profileAlt: "PHANG Willy - Full Stack Developer",
     sectionAriaLabel: "Message",
   },
-  projectsPage: {
-    title: "Explore my projects",
-    intro:
-      "Discover my projects with their context, the technologies used, and the results achieved.",
-    hoverHintDesktop: "Hover a project on desktop to learn more.",
-  },
-  projectDetail: {
-    backToProjects: "Back to projects",
-    heroPreview: "Preview",
-    stacks: "Stacks / Tags",
-    links: "Links",
-    siteDemo: "Live site / demo",
-    sourceCode: "Source code",
-    information: "Details",
-    created: "Created:",
-    updated: "Last updated:",
-  },
-  contactPage: {
+  contact: {
+    metaTitle: "Contact",
+    metaDescription:
+      "Reach out for a mission, a collaboration, or a conversation.",
     title: "Contact",
     intro:
       "You can reach out for a mission, a collaboration, or simply to chat about a web project. Use the form below-I reply as soon as I can.",
@@ -134,34 +137,34 @@ export const en: Dictionary = {
       "By submitting this form, you agree to the processing of the data described in the",
     legalLink: "legal notice",
     legalSuffix: ".",
-  },
-  contactForm: {
-    optional: "(optional)",
-    submitSending: "Sending…",
-    submitUnavailable: "Unavailable",
-    submit: "Send",
-    submitHintBlocked: "Fill all required fields to enable sending.",
-    submitHintFooter:
-      "Complete all required fields-the send button will enable automatically.",
-    submitHintRequired: "Fields marked with an asterisk are required.",
-    success: "Your message was sent successfully. Thank you!",
-    errors: {
-      rateLimitHealthcheck:
-        "Too many service checks. Wait and reload the page.",
-      invalidServerResponse: "Invalid server response. Try again later.",
-      genericSubmit: "Something went wrong. Try again later.",
-      network: "Could not reach the server. Check your connection.",
-      unavailableGeneric:
-        "The contact form is temporarily unavailable.\nWe apologize for the inconvenience.\nFor any request, please use the contact details in the legal notice.",
-    },
-    fields: {
-      firstName: "First name",
-      lastName: "Last name",
-      email: "Email address",
-      phone: "Phone",
-      company: "Company",
-      title: "Job title",
-      message: "Message",
+    form: {
+      optional: "(optional)",
+      submitSending: "Sending…",
+      submitUnavailable: "Unavailable",
+      submit: "Send",
+      submitHintBlocked: "Fill all required fields to enable sending.",
+      submitHintFooter:
+        "Complete all required fields-the send button will enable automatically.",
+      submitHintRequired: "Fields marked with an asterisk are required.",
+      success: "Your message was sent successfully. Thank you!",
+      errors: {
+        rateLimitHealthcheck:
+          "Too many service checks. Wait and reload the page.",
+        invalidServerResponse: "Invalid server response. Try again later.",
+        genericSubmit: "Something went wrong. Try again later.",
+        network: "Could not reach the server. Check your connection.",
+        unavailableGeneric:
+          "The contact form is temporarily unavailable.\nWe apologize for the inconvenience.\nFor any request, please use the contact details in the legal notice.",
+      },
+      fields: {
+        firstName: "First name",
+        lastName: "Last name",
+        email: "Email address",
+        phone: "Phone",
+        company: "Company",
+        title: "Job title",
+        message: "Message",
+      },
     },
   },
   legals: {

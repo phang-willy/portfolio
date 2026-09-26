@@ -39,6 +39,8 @@ export function ProjectImage(props: ProjectImageProps) {
     );
   };
 
+  const unoptimized = currentSrc.startsWith("/api/project/image/");
+
   if (props.fill) {
     return (
       <Image
@@ -48,6 +50,7 @@ export function ProjectImage(props: ProjectImageProps) {
         sizes={props.sizes}
         priority={priority}
         className={className}
+        unoptimized={unoptimized}
         onError={handleError}
       />
     );
@@ -62,6 +65,7 @@ export function ProjectImage(props: ProjectImageProps) {
       loading={props.loading}
       priority={priority}
       className={className}
+      unoptimized={unoptimized}
       onError={handleError}
     />
   );

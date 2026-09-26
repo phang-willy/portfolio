@@ -23,6 +23,18 @@ public interface ProjectStackRepository extends JpaRepository<ProjectStack, UUID
 
   @Query(
     """
+    SELECT ps FROM ProjectStack ps
+    JOIN FETCH ps.stack
+    WHERE ps.deletedAt IS NULL
+      AND ps.stack.deletedAt IS NULL
+      AND ps.project.deletedAt IS NULL
+      AND ps.project.deactivatedAt IS NULL
+    """
+  )
+  List<ProjectStack> findPublicProjectStacks();
+
+  @Query(
+    """
     SELECT DISTINCT ps.stack FROM ProjectStack ps
     WHERE ps.project.slug = :slug AND ps.deletedAt IS NULL AND ps.project.deletedAt IS NULL
     """

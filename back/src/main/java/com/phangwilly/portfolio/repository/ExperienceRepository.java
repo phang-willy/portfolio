@@ -34,4 +34,13 @@ public interface ExperienceRepository extends JpaRepository<Experience, UUID> {
     """
   )
   Page<UUID> findDistinctActiveGroupIds(Pageable pageable);
+
+  @Query(
+    """
+    SELECT e FROM Experience e
+    LEFT JOIN FETCH e.contractType
+    WHERE e.deletedAt IS NULL AND e.deactivatedAt IS NULL
+    """
+  )
+  List<Experience> findPublicExperiences();
 }
