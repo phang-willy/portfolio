@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.phangwilly.portfolio.config.EmailQueueProperties;
+import com.phangwilly.portfolio.enums.EmailChannel;
 import com.phangwilly.portfolio.enums.EmailQueueStatus;
 import com.phangwilly.portfolio.event.EmailQueueChangedEvent;
 import com.phangwilly.portfolio.model.EmailQueue;
@@ -15,6 +16,8 @@ import com.phangwilly.portfolio.model.EmailQueueErrorEntry;
 import com.phangwilly.portfolio.repository.EmailQueueRepository;
 import com.phangwilly.portfolio.security.EmailContentEncryptionService;
 import java.time.Clock;
+import java.util.Map;
+import tools.jackson.databind.json.JsonMapper;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -38,6 +41,10 @@ class EmailQueueDeliveryServiceTest {
   @Mock
   private EmailSender emailSender;
   @Mock
+  private BrevoTemplateMailer brevoTemplateMailer;
+  @Mock
+  private BrevoDeliveryFailureNotifier brevoDeliveryFailureNotifier;
+  @Mock
   private EmailContentEncryptionService encryptionService;
   @Mock
   private ApplicationEventPublisher publisher;
@@ -50,7 +57,10 @@ class EmailQueueDeliveryServiceTest {
       emailQueueRepository,
       new EmailQueueProperties(),
       emailSender,
+      brevoTemplateMailer,
+      brevoDeliveryFailureNotifier,
       encryptionService,
+      JsonMapper.builder().build(),
       publisher,
       Clock.fixed(NOW, ZoneOffset.UTC)
     );
@@ -124,6 +134,47 @@ class EmailQueueDeliveryServiceTest {
     service.deliver(EMAIL_ID);
 
     verifyNoInteractions(emailSender, encryptionService, publisher);
+  }
+
+  @Test
+  void deliverSendsBrevoTemplateAndMarksEmailSent() {
+    EmailQueue email = new EmailQueue(
+      "lea@example.test", "Merci", "enc:v1:cipher", false, NOW, EmailChannel.BREVO
+    );
+    when(emailQueueRepository.findDueByIdForUpdate(EMAIL_ID, NOW)).thenReturn(Optional.of(email));
+    when(encryptionService.decrypt("enc:v1:cipher")).thenReturn(
+      "{\"templateId\":12,\"recipientName\":\"Léa\",\"params\":{\"OBJECT\":\"Merci\"}}"
+    );
+
+    service.deliver(EMAIL_ID);
+
+    verify(brevoTemplateMailer).send(
+      new BrevoTemplatePayload(12, "Léa", Map.of("OBJECT", "Merci")),
+      "lea@example.test",
+      "Merci"
+    );
+    verifyNoInteractions(emailSender);
+    assertThat(email.getStatus()).isEqualTo(EmailQueueStatus.SENT);
+  }
+
+  @Test
+  void brevoFailureIsFinalAndNotifiesTheContactAddress() {
+    EmailQueue email = new EmailQueue(
+      "lea@example.test", "Merci", "enc:v1:cipher", false, NOW, EmailChannel.BREVO
+    );
+    when(emailQueueRepository.findDueByIdForUpdate(EMAIL_ID, NOW)).thenReturn(Optional.of(email));
+    when(encryptionService.decrypt("enc:v1:cipher")).thenReturn(
+      "{\"templateId\":12,\"recipientName\":\"Léa\",\"params\":{}}"
+    );
+    doThrow(new IllegalStateException("Brevo rejected the email (HTTP 401)"))
+      .when(brevoTemplateMailer).send(any(), any(), any());
+
+    service.deliver(EMAIL_ID);
+
+    assertThat(email.getStatus()).isEqualTo(EmailQueueStatus.FAILED);
+    assertThat(email.getAttempts()).isEqualTo(1);
+    verify(brevoDeliveryFailureNotifier).notify(email, "Brevo rejected the email (HTTP 401)");
+    verifyNoInteractions(emailSender);
   }
 
   private static EmailQueue queuedEmail(boolean html) {

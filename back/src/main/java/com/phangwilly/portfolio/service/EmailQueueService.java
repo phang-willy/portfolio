@@ -2,6 +2,7 @@ package com.phangwilly.portfolio.service;
 
 import com.phangwilly.portfolio.config.EmailQueueProperties;
 import com.phangwilly.portfolio.dto.EmailQueueAdminListItem;
+import com.phangwilly.portfolio.enums.EmailChannel;
 import com.phangwilly.portfolio.enums.EmailQueueStatus;
 import com.phangwilly.portfolio.event.EmailDeliveryRequestedEvent;
 import com.phangwilly.portfolio.event.EmailQueueChangedEvent;
@@ -60,12 +61,18 @@ public class EmailQueueService {
 
   @Transactional
   public EmailQueue enqueue(EmailMessage email) {
+    return enqueue(email, EmailChannel.SMTP);
+  }
+
+  @Transactional
+  public EmailQueue enqueue(EmailMessage email, EmailChannel channel) {
     EmailQueue saved = emailQueueRepository.saveAndFlush(new EmailQueue(
       email.recipient(),
       email.subject(),
       emailContentEncryptionService.encrypt(email.body()),
       email.html(),
-      Instant.now(clock)
+      Instant.now(clock),
+      channel == null ? EmailChannel.SMTP : channel
     ));
     publishChange(saved);
     return saved;
@@ -97,6 +104,7 @@ public class EmailQueueService {
     email.resend(Instant.now(clock));
     EmailQueue saved = emailQueueRepository.saveAndFlush(email);
     publishChange(saved);
+    requestDelivery(saved.getId());
     return toListItem(saved);
   }
 

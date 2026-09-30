@@ -1,11 +1,24 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import type { ZodError } from "zod";
 import { LuLoaderCircle } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/features/i18n/hooks/use-i18n";
 import { getContactApiUrl } from "@/lib/contact-api-url";
+import {
+  createSubmitLock,
+  postContact,
+  runExclusive,
+  type ContactApiIssue,
+} from "@/lib/contact-submit";
 import {
   contactSubmissionBodySchema,
   type ContactFormPayload,
@@ -13,18 +26,6 @@ import {
 
 type ContactFormValues = Record<keyof ContactFormPayload, string>;
 type FieldErrorKey = keyof ContactFormValues;
-
-type ContactApiIssue = { path: string[]; message: string };
-
-type ContactApiResponse =
-  | { ok: true }
-  | {
-      ok: false;
-      error: string;
-      message?: string;
-      reason?: string;
-      issues?: ContactApiIssue[];
-    };
 
 type ServiceCheckState =
   | { phase: "ready" }
@@ -143,6 +144,7 @@ export function ContactForm({ className }: ContactFormProps) {
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitLock = useRef(createSubmitLock());
 
   useEffect(() => {
     let cancelled = false;
@@ -228,65 +230,53 @@ export function ContactForm({ className }: ContactFormProps) {
       return;
     }
 
-    if (!contactSubmissionBodySchema.safeParse(submissionBody).success) {
+    const outcome = await runExclusive(submitLock.current, async () => {
+      setIsSubmitting(true);
+      try {
+        return await postContact(parsedLocal.data);
+      } finally {
+        setIsSubmitting(false);
+      }
+    });
+
+    if (!outcome) {
       return;
     }
 
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch(getContactApiUrl("/api/contact"), {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(parsedLocal.data),
-      });
-
-      let payload: ContactApiResponse;
-      try {
-        payload = (await response.json()) as ContactApiResponse;
-      } catch {
-        setFormError(t.contact.form.errors.invalidServerResponse);
-        return;
-      }
-
-      if (!response.ok || !payload.ok) {
-        if (
-          payload.ok === false &&
-          payload.error === "VALIDATION_ERROR" &&
-          payload.issues
-        ) {
-          const nextErrors = issuesToFieldErrors(payload.issues);
-          setFieldErrors(nextErrors);
-          return;
-        }
-
-        if (payload.ok === false && payload.error === "CONTACT_UNAVAILABLE") {
-          setServiceCheck({
-            phase: "blocked",
-            message: payload.message ?? t.contact.form.errors.unavailableGeneric,
-            reason: payload.reason,
-          });
-          return;
-        }
-
-        const message =
-          payload.ok === false && payload.message
-            ? payload.message
-            : t.contact.form.errors.genericSubmit;
-        setFormError(message);
-        return;
-      }
-
-      setValues(emptyValues);
-      setSuccessMessage(t.contact.form.success);
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-    } catch {
-      setFormError(t.contact.form.errors.network);
-    } finally {
-      setIsSubmitting(false);
+    if (outcome.type === "validation") {
+      setFieldErrors(issuesToFieldErrors(outcome.issues));
+      return;
     }
+
+    if (outcome.type === "unavailable") {
+      setServiceCheck({
+        phase: "blocked",
+        message: outcome.message ?? t.contact.form.errors.unavailableGeneric,
+        reason: outcome.reason,
+      });
+      return;
+    }
+
+    if (outcome.type === "invalid") {
+      setFormError(t.contact.form.errors.invalidServerResponse);
+      return;
+    }
+
+    if (outcome.type === "network") {
+      setFormError(t.contact.form.errors.network);
+      return;
+    }
+
+    if (outcome.type === "failure") {
+      setFormError(outcome.message ?? t.contact.form.errors.genericSubmit);
+      return;
+    }
+
+    setValues(emptyValues);
+    setSuccessMessage(t.contact.form.success);
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   };
 
   const inputClassName =
@@ -428,7 +418,7 @@ export function ContactForm({ className }: ContactFormProps) {
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col items-center gap-4">
           <Button
             type="submit"
             variant="main"
@@ -437,7 +427,7 @@ export function ContactForm({ className }: ContactFormProps) {
             title={
               submitBlockedHint ? t.contact.form.submitHintBlocked : undefined
             }
-            className="gap-2"
+            className="gap-2 w-full"
           >
             {isSubmitting ? (
               <>

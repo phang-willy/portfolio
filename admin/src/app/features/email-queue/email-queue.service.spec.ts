@@ -48,6 +48,7 @@ describe('EmailQueueService', () => {
     scheduledAt: '2026-01-01T10:00:00.000Z',
     sentAt: '2026-01-01T10:01:00.000Z',
     createdAt: '2026-01-01T10:00:00.000Z',
+    channel: 'SMTP',
   };
 
   beforeEach(() => {

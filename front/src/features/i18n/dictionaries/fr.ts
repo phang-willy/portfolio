@@ -168,6 +168,27 @@ export const fr = {
         message: "Message",
       },
     },
+    email_brevo: {
+      OBJECT : "Merci beaucoup pour votre message !",
+      BODY : {
+        LINE1 : "Bonjour, Bonsoir",
+        LINE2 : "Merci pour votre message.",
+        LINE3 : "Nous avons bien reçu votre demande concernant :",
+      },
+      LABEL : {
+        LASTNAME : "NOM :",
+        FIRSTNAME : "PRENOM :",
+        EMAIL : "EMAIL :",
+        PHONENUMBER : "TELEPHONE :",
+        COMPANY : "ENTREPRISE :",
+        TITLE : "TITRE :",
+        MESSAGE : "MESSAGE :",
+      },
+      FOOTER: {
+        FOLLOW: "Me retrouver sur",
+        UNFOLLOW: "Se désinsrire"
+      }
+    }
   },
   legals: {
     title: "Mentions légales",
@@ -186,12 +207,12 @@ export const fr = {
     pData1:
       "Les informations transmises via le formulaire de contact (nom, prénom, adresse email, téléphone, entreprise, titre, message) sont utilisées uniquement dans le but de répondre aux demandes de contact.",
     pData2Lead:
-      "Ces données ne sont pas stockées sur le site. Elles sont transmises de manière sécurisée via le service",
+      "Ces données sont enregistrées afin de répondre à votre demande. Un e-mail de confirmation est envoyé via le service",
     pData2Brevo: "Brevo (anciennement Sendinblue)",
     pData2Trail:
-      ", utilisé pour l'envoi des emails, puis reçues sur la boîte de messagerie de l'éditeur du site.",
+      ", qui reçoit le nom, l'adresse email, le téléphone, l'entreprise, le titre et le message pour effectuer cet envoi.",
     pData3:
-      "Aucune donnée personnelle n'est utilisée à des fins commerciales ni cédée à des tiers.",
+      "Aucune donnée personnelle n'est utilisée à des fins commerciales, ni vendue, ni transmise à un autre tiers.",
     pData4:
       "Les données sont conservées uniquement le temps nécessaire au traitement de la demande.",
     pData5Lead: "Conformément au",

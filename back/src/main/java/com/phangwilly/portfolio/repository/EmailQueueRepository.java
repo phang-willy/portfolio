@@ -38,4 +38,10 @@ public interface EmailQueueRepository extends JpaRepository<EmailQueue, UUID> {
   Optional<EmailQueue> findByIdForUpdate(@Param("id") UUID id);
 
   long countByStatus(EmailQueueStatus status);
+
+  boolean existsByRecipientAndSubjectAndCreatedAtGreaterThanEqual(
+    String recipient,
+    String subject,
+    Instant createdAt
+  );
 }

@@ -2,7 +2,11 @@ package com.phangwilly.portfolio.security;
 
 import com.phangwilly.portfolio.config.RateLimitProperties;
 import jakarta.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Set;
+import java.util.regex.Pattern;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,7 +25,11 @@ public class RateLimitKeyResolver {
   private static final String ADMIN_BUCKET_PREFIX = "admin";
   private static final String STANDARD_BUCKET_PREFIX = "standard";
   private static final String ANONYMOUS_BUCKET_PREFIX = "anonymous";
+  private static final String CONTACT_BUCKET_PREFIX = "contact";
   private static final String UNKNOWN_CLIENT = "unknown-client";
+  static final String CLIENT_IP_HEADER = "X-Contact-Client-Ip";
+  static final String PROXY_TOKEN_HEADER = "X-Contact-Proxy-Token";
+  private static final Pattern CLIENT_IP = Pattern.compile("[A-Za-z0-9:._%-]{1,64}");
 
   private final RateLimitProperties properties;
 
@@ -30,6 +38,13 @@ public class RateLimitKeyResolver {
   }
 
   public RateLimitKey resolve(HttpServletRequest request) {
+    if (isContactSubmission(request)) {
+      return new RateLimitKey(
+        CONTACT_BUCKET_PREFIX + ":ip:" + resolveContactClientIp(request),
+        properties.getContactRequestsPerSecond()
+      );
+    }
+
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     boolean admin = hasAdminRole(authentication);
     int requestsPerSecond = admin
@@ -64,10 +79,36 @@ public class RateLimitKeyResolver {
     return ANONYMOUS_BUCKET_PREFIX + ":ip:" + resolveClientIp(request);
   }
 
+  private static boolean isContactSubmission(HttpServletRequest request) {
+    return HttpMethod.POST.matches(request.getMethod())
+      && PublicSecurityPaths.CONTACT_PATH.equals(request.getRequestURI());
+  }
+
   private static boolean isAuthenticatedUser(Authentication authentication) {
     return authentication != null
       && authentication.isAuthenticated()
       && !(authentication instanceof AnonymousAuthenticationToken);
+  }
+
+  private String resolveContactClientIp(HttpServletRequest request) {
+    String configured = properties.getContactProxyToken();
+    if (!configured.isEmpty() && tokenMatches(configured, request.getHeader(PROXY_TOKEN_HEADER))) {
+      String forwarded = request.getHeader(CLIENT_IP_HEADER);
+      if (forwarded != null && CLIENT_IP.matcher(forwarded.trim()).matches()) {
+        return forwarded.trim();
+      }
+    }
+    return resolveClientIp(request);
+  }
+
+  private static boolean tokenMatches(String expected, String provided) {
+    if (provided == null) {
+      return false;
+    }
+    return MessageDigest.isEqual(
+      expected.getBytes(StandardCharsets.UTF_8),
+      provided.getBytes(StandardCharsets.UTF_8)
+    );
   }
 
   private static String resolveClientIp(HttpServletRequest request) {

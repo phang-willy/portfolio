@@ -1,18 +1,24 @@
 import type { BadgeVariants } from '@spartan-ng/helm/badge';
 
-import { CONTACT_STATUS_LABELS, ContactStatus } from '@/app/shared/models/contact.model';
+import { CONTACT_STATUS_LABELS, ContactHistoryType } from '@/app/shared/models/contact.model';
 import { EmailQueueStatus } from '@/app/shared/models/email-queue.model';
 
-export function contactStatusLabel(status: ContactStatus): string {
+export function contactStatusLabel(status: ContactHistoryType): string {
+  if (status === 'CONFIRMATION') {
+    return 'Confirmation';
+  }
   return CONTACT_STATUS_LABELS[status];
 }
 
-export function contactStatusBadge(status: ContactStatus): BadgeVariants['variant'] {
+export function contactStatusBadge(status: ContactHistoryType): BadgeVariants['variant'] {
   if (status === 'RECEIVED') {
     return 'destructive';
   }
   if (status === 'READ') {
     return 'success';
+  }
+  if (status === 'CONFIRMATION') {
+    return 'outline';
   }
   return 'default';
 }

@@ -1,5 +1,6 @@
 package com.phangwilly.portfolio.model;
 
+import com.phangwilly.portfolio.enums.EmailChannel;
 import com.phangwilly.portfolio.enums.EmailQueueStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,6 +38,10 @@ public class EmailQueue extends UuidPrimaryKeyEntity {
   @Column(nullable = false, length = STATUS_MAX_LENGTH)
   private EmailQueueStatus status = EmailQueueStatus.PENDING;
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = STATUS_MAX_LENGTH)
+  private EmailChannel channel = EmailChannel.SMTP;
+
   @Column(nullable = false)
   private int attempts;
 
@@ -62,11 +67,18 @@ public class EmailQueue extends UuidPrimaryKeyEntity {
   }
 
   public EmailQueue(String recipient, String subject, String body, boolean html, Instant scheduledAt) {
+    this(recipient, subject, body, html, scheduledAt, EmailChannel.SMTP);
+  }
+
+  public EmailQueue(
+    String recipient, String subject, String body, boolean html, Instant scheduledAt, EmailChannel channel
+  ) {
     this.recipient = recipient;
     this.subject = subject;
     this.body = body;
     this.html = html;
     this.scheduledAt = scheduledAt;
+    this.channel = channel == null ? EmailChannel.SMTP : channel;
   }
 
   public String getRecipient() {
@@ -83,6 +95,10 @@ public class EmailQueue extends UuidPrimaryKeyEntity {
 
   public boolean isHtml() {
     return html;
+  }
+
+  public EmailChannel getChannel() {
+    return channel == null ? EmailChannel.SMTP : channel;
   }
 
   public EmailQueueStatus getStatus() {

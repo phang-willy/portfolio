@@ -76,6 +76,7 @@
                 *ngTemplateOutlet="sortHeader; context: { $implicit: 'subject', label: 'Subject' }"
               />
             </th>
+            <th hlmTh class="min-w-24 font-bold">Channel</th>
             <th hlmTh class="min-w-28 font-bold">
               <ng-container
                 *ngTemplateOutlet="sortHeader; context: { $implicit: 'status', label: 'Status' }"
@@ -116,7 +117,7 @@
         <tbody hlmTBody>
           @if (isLoading()) {
             <tr hlmTr>
-              <td hlmTd colspan="8" class="py-10 text-center text-muted-foreground">
+              <td hlmTd colspan="9" class="py-10 text-center text-muted-foreground">
                 <span class="inline-flex items-center justify-center gap-2">
                   <hlm-spinner aria-label="Loading email queue" />
                   Loading emails...
@@ -125,7 +126,7 @@
             </tr>
           } @else if (paginatedEmails().length === 0) {
             <tr hlmTr>
-              <td hlmTd colspan="8" class="py-10 text-center text-muted-foreground">
+              <td hlmTd colspan="9" class="py-10 text-center text-muted-foreground">
                 <span class="inline-flex flex-col items-center gap-2">
                   <ng-icon hlm size="lg" name="lucideInbox" class="text-muted-foreground/70" />
                   No emails found.
@@ -139,6 +140,7 @@
                   <span class="font-semibold">{{ email.recipient }}</span>
                 </td>
                 <td hlmTd>{{ email.subject }}</td>
+                <td hlmTd>{{ email.channel === 'BREVO' ? 'Brevo' : 'SMTP' }}</td>
                 <td hlmTd>
                   <ng-container
                     *ngTemplateOutlet="statusBadge; context: { $implicit: email.status }"
@@ -213,6 +215,9 @@
 
               <dt class="font-semibold text-foreground">Subject:</dt>
               <dd class="m-0 text-end">{{ email.subject }}</dd>
+
+              <dt class="font-semibold text-foreground">Channel:</dt>
+              <dd class="m-0 text-end">{{ email.channel === 'BREVO' ? 'Brevo' : 'SMTP' }}</dd>
 
               <dt class="font-semibold text-foreground">Status:</dt>
               <dd class="m-0 flex justify-end">
@@ -424,7 +429,13 @@
       <h2 hlmAlertDialogTitle>Resend email</h2>
       <p hlmAlertDialogDescription>
         Queue <strong>{{ resendTarget()?.subject }}</strong> to
-        <strong>{{ resendTarget()?.recipient }}</strong> again. Previous errors stay in the history.
+        <strong>{{ resendTarget()?.recipient }}</strong> again.
+        @if (resendTarget()?.channel === 'BREVO') {
+          The original Brevo template is sent again.
+        } @else {
+          The original SMTP message is sent again.
+        }
+        Previous errors stay in the history.
       </p>
     </hlm-alert-dialog-header>
     <form [formGroup]="resendForm" (ngSubmit)="acceptResend()">

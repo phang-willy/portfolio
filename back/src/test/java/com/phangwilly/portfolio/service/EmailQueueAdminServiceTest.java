@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.phangwilly.portfolio.config.EmailQueueProperties;
 import com.phangwilly.portfolio.dto.EmailQueueAdminListItem;
 import com.phangwilly.portfolio.dto.PageResponse;
+import com.phangwilly.portfolio.enums.EmailChannel;
 import com.phangwilly.portfolio.enums.EmailQueueStatus;
 import com.phangwilly.portfolio.exception.ApiException;
 import com.phangwilly.portfolio.model.EmailQueue;
@@ -86,7 +87,8 @@ class EmailQueueAdminServiceTest {
         null,
         SCHEDULED_AT,
         SENT_AT,
-        CREATED_AT
+        CREATED_AT,
+        EmailChannel.SMTP
       )
     );
     verify(email, never()).getBody();
@@ -124,7 +126,8 @@ class EmailQueueAdminServiceTest {
       null,
       SCHEDULED_AT,
       null,
-      CREATED_AT
+      CREATED_AT,
+      EmailChannel.SMTP
     );
     when(currentUserService.requireAdmin())
       .thenReturn(new AuthenticatedUser(UUID.randomUUID(), "admin@example.com", UserRole.ADMIN, "hash"));
