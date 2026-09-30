@@ -1,5 +1,7 @@
 export type EmailQueueStatus = 'PENDING' | 'SENT' | 'FAILED';
 
+export type EmailChannel = 'SMTP' | 'BREVO';
+
 export interface EmailQueueErrorEntry {
   readonly at: string;
   readonly message: string;
@@ -16,6 +18,7 @@ export interface EmailQueueAdminListItem {
   readonly scheduledAt: string;
   readonly sentAt: string | null;
   readonly createdAt: string;
+  readonly channel: EmailChannel;
 }
 
 export interface EmailQueueResendInput {

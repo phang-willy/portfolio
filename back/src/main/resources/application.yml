@@ -91,6 +91,20 @@ app:
   email:
     from: ${SMTP_FROM:noreply@phangwilly.local}
     time-zone: ${APP_EMAIL_TIME_ZONE:Europe/Paris}
+  brevo:
+    api-key: ${BREVO_API_KEY:}
+    sender-email: ${BREVO_SENDER_EMAIL:}
+    sender-name: ${BREVO_SENDER_NAME:}
+    contact-template-id: ${BREVO_CONTACT_V2_USER_TEMPLATE_ID:}
+    api-url: ${BREVO_API_URL:https://api.brevo.com/v3/smtp/email}
+    contact-to-email: ${CONTACT_TO_EMAIL:}
+  github-stats:
+    token: ${GITHUB_TOKEN:}
+    username: ${GITHUB_USERNAME:}
+    refresh-interval-millis: ${APP_GITHUB_STATS_REFRESH_MILLIS:10800000}
+  github-token-reminder:
+    token: ${GITHUB_TOKEN:}
+    cron: ${APP_GITHUB_TOKEN_REMINDER_CRON:0 5 2 * * *}
   service-health:
     interval-millis: ${APP_SERVICE_HEALTH_INTERVAL_MILLIS:15000}
     timeout-millis: ${APP_SERVICE_HEALTH_TIMEOUT_MILLIS:3000}
@@ -120,6 +134,10 @@ app:
     enabled: ${APP_RATE_LIMIT_ENABLED:true}
     admin-requests-per-second: ${APP_RATE_LIMIT_ADMIN_REQUESTS_PER_SECOND:100}
     standard-requests-per-second: ${APP_RATE_LIMIT_STANDARD_REQUESTS_PER_SECOND:50}
+    # Public POST /api/contact persists a row. 1/s per IP is separate from the
+    # anonymous 50/s budget so a form flood cannot fill PostgreSQL or block public reads.
+    # The Next.js proxy applies a stricter window (12 requests / 15 minutes) first.
+    contact-requests-per-second: ${APP_RATE_LIMIT_CONTACT_REQUESTS_PER_SECOND:1}
     bucket-ttl-millis: ${APP_RATE_LIMIT_BUCKET_TTL_MILLIS:600000}
     cleanup-interval-millis: ${APP_RATE_LIMIT_CLEANUP_INTERVAL_MILLIS:300000}
   project-images:

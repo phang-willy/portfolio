@@ -61,6 +61,19 @@ class RateLimitKeyResolverTest {
   }
 
   @Test
+  void resolvesADedicatedContactLimitForThePublicSubmission() {
+    properties.setContactRequestsPerSecond(1);
+    properties.setStandardRequestsPerSecond(50);
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/contact");
+    request.setRemoteAddr("203.0.113.8");
+
+    RateLimitKey key = resolver.resolve(request);
+
+    assertThat(key.bucketKey()).isEqualTo("contact:ip:203.0.113.8");
+    assertThat(key.requestsPerSecond()).isEqualTo(1);
+  }
+
+  @Test
   void resolvesAnonymousLimitFromRemoteAddress() {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRemoteAddr("127.0.0.1");

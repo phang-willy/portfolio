@@ -36,6 +36,22 @@ class JwtSessionAuthenticationFilterTest {
     assertThat(response.getStatus()).isEqualTo(200);
   }
 
+  @Test
+  void skipsPublicContactPostWithoutAJwt() throws Exception {
+    Clock clock = Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC);
+    JwtSessionAuthenticationFilter filter = new JwtSessionAuthenticationFilter(
+      null, null, null, null, null, clock
+    );
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/contact");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    RecordingFilterChain filterChain = new RecordingFilterChain();
+
+    filter.doFilter(request, response, filterChain);
+
+    assertThat(filterChain.called()).isTrue();
+    assertThat(response.getStatus()).isEqualTo(200);
+  }
+
   private static final class RecordingFilterChain implements FilterChain {
 
     private boolean called;

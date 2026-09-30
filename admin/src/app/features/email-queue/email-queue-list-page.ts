@@ -196,7 +196,7 @@ export class EmailQueueListPage {
   }
 
   protected canResend(email: EmailQueueAdminListItem): boolean {
-    return email.status === 'FAILED' && email.attempts >= email.maxAttempts;
+    return email.status === 'FAILED';
   }
 
   protected hasErrorHistory(email: EmailQueueAdminListItem): boolean {

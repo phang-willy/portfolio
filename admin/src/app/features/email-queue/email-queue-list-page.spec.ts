@@ -37,6 +37,7 @@ const ITEM: EmailQueueAdminListItem = {
   scheduledAt: '2026-01-01T10:00:00.000Z',
   sentAt: '2026-01-01T10:01:00.000Z',
   createdAt: '2026-01-01T10:00:00.000Z',
+  channel: 'SMTP',
 };
 
 const FAILED: EmailQueueAdminListItem = {
@@ -110,6 +111,7 @@ describe('EmailQueueListPage', () => {
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
 
     expect(component.canResend(FAILED)).toBe(true);
+    expect(component.canResend({ ...FAILED, attempts: 1, channel: 'BREVO' })).toBe(true);
     expect(component.canResend(ITEM)).toBe(false);
     expect(text).toContain('3/3');
     expect(text).not.toContain('smtp down');

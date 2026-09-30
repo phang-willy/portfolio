@@ -21,6 +21,8 @@ public final class PublicSecurityPaths {
   public static final String PROJECT_PATH = "/api/project";
   public static final String PROJECT_IMAGE_PATTERN = "/api/project/image/**";
   public static final String EXPERIENCE_PATH = "/api/experience";
+  public static final String CONTACT_PATH = "/api/contact";
+  public static final String GITHUB_STATS_PATH = "/api/github-stats";
   public static final String ACTUATOR_PATTERN = "/actuator/**";
   public static final String ADMIN_FRONT_PATTERN = "/admin/**";
 
@@ -39,6 +41,8 @@ public final class PublicSecurityPaths {
     PROJECT_PATH,
     PROJECT_IMAGE_PATTERN,
     EXPERIENCE_PATH,
+    CONTACT_PATH,
+    GITHUB_STATS_PATH,
     ACTUATOR_PATTERN,
     ADMIN_FRONT_PATTERN
   };

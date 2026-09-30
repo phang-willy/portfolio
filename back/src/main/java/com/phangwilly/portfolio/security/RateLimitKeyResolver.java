@@ -3,6 +3,7 @@ package com.phangwilly.portfolio.security;
 import com.phangwilly.portfolio.config.RateLimitProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Set;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,6 +22,7 @@ public class RateLimitKeyResolver {
   private static final String ADMIN_BUCKET_PREFIX = "admin";
   private static final String STANDARD_BUCKET_PREFIX = "standard";
   private static final String ANONYMOUS_BUCKET_PREFIX = "anonymous";
+  private static final String CONTACT_BUCKET_PREFIX = "contact";
   private static final String UNKNOWN_CLIENT = "unknown-client";
 
   private final RateLimitProperties properties;
@@ -30,6 +32,13 @@ public class RateLimitKeyResolver {
   }
 
   public RateLimitKey resolve(HttpServletRequest request) {
+    if (isContactSubmission(request)) {
+      return new RateLimitKey(
+        CONTACT_BUCKET_PREFIX + ":ip:" + resolveClientIp(request),
+        properties.getContactRequestsPerSecond()
+      );
+    }
+
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     boolean admin = hasAdminRole(authentication);
     int requestsPerSecond = admin
@@ -62,6 +71,11 @@ public class RateLimitKeyResolver {
     }
 
     return ANONYMOUS_BUCKET_PREFIX + ":ip:" + resolveClientIp(request);
+  }
+
+  private static boolean isContactSubmission(HttpServletRequest request) {
+    return HttpMethod.POST.matches(request.getMethod())
+      && PublicSecurityPaths.CONTACT_PATH.equals(request.getRequestURI());
   }
 
   private static boolean isAuthenticatedUser(Authentication authentication) {

@@ -3,6 +3,8 @@ import { EmailQueueStatus } from './email-queue.model';
 
 export type ContactStatus = 'RECEIVED' | 'READ' | 'REPLIED';
 
+export type ContactHistoryType = ContactStatus | 'CONFIRMATION';
+
 export interface ContactAdminListItem {
   readonly id: string;
   readonly firstname: string;
@@ -17,7 +19,7 @@ export interface ContactAdminListItem {
 
 export interface ContactHistoryEntry {
   readonly id: string;
-  readonly type: ContactStatus;
+  readonly type: ContactHistoryType;
   readonly createdAt: string;
   readonly actorId: string | null;
   readonly actorName: string | null;

@@ -166,6 +166,27 @@ export const en: Dictionary = {
         message: "Message",
       },
     },
+    email_brevo: {
+      OBJECT: "Thank you very much for your message!",
+      BODY: {
+        LINE1: "Hello, good evening",
+        LINE2: "Thank you for your message.",
+        LINE3: "We have received your request regarding",
+      },
+      LABEL: {
+        LASTNAME: "LASTNAME :",
+        FIRSTNAME: "FIRSTNAME :",
+        EMAIL: "EMAIL :",
+        PHONENUMBER: "PHONE NUMBER :",
+        COMPANY: "COMPANY :",
+        TITLE: "TITLE :",
+        MESSAGE: "MESSAGE :",
+      },
+      FOOTER: {
+        FOLLOW: "Find me on",
+        UNFOLLOW: "Unfollow",
+      },
+    },
   },
   legals: {
     title: "Legal notice",
@@ -183,11 +204,8 @@ export const en: Dictionary = {
     personalData: "Personal data",
     pData1:
       "Information sent via the contact form (first name, last name, email, phone, company, title, message) is used only to respond to contact requests.",
-    pData2Lead:
-      "This data is not stored on the site. It is transmitted securely through",
-    pData2Brevo: "Brevo (formerly Sendinblue)",
-    pData2Trail:
-      ", used to send emails, then received in the site publisher's mailbox.",
+    pData2:
+      "This data is stored so your request can be answered. The reply is sent by email.",
     pData3:
       "Personal data is not used for marketing nor shared with third parties.",
     pData4: "Data is kept only as long as needed to handle the request.",

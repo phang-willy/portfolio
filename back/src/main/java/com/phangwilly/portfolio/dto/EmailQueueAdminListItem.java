@@ -1,6 +1,7 @@
 package com.phangwilly.portfolio.dto;
 
 import com.phangwilly.portfolio.config.EmailQueueProperties;
+import com.phangwilly.portfolio.enums.EmailChannel;
 import com.phangwilly.portfolio.enums.EmailQueueStatus;
 import com.phangwilly.portfolio.model.EmailQueue;
 import com.phangwilly.portfolio.model.EmailQueueErrorEntry;
@@ -18,7 +19,8 @@ public record EmailQueueAdminListItem(
   List<EmailQueueErrorEntry> lastError,
   Instant scheduledAt,
   Instant sentAt,
-  Instant createdAt
+  Instant createdAt,
+  EmailChannel channel
 ) {
 
   public static EmailQueueAdminListItem from(EmailQueue email) {
@@ -37,7 +39,8 @@ public record EmailQueueAdminListItem(
       errors.isEmpty() ? null : errors,
       email.getScheduledAt(),
       email.getSentAt(),
-      email.getCreatedAt()
+      email.getCreatedAt(),
+      email.getChannel()
     );
   }
 }

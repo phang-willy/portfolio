@@ -98,23 +98,7 @@ export function LegalsPage({ locale }: { locale: AppLocale }) {
         <article className="flex flex-col gap-2">
           <h2 className="text-2xl font-bold">{t.personalData}</h2>
           <p>{t.pData1}</p>
-          <p>
-            {t.pData2Lead}{" "}
-            <Link
-              href="https://www.brevo.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center text-main hover:text-main/80 focus-visible:text-main/80 transition-colors duration-200"
-            >
-              {t.pData2Brevo}{" "}
-              <LuArrowUpRight
-                aria-hidden
-                className="size-4 shrink-0 transition-opacity duration-200 xl:opacity-0 xl:group-hover:opacity-100 xl:group-focus-visible:opacity-100"
-              />
-              <span className="sr-only"> - {d.a11y.opensInNewWindow}</span>
-            </Link>
-            {t.pData2Trail}
-          </p>
+          <p>{t.pData2}</p>
           <p>{t.pData3}</p>
           <p>{t.pData4}</p>
           <p>

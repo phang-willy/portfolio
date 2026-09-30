@@ -8,12 +8,14 @@ public class RateLimitProperties {
   public static final boolean DEFAULT_ENABLED = true;
   public static final int DEFAULT_ADMIN_REQUESTS_PER_SECOND = 100;
   public static final int DEFAULT_STANDARD_REQUESTS_PER_SECOND = 50;
+  public static final int DEFAULT_CONTACT_REQUESTS_PER_SECOND = 1;
   public static final long DEFAULT_BUCKET_TTL_MILLIS = 600_000L;
   public static final long DEFAULT_CLEANUP_INTERVAL_MILLIS = 300_000L;
 
   private boolean enabled = DEFAULT_ENABLED;
   private int adminRequestsPerSecond = DEFAULT_ADMIN_REQUESTS_PER_SECOND;
   private int standardRequestsPerSecond = DEFAULT_STANDARD_REQUESTS_PER_SECOND;
+  private int contactRequestsPerSecond = DEFAULT_CONTACT_REQUESTS_PER_SECOND;
   private long bucketTtlMillis = DEFAULT_BUCKET_TTL_MILLIS;
   private long cleanupIntervalMillis = DEFAULT_CLEANUP_INTERVAL_MILLIS;
 
@@ -44,6 +46,17 @@ public class RateLimitProperties {
     this.standardRequestsPerSecond = positiveOrDefault(
       standardRequestsPerSecond,
       DEFAULT_STANDARD_REQUESTS_PER_SECOND
+    );
+  }
+
+  public int getContactRequestsPerSecond() {
+    return contactRequestsPerSecond;
+  }
+
+  public void setContactRequestsPerSecond(int contactRequestsPerSecond) {
+    this.contactRequestsPerSecond = positiveOrDefault(
+      contactRequestsPerSecond,
+      DEFAULT_CONTACT_REQUESTS_PER_SECOND
     );
   }
 

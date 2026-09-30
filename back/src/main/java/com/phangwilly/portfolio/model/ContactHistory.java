@@ -66,6 +66,14 @@ public class ContactHistory extends AuditableEntity {
     );
   }
 
+  public static ContactHistory confirmation(
+    Contact contact, String subject, String message, String actorName, EmailQueue email
+  ) {
+    return new ContactHistory(
+      contact, ContactHistoryType.CONFIRMATION, null, actorName, subject, message, email
+    );
+  }
+
   public Contact getContact() { return contact; }
 
   public ContactHistoryType getType() { return type; }

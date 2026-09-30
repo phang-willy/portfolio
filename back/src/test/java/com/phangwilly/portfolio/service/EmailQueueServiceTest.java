@@ -152,6 +152,7 @@ class EmailQueueServiceTest {
     assertThat(item.status()).isEqualTo(EmailQueueStatus.PENDING);
     assertThat(item.lastError()).containsExactly(new EmailQueueErrorEntry(NOW, "smtp down"));
     verify(applicationEventPublisher).publishEvent(any(EmailQueueChangedEvent.class));
+    verify(applicationEventPublisher).publishEvent(any(EmailDeliveryRequestedEvent.class));
   }
 
   @Test

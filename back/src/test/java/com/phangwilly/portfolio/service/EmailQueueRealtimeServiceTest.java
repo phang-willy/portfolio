@@ -52,7 +52,8 @@ class EmailQueueRealtimeServiceTest {
       List.of(new EmailQueueErrorEntry("2026-01-01T10:00:00Z", "smtp down")),
       Instant.parse("2026-01-01T10:00:00Z"),
       null,
-      Instant.parse("2026-01-01T10:00:00Z")
+      Instant.parse("2026-01-01T10:00:00Z"),
+      com.phangwilly.portfolio.enums.EmailChannel.SMTP
     );
     when(emailQueueRepository.countByStatus(EmailQueueStatus.FAILED)).thenReturn(2L);
 
