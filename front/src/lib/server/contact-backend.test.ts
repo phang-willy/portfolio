@@ -20,6 +20,7 @@ describe("contact backend proxy", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
     delete process.env.BACKEND_API_URL;
+    delete process.env.CONTACT_PROXY_TOKEN;
   });
 
   it("posts only the public fields to Spring", async () => {
@@ -32,13 +33,12 @@ describe("contact backend proxy", () => {
       ok: true,
     });
 
-    const init = fetchImpl.mock.calls[0]?.[1] as RequestInit;
-    expect(init.headers).toEqual({ "content-type": "application/json" });
     expect(fetchImpl).toHaveBeenCalledWith(
       "http://backend.test/api/contact",
       expect.objectContaining({
         method: "POST",
         cache: "no-store",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
           firstName: "Test",
           lastName: "Contact",
@@ -63,12 +63,16 @@ describe("contact backend proxy", () => {
 
     await submitContactToBackend(payload, fetchImpl, {}, "203.0.113.9");
 
-    const init = fetchImpl.mock.calls[0]?.[1] as RequestInit;
-    expect(init.headers).toEqual({
-      "content-type": "application/json",
-      "x-contact-proxy-token": "proxy-secret",
-      "x-contact-client-ip": "203.0.113.9",
-    });
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "http://backend.test/api/contact",
+      expect.objectContaining({
+        headers: {
+          "content-type": "application/json",
+          "x-contact-proxy-token": "proxy-secret",
+          "x-contact-client-ip": "203.0.113.9",
+        },
+      }),
+    );
   });
 
   it("maps a backend validation failure without forwarding its body", async () => {
