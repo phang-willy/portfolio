@@ -74,6 +74,33 @@ class RateLimitKeyResolverTest {
   }
 
   @Test
+  void keysContactLimitByTheVisitorIpWhenTheProxyTokenMatches() {
+    properties.setContactRequestsPerSecond(1);
+    properties.setContactProxyToken("proxy-secret");
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/contact");
+    request.setRemoteAddr("10.0.0.8");
+    request.addHeader(RateLimitKeyResolver.PROXY_TOKEN_HEADER, "proxy-secret");
+    request.addHeader(RateLimitKeyResolver.CLIENT_IP_HEADER, "203.0.113.9");
+
+    RateLimitKey key = resolver.resolve(request);
+
+    assertThat(key.bucketKey()).isEqualTo("contact:ip:203.0.113.9");
+  }
+
+  @Test
+  void ignoresAVisitorIpHeaderWhenTheProxyTokenDoesNotMatch() {
+    properties.setContactProxyToken("proxy-secret");
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/contact");
+    request.setRemoteAddr("10.0.0.8");
+    request.addHeader(RateLimitKeyResolver.PROXY_TOKEN_HEADER, "other-secret");
+    request.addHeader(RateLimitKeyResolver.CLIENT_IP_HEADER, "203.0.113.9");
+
+    RateLimitKey key = resolver.resolve(request);
+
+    assertThat(key.bucketKey()).isEqualTo("contact:ip:10.0.0.8");
+  }
+
+  @Test
   void resolvesAnonymousLimitFromRemoteAddress() {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRemoteAddr("127.0.0.1");

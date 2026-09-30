@@ -204,10 +204,13 @@ export const en: Dictionary = {
     personalData: "Personal data",
     pData1:
       "Information sent via the contact form (first name, last name, email, phone, company, title, message) is used only to respond to contact requests.",
-    pData2:
-      "This data is stored so your request can be answered. The reply is sent by email.",
+    pData2Lead:
+      "This data is stored so your request can be answered. A confirmation email is sent through",
+    pData2Brevo: "Brevo (formerly Sendinblue)",
+    pData2Trail:
+      ", which receives the name, email address, phone number, company, title, and message in order to send that email.",
     pData3:
-      "Personal data is not used for marketing nor shared with third parties.",
+      "Personal data is not used for marketing and is not sold or passed on to any other third party.",
     pData4: "Data is kept only as long as needed to handle the request.",
     pData5Lead: "Under the",
     gdpr: "General Data Protection Regulation (GDPR)",

@@ -3,6 +3,7 @@ package com.phangwilly.portfolio.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.phangwilly.portfolio.config.GithubStatsProperties;
 import com.phangwilly.portfolio.dto.GithubStatsResponse;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ class GithubStatsServiceTest {
   void refreshStoresStatsAndKeepsThemWhenTheNextFetchFails() {
     GithubStatsResponse stats = new GithubStatsResponse(10, 4, 2, 6);
     when(client.fetch()).thenReturn(Optional.of(stats), Optional.empty());
-    GithubStatsService service = new GithubStatsService(client);
+    GithubStatsService service = new GithubStatsService(client, new GithubStatsProperties());
 
     service.refresh();
     service.refresh();
@@ -32,7 +33,7 @@ class GithubStatsServiceTest {
   void refreshKeepsThePreviousSnapshotWhenGithubFails() {
     GithubStatsResponse stats = new GithubStatsResponse(10, 4, 2, 6);
     when(client.fetch()).thenReturn(Optional.of(stats)).thenThrow(new IllegalStateException("down"));
-    GithubStatsService service = new GithubStatsService(client);
+    GithubStatsService service = new GithubStatsService(client, new GithubStatsProperties());
 
     service.refresh();
     service.refresh();

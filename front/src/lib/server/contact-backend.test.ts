@@ -32,6 +32,8 @@ describe("contact backend proxy", () => {
       ok: true,
     });
 
+    const init = fetchImpl.mock.calls[0]?.[1] as RequestInit;
+    expect(init.headers).toEqual({ "content-type": "application/json" });
     expect(fetchImpl).toHaveBeenCalledWith(
       "http://backend.test/api/contact",
       expect.objectContaining({
@@ -50,6 +52,23 @@ describe("contact backend proxy", () => {
         }),
       }),
     );
+  });
+
+  it("forwards the visitor ip only when the proxy token is set", async () => {
+    process.env.BACKEND_API_URL = "http://backend.test";
+    process.env.CONTACT_PROXY_TOKEN = "proxy-secret";
+    const fetchImpl = vi.fn(async () =>
+      Response.json({ success: true, code: 200, message: "OK", data: null }),
+    );
+
+    await submitContactToBackend(payload, fetchImpl, {}, "203.0.113.9");
+
+    const init = fetchImpl.mock.calls[0]?.[1] as RequestInit;
+    expect(init.headers).toEqual({
+      "content-type": "application/json",
+      "x-contact-proxy-token": "proxy-secret",
+      "x-contact-client-ip": "203.0.113.9",
+    });
   });
 
   it("maps a backend validation failure without forwarding its body", async () => {

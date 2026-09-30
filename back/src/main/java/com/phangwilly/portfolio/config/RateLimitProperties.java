@@ -16,6 +16,7 @@ public class RateLimitProperties {
   private int adminRequestsPerSecond = DEFAULT_ADMIN_REQUESTS_PER_SECOND;
   private int standardRequestsPerSecond = DEFAULT_STANDARD_REQUESTS_PER_SECOND;
   private int contactRequestsPerSecond = DEFAULT_CONTACT_REQUESTS_PER_SECOND;
+  private String contactProxyToken = "";
   private long bucketTtlMillis = DEFAULT_BUCKET_TTL_MILLIS;
   private long cleanupIntervalMillis = DEFAULT_CLEANUP_INTERVAL_MILLIS;
 
@@ -58,6 +59,14 @@ public class RateLimitProperties {
       contactRequestsPerSecond,
       DEFAULT_CONTACT_REQUESTS_PER_SECOND
     );
+  }
+
+  public String getContactProxyToken() {
+    return contactProxyToken == null ? "" : contactProxyToken.trim();
+  }
+
+  public void setContactProxyToken(String contactProxyToken) {
+    this.contactProxyToken = contactProxyToken;
   }
 
   public long getBucketTtlMillis() {

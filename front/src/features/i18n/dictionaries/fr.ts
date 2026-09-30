@@ -206,10 +206,13 @@ export const fr = {
     personalData: "Données personnelles",
     pData1:
       "Les informations transmises via le formulaire de contact (nom, prénom, adresse email, téléphone, entreprise, titre, message) sont utilisées uniquement dans le but de répondre aux demandes de contact.",
-    pData2:
-      "Ces données sont enregistrées afin de répondre à votre demande. La réponse vous est envoyée par email.",
+    pData2Lead:
+      "Ces données sont enregistrées afin de répondre à votre demande. Un e-mail de confirmation est envoyé via le service",
+    pData2Brevo: "Brevo (anciennement Sendinblue)",
+    pData2Trail:
+      ", qui reçoit le nom, l'adresse email, le téléphone, l'entreprise, le titre et le message pour effectuer cet envoi.",
     pData3:
-      "Aucune donnée personnelle n'est utilisée à des fins commerciales ni cédée à des tiers.",
+      "Aucune donnée personnelle n'est utilisée à des fins commerciales, ni vendue, ni transmise à un autre tiers.",
     pData4:
       "Les données sont conservées uniquement le temps nécessaire au traitement de la demande.",
     pData5Lead: "Conformément au",

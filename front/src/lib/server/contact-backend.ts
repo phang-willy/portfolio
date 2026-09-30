@@ -27,12 +27,13 @@ export async function submitContactToBackend(
   data: ContactFormPayload,
   fetchImpl: typeof fetch = fetch,
   brevoParams: Record<string, string> = {},
+  clientIp?: string,
 ): Promise<ContactBackendResult> {
   let response: Response;
   try {
     response = await fetchImpl(`${getBackendApiUrl()}/api/contact`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: contactHeaders(clientIp),
       cache: "no-store",
       body: JSON.stringify({
         firstName: data.firstName,
@@ -77,6 +78,18 @@ export async function submitContactToBackend(
   }
 
   return { ok: true };
+}
+
+function contactHeaders(clientIp: string | undefined): Record<string, string> {
+  const headers: Record<string, string> = { "content-type": "application/json" };
+  const token = process.env.CONTACT_PROXY_TOKEN?.trim();
+  const ip = clientIp?.trim();
+  if (!token || !ip) {
+    return headers;
+  }
+  headers["x-contact-proxy-token"] = token;
+  headers["x-contact-client-ip"] = ip;
+  return headers;
 }
 
 function retryAfterSeconds(response: Response): number {

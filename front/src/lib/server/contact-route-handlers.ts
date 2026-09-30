@@ -13,6 +13,7 @@ import {
 } from "@/lib/security/contact-api-responses";
 import {
   assertPostBodySizeAllowed,
+  getClientIp,
   isContactPostOriginAllowed,
   rateLimitContact,
 } from "@/lib/security/contact-request";
@@ -118,6 +119,7 @@ export async function handleContactPostRequest(request: Request) {
     data,
     fetch,
     contactBrevoParams(parsed.data.locale ?? "fr", data),
+    getClientIp(request),
   );
   if (result.ok) {
     return NextResponse.json({ ok: true as const }, { status: 200 });
