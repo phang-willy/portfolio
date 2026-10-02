@@ -258,9 +258,7 @@ export const routes: Routes = [
       {
         path: 'system',
         loadComponent: () =>
-          import('@/app/features/admin/admin-placeholder-page').then(
-            (module) => module.AdminPlaceholderPage,
-          ),
+          import('@/app/features/admin/system-page').then((module) => module.SystemPage),
         data: { breadcrumb: 'API status', title: 'API status', section: 'System' },
       },
       {

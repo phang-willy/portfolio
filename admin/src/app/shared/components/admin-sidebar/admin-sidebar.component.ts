@@ -60,12 +60,52 @@ export class AdminSidebarComponent {
     this.serviceHealth.ensureRealtime();
   }
 
+  protected contactBadgeAlert(): boolean {
+    return this.contactBadge() !== '—' && this.contactBadge() !== '…' && this.unreadContactCount() > 0;
+  }
+
+  protected emailBadgeAlert(): boolean {
+    return this.emailBadge() !== '—' && this.emailBadge() !== '…' && this.failedEmailCount() > 0;
+  }
+
+  protected contactBadge(): string {
+    if (this.contactService.unreadUnavailable()) {
+      return '—';
+    }
+    if (!this.contactService.unreadReady()) {
+      return '…';
+    }
+    return String(this.unreadContactCount());
+  }
+
+  protected emailBadge(): string {
+    if (this.emailQueueService.failedCountUnavailable()) {
+      return '—';
+    }
+    if (!this.emailQueueService.failedCountReady()) {
+      return '…';
+    }
+    return String(this.failedEmailCount());
+  }
+
   protected navItemAriaLabel(item: AdminNavItem): string | null {
     if (item.badge === 'contact-unread') {
+      if (this.contactService.unreadUnavailable()) {
+        return `${item.label}, unread count unavailable`;
+      }
+      if (!this.contactService.unreadReady()) {
+        return `${item.label}, loading unread count`;
+      }
       return `${item.label}, ${this.unreadContactCount()} unread`;
     }
     if (item.badge !== 'email-queue-failed') {
       return this.compact() ? item.label : null;
+    }
+    if (this.emailQueueService.failedCountUnavailable()) {
+      return `${item.label}, failed count unavailable`;
+    }
+    if (!this.emailQueueService.failedCountReady()) {
+      return `${item.label}, loading failed count`;
     }
 
     return `${item.label}, ${this.failedEmailCount()} failed`;

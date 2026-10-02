@@ -400,7 +400,10 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
     this.contractTypeService
       .getContractTypes(0, 200)
       .pipe(
-        catchError(() => EMPTY),
+        catchError(() => {
+          this.notifyError('Unable to load contract types.');
+          return EMPTY;
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((response) => {

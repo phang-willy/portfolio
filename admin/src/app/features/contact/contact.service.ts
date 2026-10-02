@@ -35,6 +35,8 @@ export class ContactService {
   private countRevision = 0;
 
   readonly unreadCount = signal(0);
+  readonly unreadReady = signal(false);
+  readonly unreadUnavailable = signal(false);
   readonly changes$ = this.changesSubject.asObservable();
   readonly presence$ = this.presenceSubject.asObservable();
   readonly sessionEnded$ = this.sessionEndedSubject.asObservable();
@@ -91,6 +93,8 @@ export class ContactService {
     this.countRevision++;
     this.sessionEndedSubject.next();
     this.unreadCount.set(0);
+    this.unreadReady.set(false);
+    this.unreadUnavailable.set(false);
   }
 
   getContacts(query: ContactListQuery): Observable<ContactPage> {
@@ -164,10 +168,17 @@ export class ContactService {
       .subscribe({
         next: ({ data }) => {
           // An SSE count received while this request was running is more recent.
-          if (revision === this.countRevision) this.unreadCount.set(data.count);
+          if (revision !== this.countRevision) {
+            return;
+          }
+          this.unreadReady.set(true);
+          this.unreadUnavailable.set(false);
+          this.unreadCount.set(data.count);
         },
         error: () => {
-          // Keep the last known count until the stream or next snapshot recovers.
+          if (!this.unreadReady()) {
+            this.unreadUnavailable.set(true);
+          }
         },
       });
   }
@@ -176,6 +187,8 @@ export class ContactService {
     const payload = parseContactEvent(raw);
     if (!payload) return;
     this.countRevision++;
+    this.unreadReady.set(true);
+    this.unreadUnavailable.set(false);
     this.unreadCount.set(payload.unreadCount);
     this.changesSubject.next(payload.contact);
   }

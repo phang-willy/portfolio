@@ -105,16 +105,77 @@ describe('EmailQueueService', () => {
     });
   });
 
-  it('returns 0 when the failed count request fails', () => {
-    service.getFailedCount().subscribe((count) => {
-      expect(count).toBe(0);
+  it('does not present a failed count as zero while the request is in flight', () => {
+    service.ensureRealtime();
+
+    expect(service.failedCountReady()).toBe(false);
+    expect(service.failedCountUnavailable()).toBe(false);
+
+    http.expectOne('/api/admin/email-queue?page=0&size=200').flush({
+      success: true,
+      code: 200,
+      message: 'OK',
+      data: [],
+      pagination: { page: 0, size: 200, totalItems: 0, totalPages: 0 },
+    });
+    http.expectOne('/api/admin/email-queue/failed-count').flush({
+      success: true,
+      code: 200,
+      message: 'OK',
+      data: { count: 0 },
     });
 
-    const request = http.expectOne('/api/admin/email-queue/failed-count');
-    request.flush(
+    expect(service.failedCount()).toBe(0);
+    expect(service.failedCountReady()).toBe(true);
+    expect(service.failedCountUnavailable()).toBe(false);
+  });
+
+  it('keeps the email list when the failed count request fails', () => {
+    service.ensureRealtime();
+
+    http.expectOne('/api/admin/email-queue?page=0&size=200').flush({
+      success: true,
+      code: 200,
+      message: 'OK',
+      data: [item],
+      pagination: { page: 0, size: 200, totalItems: 1, totalPages: 1 },
+    });
+    http.expectOne('/api/admin/email-queue/failed-count').flush(
       { success: false, code: 500, message: 'Error', data: null },
       { status: 500, statusText: 'Error' },
     );
+
+    expect(service.emails()).toEqual([item]);
+    expect(service.loadError()).toBeNull();
+    expect(service.failedCountReady()).toBe(false);
+    expect(service.failedCountUnavailable()).toBe(true);
+  });
+
+  it('recovers the failed count from a later realtime event', () => {
+    service.ensureRealtime();
+
+    http.expectOne('/api/admin/email-queue?page=0&size=200').flush({
+      success: true,
+      code: 200,
+      message: 'OK',
+      data: [],
+      pagination: { page: 0, size: 200, totalItems: 0, totalPages: 0 },
+    });
+    http.expectOne('/api/admin/email-queue/failed-count').flush(
+      { success: false, code: 500, message: 'Error', data: null },
+      { status: 500, statusText: 'Error' },
+    );
+
+    expect(service.failedCountUnavailable()).toBe(true);
+
+    MockEventSource.instances[0]?.emit(
+      'email-queue',
+      JSON.stringify({ email: { ...item, status: 'FAILED' }, failedCount: 4 }),
+    );
+
+    expect(service.failedCount()).toBe(4);
+    expect(service.failedCountReady()).toBe(true);
+    expect(service.failedCountUnavailable()).toBe(false);
   });
 
   it('upserts realtime emails and failed count from the SSE stream', () => {
@@ -146,6 +207,8 @@ describe('EmailQueueService', () => {
 
     expect(service.emails()).toEqual([pending]);
     expect(service.failedCount()).toBe(0);
+    expect(service.failedCountReady()).toBe(true);
+    expect(service.failedCountUnavailable()).toBe(false);
 
     const failed: EmailQueueAdminListItem = {
       ...pending,
@@ -160,6 +223,8 @@ describe('EmailQueueService', () => {
 
     expect(service.emails()).toEqual([failed]);
     expect(service.failedCount()).toBe(1);
+    expect(service.failedCountReady()).toBe(true);
+    expect(service.failedCountUnavailable()).toBe(false);
   });
 
   it('resends a failed email and upserts the returned item', () => {

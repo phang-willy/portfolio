@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, NgZone, inject, signal } from '@angular/core';
-import { Observable, catchError, forkJoin, map, of, tap } from 'rxjs';
+import { EMPTY, Observable, catchError, map, of, tap } from 'rxjs';
 
 import { AuthStateService } from '@/app/core/auth/auth-state.service';
 import { resolveApiErrorMessage } from '@/app/core/auth/auth-error-message';
@@ -30,6 +30,8 @@ export class EmailQueueService {
 
   readonly emails = signal<readonly EmailQueueAdminListItem[]>([]);
   readonly failedCount = signal(0);
+  readonly failedCountReady = signal(false);
+  readonly failedCountUnavailable = signal(false);
   readonly isLoading = signal(false);
   readonly loadError = signal<string | null>(null);
 
@@ -56,6 +58,8 @@ export class EmailQueueService {
     this.hasOpenedStream = false;
     this.stream?.close();
     this.stream = null;
+    this.failedCountReady.set(false);
+    this.failedCountUnavailable.set(false);
   }
 
   getEmails(page = 0, size = 50): Observable<PageResponse<EmailQueueAdminListItem>> {
@@ -72,10 +76,7 @@ export class EmailQueueService {
       .get<ApiResponse<EmailQueueFailedCount>>(`${API_URL}/admin/email-queue/failed-count`, {
         withCredentials: true,
       })
-      .pipe(
-        map((response) => response.data.count),
-        catchError(() => of(0)),
-      );
+      .pipe(map((response) => response.data.count));
   }
 
   resendEmail(
@@ -102,25 +103,30 @@ export class EmailQueueService {
     this.isLoading.set(this.emails().length === 0);
     this.loadError.set(null);
 
-    forkJoin({
-      emails: this.getEmails(0, 200),
-      failedCount: this.getFailedCount(),
-    })
+    this.getEmails(0, 200)
       .pipe(
         catchError((error: unknown) => {
           this.loadError.set(resolveApiErrorMessage(error, 'Unable to load the email queue.'));
           return of(null);
         }),
       )
-      .subscribe((snapshot) => {
+      .subscribe((page) => {
         this.isLoading.set(false);
-        if (!snapshot) {
+        if (!page) {
           return;
         }
 
-        this.emails.set(snapshot.emails.data);
-        this.failedCount.set(snapshot.failedCount);
+        this.emails.set(page.data);
       });
+
+    this.getFailedCount()
+      .pipe(
+        catchError(() => {
+          this.failedCountUnavailable.set(true);
+          return EMPTY;
+        }),
+      )
+      .subscribe((count) => this.applyFailedCount(count));
   }
 
   private openStream(): void {
@@ -152,10 +158,16 @@ export class EmailQueueService {
       return;
     }
 
-    this.failedCount.set(payload.failedCount);
+    this.applyFailedCount(payload.failedCount);
     if (payload.email) {
       this.upsertEmail(payload.email);
     }
+  }
+
+  private applyFailedCount(count: number): void {
+    this.failedCount.set(count);
+    this.failedCountReady.set(true);
+    this.failedCountUnavailable.set(false);
   }
 
   private upsertEmail(email: EmailQueueAdminListItem): void {

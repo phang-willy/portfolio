@@ -58,19 +58,19 @@
                 @if (item.badge === 'email-queue-failed') {
                   <span
                     class="admin-nav-badge"
-                    [class.admin-nav-badge-alert]="failedEmailCount() > 0"
+                    [class.admin-nav-badge-alert]="emailBadgeAlert()"
                     aria-hidden="true"
                   >
-                    {{ failedEmailCount() }}
+                    {{ emailBadge() }}
                   </span>
                 }
                 @if (item.badge === 'contact-unread') {
                   <span
                     class="admin-nav-badge"
-                    [class.admin-nav-badge-alert]="unreadContactCount() > 0"
+                    [class.admin-nav-badge-alert]="contactBadgeAlert()"
                     aria-hidden="true"
                   >
-                    {{ unreadContactCount() }}
+                    {{ contactBadge() }}
                   </span>
                 }
               </a>
