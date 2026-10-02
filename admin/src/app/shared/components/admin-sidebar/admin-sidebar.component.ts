@@ -79,10 +79,10 @@ export class AdminSidebarComponent {
   }
 
   protected emailBadge(): string {
-    if (this.emailQueueService.loadError() && this.emailQueueService.emails().length === 0) {
+    if (this.emailQueueService.failedCountUnavailable()) {
       return '—';
     }
-    if (this.emailQueueService.isLoading() && this.emailQueueService.emails().length === 0) {
+    if (!this.emailQueueService.failedCountReady()) {
       return '…';
     }
     return String(this.failedEmailCount());
@@ -101,10 +101,10 @@ export class AdminSidebarComponent {
     if (item.badge !== 'email-queue-failed') {
       return this.compact() ? item.label : null;
     }
-    if (this.emailQueueService.loadError() && this.emailQueueService.emails().length === 0) {
+    if (this.emailQueueService.failedCountUnavailable()) {
       return `${item.label}, failed count unavailable`;
     }
-    if (this.emailQueueService.isLoading() && this.emailQueueService.emails().length === 0) {
+    if (!this.emailQueueService.failedCountReady()) {
       return `${item.label}, loading failed count`;
     }
 

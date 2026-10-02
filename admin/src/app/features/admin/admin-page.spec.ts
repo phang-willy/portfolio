@@ -15,6 +15,7 @@ class MockEventSource {
   readonly init?: EventSourceInit;
   onopen: ((event: Event) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
+  private readonly listeners = new Map<string, (event: MessageEvent<string>) => void>();
 
   constructor(url: string, init?: EventSourceInit) {
     this.url = url;
@@ -22,9 +23,15 @@ class MockEventSource {
     MockEventSource.instances.push(this);
   }
 
-  addEventListener(): void {}
+  addEventListener(type: string, listener: (event: MessageEvent<string>) => void): void {
+    this.listeners.set(type, listener);
+  }
 
   close(): void {}
+
+  emit(type: string, data: string): void {
+    this.listeners.get(type)?.({ data } as MessageEvent<string>);
+  }
 }
 
 const ADMIN: User = {
@@ -114,4 +121,75 @@ describe('AdminPage', () => {
     expect(text).toContain('UP');
     expect(text).not.toContain('Deployments');
   });
+
+  it('does not present an unknown failed count as zero', () => {
+    const textBefore = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(textBefore).toContain('Loading failed count');
+    expect(textBefore).not.toContain('0 failed emails');
+
+    flushDashboard({ failedCountStatus: 500 });
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Unable to load failed count');
+    expect(text).not.toContain('0 failed emails');
+
+    const emailStream = MockEventSource.instances.find((stream) =>
+      stream.url.endsWith('/admin/email-queue/stream'),
+    );
+    emailStream?.emit(
+      'email-queue',
+      JSON.stringify({
+        email: null,
+        failedCount: 2,
+      }),
+    );
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('2 failed emails');
+  });
 });
+
+function flushDashboard(options: { failedCountStatus?: number; failedCount?: number } = {}): void {
+  const http = TestBed.inject(HttpTestingController);
+  http.expectOne('/api/admin/contact/unread-count').flush({
+    success: true,
+    code: 200,
+    message: 'OK',
+    data: { count: 0 },
+  });
+  http.expectOne('/api/admin/service-health').flush({
+    success: true,
+    code: 200,
+    message: 'OK',
+    data: [],
+  });
+  http.expectOne('/api/admin/email-queue?page=0&size=200').flush({
+    success: true,
+    code: 200,
+    message: 'OK',
+    data: [],
+    pagination: { page: 0, size: 200, totalItems: 0, totalPages: 0 },
+  });
+  const failedCount = http.expectOne('/api/admin/email-queue/failed-count');
+  if (options.failedCountStatus) {
+    failedCount.flush(
+      { success: false, code: options.failedCountStatus, message: 'Error', data: null },
+      { status: options.failedCountStatus, statusText: 'Error' },
+    );
+  } else {
+    failedCount.flush({
+      success: true,
+      code: 200,
+      message: 'OK',
+      data: { count: options.failedCount ?? 0 },
+    });
+  }
+  http.expectOne('/api/admin/project?page=0&size=1').flush({
+    success: true,
+    code: 200,
+    message: 'OK',
+    data: [],
+    pagination: { page: 0, size: 1, totalItems: 0, totalPages: 0 },
+  });
+}

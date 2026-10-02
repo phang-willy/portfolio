@@ -154,20 +154,20 @@ export class AdminPage {
   }
 
   private emailMetric(): DashboardMetric {
-    if (this.emailQueue.loadError() && this.emailQueue.emails().length === 0) {
+    if (this.emailQueue.failedCountUnavailable()) {
       return {
         label: 'Email queue',
         value: '—',
-        detail: 'Unable to load the queue',
+        detail: 'Unable to load failed count',
         tone: 'red',
         href: '/admin/email-queue',
       };
     }
-    if (this.emailQueue.isLoading() && this.emailQueue.emails().length === 0) {
+    if (!this.emailQueue.failedCountReady()) {
       return {
         label: 'Email queue',
         value: '…',
-        detail: 'Loading email queue',
+        detail: 'Loading failed count',
         tone: 'amber',
         href: '/admin/email-queue',
       };
