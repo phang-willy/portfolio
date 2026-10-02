@@ -413,7 +413,10 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     this.stackService
       .getStacks(0, 200)
       .pipe(
-        catchError(() => EMPTY),
+        catchError(() => {
+          this.notifyError('Unable to load stacks.');
+          return EMPTY;
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((response) => {

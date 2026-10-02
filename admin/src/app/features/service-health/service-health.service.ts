@@ -25,8 +25,9 @@ export class ServiceHealthService {
   private readonly restartStartedAt = new Map<string, number>();
 
   readonly checks = signal<readonly ServiceHealthCheck[]>([]);
+  readonly unavailable = signal(false);
   readonly restartProgress = signal<Readonly<Record<string, ServiceRestartProgress>>>({});
-  readonly summary = computed<ServiceHealthSummary>(() => summarize(this.checks()));
+  readonly summary = computed<ServiceHealthSummary>(() => summarize(this.checks(), this.unavailable()));
 
   constructor() {
     this.authState.currentUser$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
@@ -73,6 +74,7 @@ export class ServiceHealthService {
     this.stream?.close();
     this.stream = null;
     this.checks.set([]);
+    this.unavailable.set(false);
     for (const code of [...this.restartPolls.keys()]) {
       this.stopRestart(code);
     }
@@ -145,9 +147,14 @@ export class ServiceHealthService {
       .get<ApiResponse<ServiceHealthCheck[]>>(API_URL, { withCredentials: true })
       .pipe(map((response) => response.data ?? []))
       .subscribe({
-        next: (checks) => this.checks.set(checks),
+        next: (checks) => {
+          this.unavailable.set(false);
+          this.checks.set(checks);
+        },
         error: () => {
-          // Keep the last snapshot until the stream recovers.
+          if (this.checks().length === 0) {
+            this.unavailable.set(true);
+          }
         },
       });
   }
@@ -171,13 +178,22 @@ export class ServiceHealthService {
     if (!snapshot) {
       return;
     }
+    this.unavailable.set(false);
     this.checks.set(snapshot.checks);
   }
 }
 
-function summarize(checks: readonly ServiceHealthCheck[]): ServiceHealthSummary {
+function summarize(checks: readonly ServiceHealthCheck[], unavailable: boolean): ServiceHealthSummary {
   const down = checks.filter((check) => check.status === 'DOWN');
   if (checks.length === 0) {
+    if (unavailable) {
+      return {
+        label: 'API health',
+        value: 'DOWN',
+        detail: 'Health check unavailable',
+        tone: 'red',
+      };
+    }
     return { label: 'API health', value: '…', detail: 'Checking services', tone: 'amber' };
   }
   if (down.length === 0) {

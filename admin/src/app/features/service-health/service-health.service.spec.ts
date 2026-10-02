@@ -107,6 +107,24 @@ describe('ServiceHealthService', () => {
     });
   });
 
+  it('does not report health as up when the check request fails', () => {
+    authState.setUser(ADMIN);
+
+    http.expectOne('/api/admin/service-health').flush('unavailable', {
+      status: 503,
+      statusText: 'Service Unavailable',
+    });
+
+    expect(service.unavailable()).toBe(true);
+    expect(service.checks()).toEqual([]);
+    expect(service.summary()).toEqual({
+      label: 'API health',
+      value: 'DOWN',
+      detail: 'Health check unavailable',
+      tone: 'red',
+    });
+  });
+
   it('ignores malformed realtime payloads', () => {
     authState.setUser(ADMIN);
     http.expectOne('/api/admin/service-health').flush({

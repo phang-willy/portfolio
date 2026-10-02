@@ -167,6 +167,19 @@ describe('ContactService', () => {
     expect(service.unreadCount()).toBe(3);
   });
 
+  it('does not treat a failed unread count as zero contacts', () => {
+    authState.setUser(ADMIN);
+
+    http.expectOne('/api/admin/contact/unread-count').flush(
+      { success: false, code: 503, message: 'Unavailable', data: null },
+      { status: 503, statusText: 'Service Unavailable' },
+    );
+
+    expect(service.unreadReady()).toBe(false);
+    expect(service.unreadUnavailable()).toBe(true);
+    expect(service.unreadCount()).toBe(0);
+  });
+
   it('ignores malformed realtime payloads', () => {
     authState.setUser(ADMIN);
     http.expectOne('/api/admin/contact/unread-count').flush({
