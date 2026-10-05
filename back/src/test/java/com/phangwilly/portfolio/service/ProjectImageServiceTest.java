@@ -51,6 +51,25 @@ class ProjectImageServiceTest {
   }
 
   @Test
+  void storeImageReplacesDisallowedExtensionFromContentType() {
+    MockMultipartFile file = image("photo.php", "image/png", new byte[] {1});
+
+    ProjectImageUploadResponse response = service.storeImage(file);
+
+    assertThat(response.url()).endsWith(".png");
+    assertThat(response.url()).doesNotContain(".php");
+  }
+
+  @Test
+  void storeImageRejectsUnknownImageTypeWithoutAllowedExtension() {
+    MockMultipartFile file = image("photo", "image/bmp", new byte[] {1});
+
+    assertThatThrownBy(() -> service.storeImage(file))
+      .isInstanceOf(ApiException.class)
+      .satisfies(error -> assertInvalidImageError((ApiException) error, "Only image files are allowed"));
+  }
+
+  @Test
   void storeImageRejectsMissingFile() {
     assertRejectedImage(null, "Image file is required");
     assertRejectedImage(image("photo.png", "image/png", new byte[0]), "Image file is required");

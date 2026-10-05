@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -26,6 +27,14 @@ public class ProjectImageService {
   private static final String PROJECT_NOT_FOUND_MESSAGE = "Project not found";
   private static final String INVALID_IMAGE_CODE = "INVALID_IMAGE";
   private static final String PUBLIC_IMAGE_PATH_PREFIX = "/api/project/image/";
+  private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
+    "png",
+    "jpg",
+    "jpeg",
+    "gif",
+    "webp",
+    "svg"
+  );
 
   private final ProjectImageProperties projectImageProperties;
 
@@ -107,17 +116,23 @@ public class ProjectImageService {
 
   private static String resolveExtension(String originalFilename, String contentType) {
     String extension = StringUtils.getFilenameExtension(originalFilename);
-    if (extension != null && !extension.isBlank()) {
+    if (extension != null && ALLOWED_EXTENSIONS.contains(extension.toLowerCase(Locale.ROOT))) {
       return "." + extension.toLowerCase(Locale.ROOT);
     }
 
-    return switch (contentType.toLowerCase(Locale.ROOT)) {
+    String normalizedType = contentType.toLowerCase(Locale.ROOT);
+    int separator = normalizedType.indexOf(';');
+    if (separator >= 0) {
+      normalizedType = normalizedType.substring(0, separator).trim();
+    }
+
+    return switch (normalizedType) {
       case "image/png" -> ".png";
       case "image/jpeg" -> ".jpg";
       case "image/gif" -> ".gif";
       case "image/webp" -> ".webp";
       case "image/svg+xml" -> ".svg";
-      default -> "";
+      default -> throw badRequest(INVALID_IMAGE_CODE, "Only image files are allowed");
     };
   }
 

@@ -97,56 +97,25 @@ npm run type-check     # tsc --noEmit
 npm run format:check   # Prettier en lecture seule
 npm run format:write   # Prettier en écriture
 npm run generate:sitemap              # écrit public/sitemap.xml (tsx)
-npm run remind:github-token           # e-mail de rappel PAT GitHub (node)
+npm run remind:github-token           # rappel : l'envoi est fait par le backend
 ```
 
 ---
 
-## ⏰ Tâches planifiées sur le VPS (cron)
+## ⏰ Sitemap
 
-Deux scripts utiles en production : **rappel d’expiration du token GitHub** (e-mail via Brevo) et **régénération du fichier `public/sitemap.xml`**. Ils lisent le **`.env`** depuis `front/` puis depuis la racine du dépôt, donc le cron peut **`cd` dans `front/`** avant de lancer les commandes.
+`npm run generate:sitemap` régénère `public/sitemap.xml`. Le bouton du dashboard admin fait la même chose via `POST /api/sitemap` (jeton `SITEMAP_GENERATE_TOKEN`). Le rappel d’expiration du token GitHub est planifié par Spring (`app.github-token-reminder.cron`), pas par un script Next.
 
-### Prérequis
-
-- Node et les dépendances installés sur le VPS : `npm install` dans `front/`.
-- Fichier **`.env`** présent à la racine avec au minimum :
-  - **Rappel token** : `GITHUB_TOKEN`, `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `CONTACT_TO_EMAIL` (voir `.env.exemple`).
-  - **Sitemap** : `NEXT_PUBLIC_SITE_URL` ou `SITE_URL` (URL canonique du site, sans slash final de préférence).
-
-### Commandes à lancer à la main (test)
+Prérequis : `.env` à la racine avec `NEXT_PUBLIC_SITE_URL` ou `SITE_URL`, et `BACKEND_API_URL` pour inclure les projets.
 
 ```bash
 cd /chemin/vers/portfolio/front
 npm run generate:sitemap
-node scripts/github-token-expiry-reminder.mjs
 ```
-
-### Exemple crontab (tous les jours à 2h00)
-
-Éditer la crontab : `crontab -e`.
-
-**Option A - deux lignes (logs séparés)** :
 
 ```cron
 0 2 * * * cd /chemin/vers/portfolio/front && /usr/bin/npm run generate:sitemap >> /var/log/portfolio-sitemap.log 2>&1
-5 2 * * * cd /chemin/vers/portfolio/front && /usr/bin/node scripts/github-token-expiry-reminder.mjs >> /var/log/portfolio-github-token-reminder.log 2>&1
 ```
-
-**Option B - une seule ligne (enchaînement)** :
-
-```cron
-0 2 * * * cd /chemin/vers/portfolio/front && /usr/bin/npm run generate:sitemap && /usr/bin/node scripts/github-token-expiry-reminder.mjs >> /var/log/portfolio-cron.log 2>&1
-```
-
-Remplace `/chemin/vers/portfolio` par le chemin réel du clone sur le serveur. Adapte les chemins vers **`npm`** et **`node`** si ton installation n’est pas dans `/usr/bin` (souvent le cas avec **nvm** : préfixer avec `bash -lc 'source ~/.nvm/nvm.sh && nvm use && cd .../front && ...'` ou utiliser le chemin absolu vers le binaire Node, par ex. `~/.nvm/versions/node/v22/bin/npm`).
-
-### Après le sitemap
-
-`generate:sitemap` met à jour **`public/sitemap.xml`** sur disque. Avec **`next start`**, ce fichier est généralement pris en compte sans redémarrer PM2 ; en cas de doute, un **`pm2 restart`** du processus suffit.
-
-### Rappel token GitHub
-
-Le script n’envoie un e-mail **que** le **jour calendaire précédant** l’expiration du PAT (logique détaillée dans le fichier du script). Les autres jours, il se termine sans envoi (code de sortie 0).
 
 ---
 
@@ -231,95 +200,25 @@ Le projet inclut des workflows GitHub Actions :
 
 Le fichier **`.env`** (non versionné) reste à la racine du dépôt et reprend les variables nécessaires au build et au dev. Un modèle est fourni dans **`../.env.exemple`**.
 
-Pour le **formulaire de contact** : **`npm run dev`** utilise les routes **`/api/contact`** du même serveur Next (**`NEXT_PUBLIC_CONTACT_API_ORIGIN` est ignoré en développement** pour éviter d’appeler la prod par erreur). La logique métier est dans **`src/lib/server/*`**, exposée via **`src/app/api/contact/`**. En **production**, si l’API n’est pas sur le même hôte que le front, définir **`NEXT_PUBLIC_CONTACT_API_ORIGIN`** au **build** (voir section suivante).
+Pour le **formulaire de contact** : **`npm run dev`** utilise les routes **`/api/contact`** du même serveur Next (**`NEXT_PUBLIC_CONTACT_API_ORIGIN` est ignoré en développement** pour éviter d’appeler la prod par erreur). La logique métier est dans **`src/lib/server/*`**, exposée via **`src/app/api/contact/`**. En **production**, si la route Next `/api/contact` n’est pas sur le même hôte que le site, définir **`NEXT_PUBLIC_CONTACT_API_ORIGIN`** au **build**.
 
 ---
 
-## 🗂️ Données projets via branche `content` (sans rebuild du code)
+## Données publiques
 
-Le portfolio peut charger les projets depuis un JSON distant au runtime, pour éviter de merger dans `main` à chaque mise à jour de contenu.
+Les projets, les expériences et les stacks liés aux projets viennent de PostgreSQL, via Spring Boot (`BACKEND_API_URL`). Le front n’a plus de JSON local ou distant pour ces données.
 
-### Variable utilisée
-
-- **`PROJECTS_JSON_URL`** : URL RAW du fichier JSON des projets (ex: branche `content`).
-
-Exemple :
-
-```env
-PROJECTS_JSON_URL=https://raw.githubusercontent.com/phang-willy/portfolio/content/data/project.json
-```
-
-### Fonctionnement
-
-- si **`PROJECTS_JSON_URL`** est défini et valide, l’app lit ce JSON (revalidation ISR: ~5 min) ;
-- si l’URL est absente/invalide/indisponible, fallback automatique vers **`src/data/project.json`** ;
-- le code continue donc de fonctionner même si la source distante échoue.
-
-### Workflow conseillé
-
-1. créer/mettre à jour une branche **`content`** ;
-2. y modifier **`data/project.json`** ;
-3. pousser la branche `content` ;
-4. attendre la fenêtre de revalidation (ou redéployer pour prise en compte immédiate côté cache).
-
-Pour les changements de **contenu uniquement** (même schéma JSON), pas besoin de PR vers `main`.
+Les liens sociaux et les services de l’accueil restent dans `src/data/link.json` et `src/data/service.json`.
 
 ---
 
-## 🔧 Particularités du build et du déploiement
+## Build et déploiement
 
-### Export statique (`output: "export"`)
+`npm run build` exécute `next build`. `npm run dev` lance Turbopack. Le site est un serveur Node (`next start`), y compris dans Docker. Il n’y a pas d’export statique `out/`.
 
-Le site est généré en **HTML/CSS/JS statiques** dans **`out/`**, adaptés à un hébergement **Apache** (FTP) sans runtime Node.
+Le formulaire contact appelle `/api/contact` sur Next. Cette route enregistre le message dans Spring (`BACKEND_API_URL`). En développement, `NEXT_PUBLIC_CONTACT_API_ORIGIN` est ignoré. En production, le définir seulement si cette route Next n’est pas sur le même hôte que le site.
 
-### Build : `npm run build` = `next build`
-
-**`package.json`** utilise **`"build": "next build"`** pour laisser Next choisir son bundler par défaut. En développement, **`npm run dev`** lance explicitement **Turbopack** via `next dev --turbo`. L'endpoint contact est **`app/api/contact/route.ts`**, qui ré-exporte **`src/lib/server/contact-route-handlers.ts`**. Si tu actives un jour **`output: "export"`** dans **`next.config`**, cette route ne sera pas dans **`out/`** : il faudra alors une API externe et **`NEXT_PUBLIC_CONTACT_API_ORIGIN`**.
-
-### Contact : site statique + API TypeScript
-
-| Contexte                     | Backend                                                                                                                                                                                                                                          |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Export statique (`out/`)** | Le navigateur appelle **`NEXT_PUBLIC_CONTACT_API_ORIGIN`** + `/api/contact` (`src/lib/contact-api-url.ts`). L’origine doit exécuter la **même** logique que **`src/lib/server/contact-route-handlers.ts`** (même contrat JSON, honeypot inclus). |
-| **Développement local**      | **`NEXT_PUBLIC_CONTACT_API_ORIGIN` ignoré** : **`fetch`** vers **`/api/contact`** sur la même origine que **`next dev`** (localhost ou IP du réseau, selon comment tu ouvres le site).                                                           |
-
-### Apache : fichier `.htaccess`
-
-Sur un hébergement **Apache**, un **`.htaccess`** à la **racine** du site déployé (à côté de `index.html`) peut gérer notamment :
-
-- les **payloads RSC** (fichiers `.txt` dont l’URL utilise des **points** alors que les fichiers sont dans des **sous-dossiers**, ex. noms **`$d$id.txt`**) ;
-- la résolution **`/contact` → `contact.html`**, etc.
-
-Sans ces règles, la navigation client (prefetch, transitions) peut renvoyer des **404** sur des URLs du type `__next.*.txt`.
-
-### Stats GitHub (`src/lib/github-stats.ts`)
-
-La page d’accueil affiche des stats GitHub via l’API GraphQL. Comportement :
-
-- en **développement** : données **rafraîchies** (`unstable_noStore`, `fetch` en `no-store`) ;
-- en **build production / export statique** : valeurs **figées au moment du build** (`force-cache`, pas de `noStore`), pour permettre le prérendu statique.
-
----
-
-## 📬 Contact en production (export statique + API Next en TypeScript)
-
-Le dossier **`out/`** ne contient **pas** d’API HTTP. Le formulaire du site statique doit appeler une **URL** qui exécute la logique de **`src/lib/server/contact-route-handlers.ts`** (Brevo, honeypot, rate limiting côté serveur).
-
-**Étapes typiques**
-
-1. **Déployer l’API** : ce dépôt inclut déjà **`app/api/contact/route.ts`** (ré-export du handler **`src/lib/server/contact-route-handlers.ts`**). Variables Brevo / contact : **`.env.exemple`**. **`CONTACT_ALLOWED_ORIGINS`** : URL exacte du site statique (CORS sur POST).
-2. **Build statique** : définir **`NEXT_PUBLIC_CONTACT_API_ORIGIN`** (sans slash final), puis **`npm run build`** → dossier **`out/`**.
-3. **Héberger `out/`** : FTP, S3, GitHub Pages, etc.
-
-**Vérification** : `GET {origine}/api/contact` → JSON avec `canSubmit`.
-
-**Références** : **`src/lib/contact-api-url.ts`**, **`src/app/api/contact/route.ts`**, **`src/lib/server/contact-route-handlers.ts`**.
-
-### Déployer le site statique (FTP / Apache)
-
-1. Définir **`NEXT_PUBLIC_CONTACT_API_ORIGIN`** dans l’environnement du **`npm run build`**.
-2. Lancer **`npm run build`** puis uploader le contenu de **`out/`**.
-3. Si tu utilises Apache, configurer un **`.htaccess`** à la racine (réécritures RSC, **`/contact` → `contact.html`**, etc.) et vérifier que les fichiers dont le nom contient **`$`** ne sont pas altérés par le client FTP.
+Les stats GitHub de l’accueil sont lues sur `GET /api/github-stats`. Le backend tient ce cache à jour.
 
 ---
 
