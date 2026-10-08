@@ -103,6 +103,7 @@ class StackServiceTest {
     assertRejectedLogo("<svg onload=\"alert(1)\"></svg>");
     assertRejectedLogo("<svg><image href=\"https://evil.example/x.png\"/></svg>");
     assertRejectedLogo("<svg><use href=\"https://evil.example/x.svg#a\"/></svg>");
+    assertRejectedLogo("<svg><a href=\"java&#x73;cript:alert(1)\">x</a></svg>");
     assertRejectedLogo("not-an-svg");
     verifyNoInteractions(stackRepository);
   }

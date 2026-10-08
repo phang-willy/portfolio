@@ -18,9 +18,9 @@ jobs:
 
           if [[ "$BRANCH_NAME" =~ ^(dev|pre-prod|main)$ ]]; then
             echo "Main branch OK"
-          elif [[ "$BRANCH_NAME" =~ ^(feat|fix|chore|docs|refactor|remove)/[a-zA-Z0-9._-]+$ ]]; then
+          elif [[ "$BRANCH_NAME" =~ ^(feat|fix|chore|docs|refactor|remove|test)/[a-zA-Z0-9._-]+$ ]]; then
             echo "Branch name OK"
           else
-            echo "Invalid branch name. Use feat/... or fix/... or chore/... or docs/... or refactor/... or remove/..."
+            echo "Invalid branch name. Use feat/... or fix/... or chore/... or docs/... or refactor/... or remove/... or test/..."
             exit 1
           fi

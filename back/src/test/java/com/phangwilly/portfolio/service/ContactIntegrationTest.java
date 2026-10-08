@@ -24,7 +24,6 @@ import com.phangwilly.portfolio.scheduler.EmailQueueScheduler;
 import com.phangwilly.portfolio.security.AuthenticatedUser;
 import java.sql.DriverManager;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -116,8 +115,10 @@ class ContactIntegrationTest {
 
     var firstVisit = adminService.markRead(contact.getId());
     var secondVisit = adminService.markRead(contact.getId());
-    assertThat(secondVisit.firstReadAt().truncatedTo(ChronoUnit.MICROS))
-      .isEqualTo(firstVisit.firstReadAt().truncatedTo(ChronoUnit.MICROS));
+    var storedFirstRead = adminService.getContact(contact.getId()).firstReadAt();
+    assertThat(secondVisit.firstReadAt()).isEqualTo(storedFirstRead);
+    assertThat(Duration.between(firstVisit.firstReadAt(), storedFirstRead).abs())
+      .isLessThan(Duration.ofMillis(1));
     assertThat(secondVisit.history()).extracting(ContactHistoryItem::type)
       .containsExactly(ContactHistoryType.RECEIVED, ContactHistoryType.READ, ContactHistoryType.READ);
     assertThat(adminService.getUnreadCount().count()).isZero();

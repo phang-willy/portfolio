@@ -46,6 +46,11 @@ export async function GET(_request: Request, context: ImageRouteContext) {
       "Content-Type":
         response.headers.get("content-type") ?? "application/octet-stream",
       "Cache-Control": `public, max-age=${PORTFOLIO_DATA_REVALIDATE_SECONDS}`,
+      "X-Content-Type-Options":
+        response.headers.get("x-content-type-options") ?? "nosniff",
+      "Content-Security-Policy":
+        response.headers.get("content-security-policy") ??
+        "default-src 'none'; style-src 'unsafe-inline'; sandbox",
     },
   });
 }
