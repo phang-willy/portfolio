@@ -14,6 +14,7 @@ services:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
         SITE_URL: ${SITE_URL:-http://localhost:3000}
         CARTO_API_KEY: ${CARTO_API_KEY:-}
+        SITE_NOINDEX: ${SITE_NOINDEX:-false}
     env_file:
       - .env
     environment:
@@ -25,6 +26,7 @@ services:
       SITE_URL: ${SITE_URL:-http://localhost:3000}
       BACKEND_API_URL: http://back:8000
       SITEMAP_GENERATE_TOKEN: ${SITEMAP_GENERATE_TOKEN:-}
+      SITE_NOINDEX: ${SITE_NOINDEX:-false}
     ports:
       - "${FRONT_BIND_ADDRESS:-127.0.0.1}:${FRONT_PORT:-3000}:3000"
     depends_on:
@@ -48,6 +50,7 @@ services:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
         SITE_URL: ${SITE_URL:-http://localhost:3000}
         CARTO_API_KEY: ${CARTO_API_KEY:-}
+        SITE_NOINDEX: ${SITE_NOINDEX:-false}
     command: sh -c "npm install --include=dev --no-audit --no-fund && npm run dev"
     env_file:
       - .env
@@ -61,6 +64,7 @@ services:
       SITE_URL: ${SITE_URL:-http://localhost:3000}
       BACKEND_API_URL: http://back-dev:8000
       SITEMAP_GENERATE_TOKEN: ${SITEMAP_GENERATE_TOKEN:-}
+      SITE_NOINDEX: ${SITE_NOINDEX:-false}
       WATCHPACK_POLLING: "true"
     ports:
       - "${FRONT_BIND_ADDRESS:-127.0.0.1}:${FRONT_PORT:-3000}:3000"
@@ -135,6 +139,8 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/${POSTGRES_DB:-portfolio}}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${POSTGRES_USER:-portfolio}}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      APP_AUTH_COOKIE_SECURE: "true"
+      APP_AUTH_COOKIE_SAME_SITE: Lax
       APP_SERVICE_HEALTH_FRONT_URL: http://front:3000
       SITEMAP_GENERATE_TOKEN: ${SITEMAP_GENERATE_TOKEN:-}
       APP_SERVICE_HEALTH_ADMIN_URL: http://admin:3001
@@ -205,6 +211,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${POSTGRES_USER:-portfolio}}
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
       SPRING_PROFILES_ACTIVE: dev
+      APP_AUTH_COOKIE_SECURE: "false"
+      APP_AUTH_COOKIE_SAME_SITE: Lax
       APP_SERVICE_HEALTH_FRONT_URL: http://front-dev:3000
       SITEMAP_GENERATE_TOKEN: ${SITEMAP_GENERATE_TOKEN:-}
       APP_SERVICE_HEALTH_ADMIN_URL: http://admin-dev:3001
@@ -266,8 +274,8 @@ services:
       - dev
     image: maildev/maildev:latest
     ports:
-      - "${MAILDEV_SMTP_PORT:-1025}:1025"
-      - "${MAILDEV_WEB_PORT:-1080}:1080"
+      - "${MAILDEV_BIND_ADDRESS:-127.0.0.1}:${MAILDEV_SMTP_PORT:-1025}:1025"
+      - "${MAILDEV_BIND_ADDRESS:-127.0.0.1}:${MAILDEV_WEB_PORT:-1080}:1080"
     restart: unless-stopped
     networks:
       - portfolio

@@ -22,7 +22,7 @@ import { AdminAccessService } from '@/app/core/auth/admin-access.service';
 import { AdminDatePipe } from '@/app/shared/pipes/admin-date.pipe';
 import { AuthHoneypotFieldComponent } from '@/app/shared/components/auth-honeypot-field/auth-honeypot-field.component';
 import { Stack } from '@/app/shared/models/stack.model';
-import { isInlineSvgMarkup, stackFormSchema } from '@/app/shared/schemas/stack.schema';
+import { isSafeInlineSvg, stackFormSchema } from '@/app/shared/schemas/stack.schema';
 import { HONEYPOT_FIELD_NAME, isHoneypotFilled } from '@/app/shared/utils/honeypot';
 import { zodIssuesToFieldErrors } from '@/app/shared/utils/zod-field-errors';
 
@@ -314,7 +314,7 @@ export class StacksPage {
   }
 
   protected svgPreview(markup: string | null): SafeHtml | null {
-    if (!markup || !isInlineSvgMarkup(markup)) {
+    if (!markup || !isSafeInlineSvg(markup)) {
       return null;
     }
 

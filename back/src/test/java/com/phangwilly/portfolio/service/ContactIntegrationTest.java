@@ -46,12 +46,16 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/** Opt-in PostgreSQL tests: all data lives in a disposable, uniquely named schema. */
+/**
+ * Opt-in PostgreSQL tests. Data lives in a disposable database so migrations run in
+ * {@code public}. Several migrations check {@code table_schema = 'public'} and cannot
+ * be replayed in a side schema.
+ */
 @SpringBootTest(properties = {"app.title=Integration", "app.email-queue.retry-delay=1h"})
 @EnabledIfEnvironmentVariable(named = "CONTACT_INTEGRATION_TEST", matches = "true")
 class ContactIntegrationTest {
 
-  private static final String SCHEMA = "contact_it_" + UUID.randomUUID().toString().replace("-", "");
+  private static final String DATABASE = "contact_it_" + UUID.randomUUID().toString().replace("-", "");
   private static final Duration ASYNC_TIMEOUT = Duration.ofSeconds(10);
 
   @Autowired private ContactService receiptService;
@@ -68,12 +72,9 @@ class ContactIntegrationTest {
   @MockitoBean private EmailQueueScheduler scheduler;
 
   @DynamicPropertySource
-  static void configureIsolatedSchema(DynamicPropertyRegistry properties) throws Exception {
-    executeSchemaStatement("CREATE SCHEMA \"" + SCHEMA + "\"");
-    properties.add("spring.flyway.schemas", () -> SCHEMA);
-    properties.add("spring.flyway.default-schema", () -> SCHEMA);
-    properties.add("spring.datasource.hikari.schema", () -> SCHEMA);
-    properties.add("spring.jpa.properties.hibernate.default_schema", () -> SCHEMA);
+  static void configureIsolatedDatabase(DynamicPropertyRegistry properties) throws Exception {
+    executeMaintenanceStatement("CREATE DATABASE \"" + DATABASE + "\"");
+    properties.add("spring.datasource.url", () -> databaseUrl(DATABASE));
   }
 
   @BeforeEach
@@ -97,8 +98,11 @@ class ContactIntegrationTest {
   }
 
   @AfterAll
-  static void dropTestSchema() throws Exception {
-    executeSchemaStatement("DROP SCHEMA IF EXISTS \"" + SCHEMA + "\" CASCADE");
+  static void dropTestDatabase() throws Exception {
+    executeMaintenanceStatement(
+      "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '" + DATABASE + "' AND pid <> pg_backend_pid()"
+    );
+    executeMaintenanceStatement("DROP DATABASE IF EXISTS \"" + DATABASE + "\"");
   }
 
   @Test
@@ -111,7 +115,10 @@ class ContactIntegrationTest {
 
     var firstVisit = adminService.markRead(contact.getId());
     var secondVisit = adminService.markRead(contact.getId());
-    assertThat(secondVisit.firstReadAt()).isEqualTo(firstVisit.firstReadAt());
+    var storedFirstRead = adminService.getContact(contact.getId()).firstReadAt();
+    assertThat(secondVisit.firstReadAt()).isEqualTo(storedFirstRead);
+    assertThat(Duration.between(firstVisit.firstReadAt(), storedFirstRead).abs())
+      .isLessThan(Duration.ofMillis(1));
     assertThat(secondVisit.history()).extracting(ContactHistoryItem::type)
       .containsExactly(ContactHistoryType.RECEIVED, ContactHistoryType.READ, ContactHistoryType.READ);
     assertThat(adminService.getUnreadCount().count()).isZero();
@@ -204,13 +211,35 @@ class ContactIntegrationTest {
     ));
   }
 
-  private static void executeSchemaStatement(String sql) throws Exception {
-    String url = System.getenv().getOrDefault("SPRING_DATASOURCE_URL", "jdbc:postgresql://localhost:5432/portfolio");
-    String username = System.getenv().getOrDefault("SPRING_DATASOURCE_USERNAME", "portfolio");
-    String password = System.getenv().getOrDefault("SPRING_DATASOURCE_PASSWORD", "portfolio");
-    try (var connection = DriverManager.getConnection(url, username, password);
+  private static void executeMaintenanceStatement(String sql) throws Exception {
+    try (var connection = DriverManager.getConnection(maintenanceUrl(), username(), password());
          var statement = connection.createStatement()) {
       statement.execute(sql);
     }
+  }
+
+  private static String databaseUrl(String database) {
+    String url = maintenanceUrl();
+    int slash = url.lastIndexOf('/');
+    int query = url.indexOf('?', slash);
+    if (query < 0) {
+      return url.substring(0, slash + 1) + database;
+    }
+    return url.substring(0, slash + 1) + database + url.substring(query);
+  }
+
+  private static String maintenanceUrl() {
+    return System.getenv().getOrDefault(
+      "SPRING_DATASOURCE_URL",
+      "jdbc:postgresql://localhost:5432/portfolio"
+    );
+  }
+
+  private static String username() {
+    return System.getenv().getOrDefault("SPRING_DATASOURCE_USERNAME", "portfolio");
+  }
+
+  private static String password() {
+    return System.getenv().getOrDefault("SPRING_DATASOURCE_PASSWORD", "portfolio");
   }
 }

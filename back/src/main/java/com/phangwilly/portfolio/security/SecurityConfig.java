@@ -50,7 +50,7 @@ public class SecurityConfig {
         .requestMatchers("/api/admin/**")
         .hasAnyRole("SUPER_ADMIN", "ADMIN")
         .anyRequest()
-        .permitAll())
+        .denyAll())
       .addFilterBefore(jwtSessionAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
       .build();
   }

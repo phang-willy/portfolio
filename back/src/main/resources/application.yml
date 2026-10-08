@@ -7,6 +7,9 @@ server:
 spring:
   application:
     name: portfolio-api
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
   mvc:
     throw-exception-if-no-handler-found: true
     async:

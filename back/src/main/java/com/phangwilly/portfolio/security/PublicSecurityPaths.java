@@ -25,6 +25,7 @@ public final class PublicSecurityPaths {
   public static final String GITHUB_STATS_PATH = "/api/github-stats";
   public static final String ACTUATOR_PATTERN = "/actuator/**";
   public static final String ADMIN_FRONT_PATTERN = "/admin/**";
+  public static final String ERROR_PATH = "/error";
 
   private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
   private static final String[] PUBLIC_MATCHERS = {
@@ -44,7 +45,8 @@ public final class PublicSecurityPaths {
     CONTACT_PATH,
     GITHUB_STATS_PATH,
     ACTUATOR_PATTERN,
-    ADMIN_FRONT_PATTERN
+    ADMIN_FRONT_PATTERN,
+    ERROR_PATH
   };
 
   private static final String[] AUTHENTICATED_MATCHERS = {

@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     description: `${appName} - Portfolio - Développeur Full Stack`,
     ...openGraphLocaleFields("fr"),
   },
+  ...(process.env.SITE_NOINDEX === "true"
+    ? { robots: { index: false, follow: false } }
+    : {}),
 };
 
 export default function RootLayout({

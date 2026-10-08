@@ -81,11 +81,6 @@ public class StackService {
   }
 
   private static String normalizeImage(String image) {
-    if (image == null) {
-      return null;
-    }
-
-    String trimmed = image.trim();
-    return trimmed.isEmpty() ? null : trimmed;
+    return StackSvgPolicy.normalize(image);
   }
 }

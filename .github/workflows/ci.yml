@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [dev, pre-prod, main]
 
+permissions:
+  contents: read
+
 jobs:
   front:
     name: Front (Next.js)
@@ -66,6 +69,25 @@ jobs:
   back:
     name: Back (Java)
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: portfolio
+          POSTGRES_USER: portfolio
+          POSTGRES_PASSWORD: portfolio
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U portfolio -d portfolio"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      CONTACT_INTEGRATION_TEST: "true"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/portfolio
+      SPRING_DATASOURCE_USERNAME: portfolio
+      SPRING_DATASOURCE_PASSWORD: portfolio
     steps:
       - uses: actions/checkout@v4
 

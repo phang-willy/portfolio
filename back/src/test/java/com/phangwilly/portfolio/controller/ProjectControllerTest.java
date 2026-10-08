@@ -43,6 +43,8 @@ class ProjectControllerTest {
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.IMAGE_PNG);
+    assertThat(response.getHeaders().getFirst("X-Content-Type-Options")).isEqualTo("nosniff");
+    assertThat(response.getHeaders().getFirst("Content-Security-Policy")).contains("default-src 'none'");
     assertThat(response.getBody()).isSameAs(resource);
   }
 
