@@ -4,10 +4,9 @@ import com.phangwilly.portfolio.config.ProjectImageProperties;
 import com.phangwilly.portfolio.dto.ProjectImageUploadResponse;
 import com.phangwilly.portfolio.exception.ApiException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -32,9 +31,14 @@ public class ProjectImageService {
     "jpg",
     "jpeg",
     "gif",
-    "webp",
-    "svg"
+    "webp"
   );
+  private static final byte[] PNG_SIGNATURE = new byte[] {(byte) 0x89, 0x50, 0x4E, 0x47};
+  private static final byte[] JPEG_SIGNATURE = new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};
+  private static final byte[] GIF87_SIGNATURE = "GIF87a".getBytes(StandardCharsets.US_ASCII);
+  private static final byte[] GIF89_SIGNATURE = "GIF89a".getBytes(StandardCharsets.US_ASCII);
+  private static final byte[] RIFF_SIGNATURE = "RIFF".getBytes(StandardCharsets.US_ASCII);
+  private static final byte[] WEBP_MARKER = "WEBP".getBytes(StandardCharsets.US_ASCII);
 
   private final ProjectImageProperties projectImageProperties;
 
@@ -57,6 +61,11 @@ public class ProjectImageService {
     }
 
     String extension = resolveExtension(file.getOriginalFilename(), contentType);
+    byte[] content = readContent(file);
+    if (!hasImageSignature(content, extension.substring(1))) {
+      throw badRequest(INVALID_IMAGE_CODE, "Image content does not match its type");
+    }
+
     String filename = UUID.randomUUID() + extension;
     Path uploadDir = Path.of(projectImageProperties.getUploadDir()).toAbsolutePath().normalize();
 
@@ -67,15 +76,9 @@ public class ProjectImageService {
         throw badRequest(INVALID_IMAGE_CODE, "Invalid image filename");
       }
 
-      try (InputStream inputStream = file.getInputStream()) {
-        Files.copy(inputStream, destination, StandardCopyOption.REPLACE_EXISTING);
-      }
+      Files.write(destination, content);
     } catch (IOException exception) {
-      throw new ApiException(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        "IMAGE_UPLOAD_FAILED",
-        "Unable to store image"
-      );
+      throw uploadFailed();
     }
 
     return new ProjectImageUploadResponse(PUBLIC_IMAGE_PATH_PREFIX + filename);
@@ -131,9 +134,52 @@ public class ProjectImageService {
       case "image/jpeg" -> ".jpg";
       case "image/gif" -> ".gif";
       case "image/webp" -> ".webp";
-      case "image/svg+xml" -> ".svg";
       default -> throw badRequest(INVALID_IMAGE_CODE, "Only image files are allowed");
     };
+  }
+
+  private static byte[] readContent(MultipartFile file) {
+    try {
+      return file.getBytes();
+    } catch (IOException exception) {
+      throw uploadFailed();
+    }
+  }
+
+  private static boolean hasImageSignature(byte[] content, String extension) {
+    return switch (extension) {
+      case "png" -> startsWith(content, PNG_SIGNATURE);
+      case "jpg", "jpeg" -> startsWith(content, JPEG_SIGNATURE);
+      case "gif" -> startsWith(content, GIF87_SIGNATURE) || startsWith(content, GIF89_SIGNATURE);
+      case "webp" -> startsWith(content, RIFF_SIGNATURE) && regionMatches(content, 8, WEBP_MARKER);
+      default -> false;
+    };
+  }
+
+  private static boolean startsWith(byte[] content, byte[] signature) {
+    return regionMatches(content, 0, signature);
+  }
+
+  private static boolean regionMatches(byte[] content, int offset, byte[] signature) {
+    if (content.length < offset + signature.length) {
+      return false;
+    }
+
+    for (int index = 0; index < signature.length; index++) {
+      if (content[offset + index] != signature[index]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private static ApiException uploadFailed() {
+    return new ApiException(
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      "IMAGE_UPLOAD_FAILED",
+      "Unable to store image"
+    );
   }
 
   private static ApiException notFound() {

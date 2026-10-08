@@ -19,6 +19,14 @@ import org.springframework.web.multipart.MultipartFile;
 class ProjectImageServiceTest {
 
   private static final String PUBLIC_IMAGE_PATH_PREFIX = "/api/project/image/";
+  private static final byte[] PNG = new byte[] {
+    (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x01
+  };
+  private static final byte[] JPEG = new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x01};
+  private static final byte[] GIF = new byte[] {'G', 'I', 'F', '8', '9', 'a', 0x01};
+  private static final byte[] WEBP = new byte[] {
+    'R', 'I', 'F', 'F', 0, 0, 0, 0, 'W', 'E', 'B', 'P', 0x01
+  };
 
   @TempDir
   Path uploadDir;
@@ -32,18 +40,18 @@ class ProjectImageServiceTest {
 
   @Test
   void storeImageWritesFileAndReturnsPublicUrl() throws Exception {
-    MockMultipartFile file = image("Screenshot.PNG", "image/png", new byte[] {1, 2, 3});
+    MockMultipartFile file = image("Screenshot.PNG", "image/png", PNG);
 
     ProjectImageUploadResponse response = service.storeImage(file);
 
     assertThat(response.url()).matches(PUBLIC_IMAGE_PATH_PREFIX + "[0-9a-fA-F-]{36}\\.png");
     String filename = response.url().substring(PUBLIC_IMAGE_PATH_PREFIX.length());
-    assertThat(Files.readAllBytes(uploadDir.resolve(filename))).containsExactly(1, 2, 3);
+    assertThat(Files.readAllBytes(uploadDir.resolve(filename))).containsExactly(PNG);
   }
 
   @Test
   void storeImageUsesContentTypeWhenFilenameHasNoExtension() {
-    MockMultipartFile file = image("photo", "image/webp", new byte[] {4});
+    MockMultipartFile file = image("photo", "image/webp", WEBP);
 
     ProjectImageUploadResponse response = service.storeImage(file);
 
@@ -52,7 +60,7 @@ class ProjectImageServiceTest {
 
   @Test
   void storeImageReplacesDisallowedExtensionFromContentType() {
-    MockMultipartFile file = image("photo.php", "image/png", new byte[] {1});
+    MockMultipartFile file = image("photo.php", "image/png", PNG);
 
     ProjectImageUploadResponse response = service.storeImage(file);
 
@@ -86,6 +94,33 @@ class ProjectImageServiceTest {
   }
 
   @Test
+  void storeImageAcceptsJpegGifAndWebpSignatures() {
+    assertThat(service.storeImage(image("photo.jpg", "image/jpeg", JPEG)).url()).endsWith(".jpg");
+    assertThat(service.storeImage(image("photo.gif", "image/gif", GIF)).url()).endsWith(".gif");
+    assertThat(service.storeImage(image("photo.webp", "image/webp", WEBP)).url()).endsWith(".webp");
+  }
+
+  @Test
+  void storeImageRejectsSvgAndContentThatDoesNotMatchTheDeclaredType() {
+    assertRejectedImage(
+      image("icon.svg", "image/svg+xml", "<svg></svg>".getBytes()),
+      "Only image files are allowed"
+    );
+    assertRejectedImage(
+      image("photo.png", "image/png", "<svg onload=\"alert(1)\"></svg>".getBytes()),
+      "Image content does not match its type"
+    );
+    assertRejectedImage(
+      image("..\\..\\windows\\photo.png", "image/png", "not-an-image".getBytes()),
+      "Image content does not match its type"
+    );
+    assertRejectedImage(
+      image("photo.png", "image/png", JPEG),
+      "Image content does not match its type"
+    );
+  }
+
+  @Test
   void storeImageRejectsNonImageContentType() {
     MockMultipartFile file = new MockMultipartFile("file", "notes.txt", "text/plain", new byte[] {1});
 
@@ -100,7 +135,7 @@ class ProjectImageServiceTest {
     Files.writeString(blockingFile, "x");
     ProjectImageService brokenService = new ProjectImageService(properties(blockingFile, 1024));
 
-    assertThatThrownBy(() -> brokenService.storeImage(image("photo.png", "image/png", new byte[] {1})))
+    assertThatThrownBy(() -> brokenService.storeImage(image("photo.png", "image/png", PNG)))
       .isInstanceOf(ApiException.class)
       .satisfies(error -> {
         ApiException apiException = (ApiException) error;

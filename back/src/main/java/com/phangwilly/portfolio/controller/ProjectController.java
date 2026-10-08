@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/project")
 public class ProjectController {
 
+  private static final String IMAGE_CONTENT_SECURITY_POLICY =
+    "default-src 'none'; style-src 'unsafe-inline'; sandbox";
+
   private final ProjectService projectService;
   private final ProjectImageService projectImageService;
 
@@ -38,6 +41,8 @@ public class ProjectController {
     Resource resource = projectImageService.loadImage(filename);
     return ResponseEntity.ok()
       .contentType(projectImageService.resolveImageMediaType(filename))
+      .header("X-Content-Type-Options", "nosniff")
+      .header("Content-Security-Policy", IMAGE_CONTENT_SECURITY_POLICY)
       .body(resource);
   }
 }

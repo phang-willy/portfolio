@@ -15,9 +15,15 @@ class PublicSecurityPathsTest {
 
     MockHttpServletRequest stats = new MockHttpServletRequest("GET", "/api/github-stats");
 
+    MockHttpServletRequest error = new MockHttpServletRequest("GET", "/error");
+    MockHttpServletRequest unknown = new MockHttpServletRequest("GET", "/api/internal");
+
     assertThat(PublicSecurityPaths.shouldSkipJwtFilter(contact)).isTrue();
     assertThat(PublicSecurityPaths.shouldSkipJwtFilter(stats)).isTrue();
+    assertThat(PublicSecurityPaths.shouldSkipJwtFilter(error)).isTrue();
     assertThat(PublicSecurityPaths.shouldSkipJwtFilter(admin)).isFalse();
     assertThat(PublicSecurityPaths.shouldSkipJwtFilter(reply)).isFalse();
+    assertThat(PublicSecurityPaths.shouldSkipJwtFilter(unknown)).isFalse();
+    assertThat(PublicSecurityPaths.requestMatchers()).contains("/error");
   }
 }

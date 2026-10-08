@@ -74,6 +74,14 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: contentSecurityPolicy,
           },
+          ...(process.env.SITE_NOINDEX === "true"
+            ? [
+                {
+                  key: "X-Robots-Tag",
+                  value: "noindex, nofollow",
+                },
+              ]
+            : []),
         ],
       },
     ];
