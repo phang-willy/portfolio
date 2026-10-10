@@ -1,0 +1,149 @@
+server:
+  port: ${SERVER_PORT:8000}
+  error:
+    whitelabel:
+      enabled: false
+
+spring:
+  application:
+    name: portfolio-api
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
+  mvc:
+    throw-exception-if-no-handler-found: true
+    async:
+      request-timeout: -1
+  web:
+    resources:
+      add-mappings: false
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/portfolio}
+    username: ${SPRING_DATASOURCE_USERNAME:portfolio}
+    password: ${SPRING_DATASOURCE_PASSWORD:portfolio}
+    hikari:
+      maximum-pool-size: ${SPRING_DATASOURCE_MAX_POOL_SIZE:10}
+      minimum-idle: ${SPRING_DATASOURCE_MIN_IDLE:2}
+      connection-timeout: ${SPRING_DATASOURCE_CONNECTION_TIMEOUT_MS:30000}
+  flyway:
+    locations: classpath:db/migration
+  jackson:
+    time-zone: UTC
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail.smtp:
+        auth: ${SMTP_AUTH:false}
+        starttls.enable: ${SMTP_STARTTLS_ENABLE:false}
+        starttls.required: ${SMTP_STARTTLS_REQUIRED:false}
+        connectiontimeout: ${SMTP_CONNECTION_TIMEOUT_MS:5000}
+        timeout: ${SMTP_READ_TIMEOUT_MS:10000}
+        writetimeout: ${SMTP_WRITE_TIMEOUT_MS:10000}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  health:
+    db:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: portfolio-api
+
+app:
+  title: ${APP_TITLE:Portfolio}
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001}
+  auth:
+    register-enabled: ${REGISTER_ENABLE:false}
+    public-base-url: ${APP_PUBLIC_BASE_URL:http://localhost:8000}
+    admin-base-url: ${APP_ADMIN_BASE_URL:http://localhost:3001}
+    jwt-secret: ${APP_AUTH_JWT_SECRET:change-this-dev-jwt-secret-with-at-least-32-characters}
+    token-hash-secret: ${APP_AUTH_TOKEN_HASH_SECRET:change-this-dev-token-hash-secret-with-at-least-32-characters}
+    cookie-name: ${APP_AUTH_COOKIE_NAME:access_token}
+    cookie-secure: ${APP_AUTH_COOKIE_SECURE:true}
+    cookie-same-site: ${APP_AUTH_COOKIE_SAME_SITE:None}
+    cookie-path: ${APP_AUTH_COOKIE_PATH:/api}
+  email-queue:
+    scheduler-delay-millis: ${APP_EMAIL_QUEUE_SCHEDULER_DELAY_MILLIS:60000}
+    retry-delay: ${APP_EMAIL_QUEUE_RETRY_DELAY:5m}
+    batch-size: ${APP_EMAIL_QUEUE_BATCH_SIZE:10}
+    max-attempts: ${APP_EMAIL_QUEUE_MAX_ATTEMPTS:3}
+  email:
+    from: ${SMTP_FROM:noreply@phangwilly.local}
+    time-zone: ${APP_EMAIL_TIME_ZONE:Europe/Paris}
+  brevo:
+    api-key: ${BREVO_API_KEY:}
+    sender-email: ${BREVO_SENDER_EMAIL:}
+    sender-name: ${BREVO_SENDER_NAME:}
+    contact-template-id: ${BREVO_CONTACT_V2_USER_TEMPLATE_ID:}
+    api-url: ${BREVO_API_URL:https://api.brevo.com/v3/smtp/email}
+    contact-to-email: ${CONTACT_TO_EMAIL:}
+  github-stats:
+    token: ${GITHUB_TOKEN:}
+    username: ${GITHUB_USERNAME:}
+    refresh-interval-millis: ${APP_GITHUB_STATS_REFRESH_MILLIS:10800000}
+  github-token-reminder:
+    token: ${GITHUB_TOKEN:}
+    cron: ${APP_GITHUB_TOKEN_REMINDER_CRON:0 5 2 * * *}
+  service-health:
+    interval-millis: ${APP_SERVICE_HEALTH_INTERVAL_MILLIS:15000}
+    timeout-millis: ${APP_SERVICE_HEALTH_TIMEOUT_MILLIS:3000}
+    site-url: ${SITE_URL:}
+    admin-base-url: ${APP_ADMIN_BASE_URL:}
+    api-base-url: ${APP_PUBLIC_BASE_URL:}
+    front-probe-url: ${APP_SERVICE_HEALTH_FRONT_URL:${SITE_URL:}}
+    admin-probe-url: ${APP_SERVICE_HEALTH_ADMIN_URL:${APP_ADMIN_BASE_URL:}}
+    adminer-probe-url: ${APP_SERVICE_HEALTH_ADMINER_URL:}
+    adminer-public-url: ${APP_SERVICE_HEALTH_ADMINER_PUBLIC_URL:}
+    mail-web-probe-url: ${APP_SERVICE_HEALTH_MAIL_WEB_URL:}
+    mail-web-public-url: ${APP_SERVICE_HEALTH_MAIL_WEB_PUBLIC_URL:}
+    smtp-host: ${SMTP_HOST:}
+    smtp-port: ${SMTP_PORT:0}
+    server-port: ${SERVER_PORT:8000}
+    datasource-url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/portfolio}
+    restart-services: ${APP_SERVICE_HEALTH_RESTART_SERVICES:}
+    compose-project: ${APP_SERVICE_HEALTH_COMPOSE_PROJECT:portfolio}
+    docker-socket: ${APP_SERVICE_HEALTH_DOCKER_SOCKET:/var/run/docker.sock}
+    restart-probe-delay-millis: ${APP_SERVICE_HEALTH_RESTART_DELAY_MILLIS:3000}
+    startup-grace-millis: ${APP_SERVICE_HEALTH_STARTUP_GRACE_MILLIS:180000}
+  sitemap:
+    front-url: ${APP_SITEMAP_FRONT_URL:${APP_SERVICE_HEALTH_FRONT_URL:}}
+    token: ${SITEMAP_GENERATE_TOKEN:}
+    timeout-millis: ${APP_SITEMAP_TIMEOUT_MILLIS:20000}
+  rate-limit:
+    enabled: ${APP_RATE_LIMIT_ENABLED:true}
+    admin-requests-per-second: ${APP_RATE_LIMIT_ADMIN_REQUESTS_PER_SECOND:100}
+    standard-requests-per-second: ${APP_RATE_LIMIT_STANDARD_REQUESTS_PER_SECOND:50}
+    # Public POST /api/contact persists a row. 1/s per visitor is separate from the
+    # anonymous 50/s budget so a form flood cannot fill PostgreSQL or block public reads.
+    # Next forwards the visitor IP only with CONTACT_PROXY_TOKEN. Direct calls stay on the TCP address.
+    contact-requests-per-second: ${APP_RATE_LIMIT_CONTACT_REQUESTS_PER_SECOND:1}
+    contact-proxy-token: ${CONTACT_PROXY_TOKEN:}
+    bucket-ttl-millis: ${APP_RATE_LIMIT_BUCKET_TTL_MILLIS:600000}
+    cleanup-interval-millis: ${APP_RATE_LIMIT_CLEANUP_INTERVAL_MILLIS:300000}
+  project-images:
+    upload-dir: ${APP_PROJECT_IMAGE_UPLOAD_DIR:uploads/projects}
+    max-bytes: ${APP_PROJECT_IMAGE_MAX_BYTES:5242880}

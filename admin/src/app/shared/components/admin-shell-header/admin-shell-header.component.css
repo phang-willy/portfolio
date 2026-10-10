@@ -1,0 +1,34 @@
+@reference '../../../../styles.css';
+
+.admin-shell-header {
+  @apply flex h-16 shrink-0 items-center gap-3 border-b border-border bg-card px-4 text-foreground;
+}
+
+.admin-shell-header-control {
+  @apply flex h-10 shrink-0 items-center justify-center;
+}
+
+.admin-shell-header-actions {
+  @apply flex h-10 shrink-0 items-center gap-2;
+}
+
+:host ::ng-deep .admin-header-icon-btn {
+  @apply size-10! min-h-10! min-w-10! p-0!;
+}
+
+:host ::ng-deep .admin-header-icon-btn:hover:not(:disabled) {
+  @apply bg-muted text-foreground;
+}
+
+.admin-breadcrumb-shell {
+  @apply flex h-10 min-h-10 min-w-0 flex-1 items-center rounded-lg border border-border bg-muted px-3;
+}
+
+:host ::ng-deep .admin-breadcrumb {
+  @apply w-full;
+}
+
+:host ::ng-deep .admin-breadcrumb [hlmBreadcrumbLink],
+:host ::ng-deep .admin-breadcrumb [hlmBreadcrumbPage] {
+  @apply text-sm font-semibold text-foreground;
+}

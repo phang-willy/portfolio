@@ -1,0 +1,7 @@
+# Deployed profile (production and pre-production).
+# The admin nginx proxies /api on the same host, so the session cookie stays Lax.
+# SameSite=None is only for a cross-site admin, and only together with HTTPS.
+app:
+  auth:
+    cookie-secure: true
+    cookie-same-site: Lax

@@ -1,0 +1,51 @@
+<main class="grid min-h-dvh place-items-center bg-background px-4 py-8 text-foreground sm:px-6">
+  <section
+    class="w-full max-w-120 rounded-lg border border-border bg-card p-5 text-center shadow-lg sm:p-7"
+    aria-labelledby="verify-title"
+  >
+    <div class="mx-auto mb-5 grid size-12 place-items-center rounded-lg bg-primary/15 text-primary">
+      <ng-icon hlm size="lg" name="lucideCheckCircle" />
+    </div>
+    <p class="m-0 text-xs font-extrabold uppercase text-primary">Portfolio Admin</p>
+    <h1 id="verify-title" class="m-0 mt-2 text-3xl font-bold leading-tight text-foreground">
+      Verify email
+    </h1>
+    <p class="mb-5 mt-2 text-muted-foreground">
+      The verification starts automatically when this page opens.
+    </p>
+
+    <form class="grid gap-4" [formGroup]="verifyForm" (ngSubmit)="submitVerifyEmail()">
+      <app-auth-honeypot-field />
+
+      @if (successMessage()) {
+        <p class="auth-feedback auth-feedback-success">
+          {{ successMessage() }}. Redirecting...
+        </p>
+      }
+
+      @if (errorMessage()) {
+        <p class="auth-feedback auth-feedback-error">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      <button
+        hlmBtn
+        type="submit"
+        class="w-full justify-center"
+        [disabled]="isSubmitting() || !token || !!successMessage()"
+      >
+        @if (isSubmitting()) {
+          <hlm-spinner aria-label="Verifying email" />
+        } @else {
+          <ng-icon hlm size="sm" name="lucideCheck" />
+        }
+        Verify email
+      </button>
+
+      <a routerLink="/login" class="text-sm font-bold text-primary no-underline hover:underline">
+        Back to login
+      </a>
+    </form>
+  </section>
+</main>

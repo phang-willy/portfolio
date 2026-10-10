@@ -1,0 +1,38 @@
+<div class="relative">
+  <button
+    type="button"
+    class="inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-border bg-card text-foreground shadow-lg transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+    aria-label="Toggle theme"
+    aria-haspopup="menu"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggleMenu($event)"
+  >
+    <ng-icon hlm size="sm" [name]="currentIcon()" />
+  </button>
+
+  @if (isOpen()) {
+    <div
+      class="absolute top-12 right-0 grid min-w-38 gap-1 rounded-md border border-border bg-card p-1 text-foreground shadow-xl"
+      role="menu"
+      aria-label="Theme"
+    >
+      @for (option of options; track option.value) {
+        <button
+          type="button"
+          class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded border-0 bg-transparent px-2.5 text-left text-sm font-bold text-foreground transition-colors hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground focus:outline-none"
+          role="menuitemradio"
+          [attr.aria-checked]="preference() === option.value"
+          [class.bg-muted]="preference() === option.value"
+          [class.text-foreground]="preference() === option.value"
+          (click)="selectTheme(option.value, $event)"
+        >
+          <ng-icon hlm size="sm" [name]="option.icon" />
+          <span>{{ option.label }}</span>
+          @if (preference() === option.value) {
+            <ng-icon hlm size="sm" name="lucideCheck" class="ml-auto text-primary" />
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

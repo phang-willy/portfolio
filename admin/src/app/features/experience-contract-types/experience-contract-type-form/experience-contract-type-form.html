@@ -1,0 +1,128 @@
+<div class="grid content-start gap-6">
+  <section class="flex flex-wrap items-start justify-between gap-4">
+    <div class="grid gap-2">
+      <p class="m-0 text-xs font-extrabold uppercase text-primary">Content</p>
+      <h1 class="m-0 text-3xl font-bold text-foreground">{{ pageTitle() }}</h1>
+      <p class="m-0 text-muted-foreground">
+        Manage French and English labels for an experience contract type.
+      </p>
+    </div>
+
+    <a hlmBtn variant="outline" routerLink="/admin/experience-contract-types">
+      <ng-icon hlm size="sm" name="lucideArrowLeft" />
+      Back to list
+    </a>
+  </section>
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-2 text-muted-foreground">
+      <hlm-spinner size="sm" />
+      <span>Loading contract type...</span>
+    </div>
+  } @else {
+    <form class="grid gap-6" [formGroup]="form" (ngSubmit)="submitForm()">
+      <section class="rounded-lg border border-border bg-card p-4 shadow-lg">
+        <div class="flex flex-col gap-4">
+          <div
+            class="inline-flex w-fit rounded-lg bg-muted p-1"
+            role="tablist"
+            aria-label="Contract type language"
+          >
+            <button
+              type="button"
+              hlmBtn
+              size="sm"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'fr'"
+              [variant]="activeTab() === 'fr' ? 'default' : 'ghost'"
+              [class.ring-2]="hasLocaleErrors('fr')"
+              [class.ring-destructive/40]="hasLocaleErrors('fr')"
+              (click)="requestTab('fr')"
+            >
+              French
+            </button>
+            <button
+              type="button"
+              hlmBtn
+              size="sm"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'en'"
+              [variant]="activeTab() === 'en' ? 'default' : 'ghost'"
+              [class.ring-2]="hasLocaleErrors('en')"
+              [class.ring-destructive/40]="hasLocaleErrors('en')"
+              (click)="requestTab('en')"
+            >
+              English
+            </button>
+          </div>
+
+          @if (activeTab() === 'fr') {
+            <div class="grid gap-4" formGroupName="fr">
+              <div class="grid gap-2">
+                <label class="text-sm font-bold" for="fr-title">Title</label>
+                <input
+                  hlmInput
+                  id="fr-title"
+                  formControlName="title"
+                  (input)="onTitleInput()"
+                  [class.ring-destructive/20]="hasLocaleFieldError('fr', 'title')"
+                />
+                @if (localeFieldError('fr', 'title'); as error) {
+                  <p class="m-0 text-sm text-destructive">{{ error }}</p>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="grid gap-4" formGroupName="en">
+              <div class="grid gap-2">
+                <label class="text-sm font-bold" for="en-title">Title</label>
+                <input
+                  hlmInput
+                  id="en-title"
+                  formControlName="title"
+                  (input)="onTitleInput()"
+                  [class.ring-destructive/20]="hasLocaleFieldError('en', 'title')"
+                />
+                @if (localeFieldError('en', 'title'); as error) {
+                  <p class="m-0 text-sm text-destructive">{{ error }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="rounded-lg border border-border bg-card p-4 shadow-lg">
+        <div class="grid gap-3 text-sm">
+          <p class="m-0 font-bold text-foreground">Generated identifiers</p>
+          <dl class="grid gap-2 m-0">
+            <div class="grid gap-1 md:grid-cols-[8rem_1fr] md:items-center">
+              <dt class="text-muted-foreground">Slug</dt>
+              <dd class="m-0 font-mono text-foreground">{{ previewSlug() || '—' }}</dd>
+            </div>
+            <div class="grid gap-1 md:grid-cols-[8rem_1fr] md:items-center">
+              <dt class="text-muted-foreground">Code (FR)</dt>
+              <dd class="m-0 font-mono text-foreground">{{ previewCodeFr() || '—' }}</dd>
+            </div>
+            <div class="grid gap-1 md:grid-cols-[8rem_1fr] md:items-center">
+              <dt class="text-muted-foreground">Code (EN)</dt>
+              <dd class="m-0 font-mono text-foreground">{{ previewCodeEn() || '—' }}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <app-auth-honeypot-field />
+
+      <div class="flex flex-wrap gap-2">
+        <button hlmBtn type="submit" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <hlm-spinner size="sm" />
+          }
+          {{ mode() === 'create' ? 'Create contract type' : 'Save changes' }}
+        </button>
+        <a hlmBtn variant="outline" routerLink="/admin/experience-contract-types">Cancel</a>
+      </div>
+    </form>
+  }
+</div>

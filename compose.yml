@@ -1,0 +1,308 @@
+name: portfolio
+
+services:
+  front:
+    profiles:
+      - prod
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+      args:
+        APP_TITLE: ${APP_TITLE:-Portfolio}
+        NEXT_PUBLIC_CONTACT_API_ORIGIN: ${NEXT_PUBLIC_CONTACT_API_ORIGIN:-}
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        SITE_URL: ${SITE_URL:-http://localhost:3000}
+        CARTO_API_KEY: ${CARTO_API_KEY:-}
+        SITE_NOINDEX: ${SITE_NOINDEX:-false}
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_CONTACT_API_ORIGIN: ${NEXT_PUBLIC_CONTACT_API_ORIGIN:-}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      PORT: "3000"
+      SERVER_PORT: "3000"
+      SITE_URL: ${SITE_URL:-http://localhost:3000}
+      BACKEND_API_URL: http://back:8000
+      SITEMAP_GENERATE_TOKEN: ${SITEMAP_GENERATE_TOKEN:-}
+      SITE_NOINDEX: ${SITE_NOINDEX:-false}
+    ports:
+      - "${FRONT_BIND_ADDRESS:-127.0.0.1}:${FRONT_PORT:-3000}:3000"
+    depends_on:
+      back:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - portfolio
+
+  front-dev:
+    profiles:
+      - dev
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+      target: deps
+      args:
+        APP_TITLE: ${APP_TITLE:-Portfolio}
+        NEXT_PUBLIC_CONTACT_API_ORIGIN: ${NEXT_PUBLIC_CONTACT_API_ORIGIN:-}
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        SITE_URL: ${SITE_URL:-http://localhost:3000}
+        CARTO_API_KEY: ${CARTO_API_KEY:-}
+        SITE_NOINDEX: ${SITE_NOINDEX:-false}
+    command: sh -c "npm install --include=dev --no-audit --no-fund && npm run dev"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_CONTACT_API_ORIGIN: ${NEXT_PUBLIC_CONTACT_API_ORIGIN:-}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      NEXT_TELEMETRY_DISABLED: "1"
+      PORT: "3000"
+      SERVER_PORT: "3000"
+      SITE_URL: ${SITE_URL:-http://localhost:3000}
+      BACKEND_API_URL: http://back-dev:8000
+      SITEMAP_GENERATE_TOKEN: ${SITEMAP_GENERATE_TOKEN:-}
+      SITE_NOINDEX: ${SITE_NOINDEX:-false}
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "${FRONT_BIND_ADDRESS:-127.0.0.1}:${FRONT_PORT:-3000}:3000"
+    depends_on:
+      back-dev:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./front:/app
+      - front_node_modules:/app/node_modules
+      - front_next_cache:/app/.next
+    networks:
+      - portfolio
+
+  admin:
+    profiles:
+      - prod
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      args:
+        APP_TITLE: ${APP_TITLE:-Portfolio}
+    ports:
+      - "${ADMIN_BIND_ADDRESS:-127.0.0.1}:${ADMIN_PORT:-3001}:3001"
+    depends_on:
+      back:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - portfolio
+
+  admin-dev:
+    profiles:
+      - dev
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      target: deps
+    env_file:
+      - .env
+    command: sh -c "npm ci --include=dev --no-audit --no-fund && npm run start:docker"
+    environment:
+      APP_TITLE: ${APP_TITLE:-Portfolio}
+      CHOKIDAR_INTERVAL: "1000"
+      CHOKIDAR_USEPOLLING: "true"
+      NG_CLI_ANALYTICS: "false"
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "${ADMIN_BIND_ADDRESS:-127.0.0.1}:${ADMIN_PORT:-3001}:3001"
+    depends_on:
+      back-dev:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./admin:/app
+      - admin_node_modules:/app/node_modules
+    networks:
+      - portfolio
+
+  back:
+    profiles:
+      - prod
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001}
+      SERVER_PORT: "8000"
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-${POSTGRES_PASSWORD:-portfolio_change_me}}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/${POSTGRES_DB:-portfolio}}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${POSTGRES_USER:-portfolio}}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      APP_AUTH_COOKIE_SECURE: "true"
+      APP_AUTH_COOKIE_SAME_SITE: Lax
+      APP_SERVICE_HEALTH_FRONT_URL: http://front:3000
+      SITEMAP_GENERATE_TOKEN: ${SITEMAP_GENERATE_TOKEN:-}
+      APP_SERVICE_HEALTH_ADMIN_URL: http://admin:3001
+      APP_SERVICE_HEALTH_COMPOSE_PROJECT: portfolio
+      APP_SERVICE_HEALTH_RESTART_SERVICES: front=front,admin=admin,api=back,postgres=postgres
+    ports:
+      - "${BACK_BIND_ADDRESS:-127.0.0.1}:${BACK_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8000/actuator/health/readiness | grep UP || exit 1",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+    restart: unless-stopped
+    group_add:
+      - "${DOCKER_GID:-0}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - portfolio
+
+  back-dev:
+    profiles:
+      - dev
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+      target: build
+    command:
+      - sh
+      - -c
+      - |
+        mvn -q -DskipTests compile || exit 1
+        touch /tmp/portfolio-api-last-compile || exit 1
+        (
+          while true; do
+            sleep 2
+            if find src pom.xml -newer /tmp/portfolio-api-last-compile 2>/dev/null | grep -q .; then
+              sleep 4
+              touch /tmp/portfolio-api-last-compile
+              flock /tmp/portfolio-api-compile.lock mvn -q -DskipTests compile || true
+            fi
+          done
+        ) &
+        exec mvn spring-boot:run
+    env_file:
+      - .env
+    environment:
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001}
+      SERVER_PORT: "8000"
+      SMTP_HOST: maildev
+      SMTP_PORT: "1025"
+      SMTP_AUTH: "false"
+      SMTP_STARTTLS_ENABLE: "false"
+      SMTP_STARTTLS_REQUIRED: "false"
+      SMTP_USERNAME: ""
+      SMTP_PASSWORD: ""
+      SMTP_FROM: ${SMTP_FROM:-noreply@phangwilly.local}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-${POSTGRES_PASSWORD:-portfolio_change_me}}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/${POSTGRES_DB:-portfolio}}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${POSTGRES_USER:-portfolio}}
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+      SPRING_PROFILES_ACTIVE: dev
+      APP_AUTH_COOKIE_SECURE: "false"
+      APP_AUTH_COOKIE_SAME_SITE: Lax
+      APP_SERVICE_HEALTH_FRONT_URL: http://front-dev:3000
+      SITEMAP_GENERATE_TOKEN: ${SITEMAP_GENERATE_TOKEN:-}
+      APP_SERVICE_HEALTH_ADMIN_URL: http://admin-dev:3001
+      APP_SERVICE_HEALTH_ADMINER_URL: http://adminer:8080
+      APP_SERVICE_HEALTH_ADMINER_PUBLIC_URL: http://${ADMINER_BIND_ADDRESS:-127.0.0.1}:${ADMINER_PORT:-8080}
+      APP_SERVICE_HEALTH_MAIL_WEB_URL: http://maildev:1080
+      APP_SERVICE_HEALTH_MAIL_WEB_PUBLIC_URL: http://127.0.0.1:${MAILDEV_WEB_PORT:-1080}
+      APP_SERVICE_HEALTH_COMPOSE_PROJECT: portfolio
+      APP_SERVICE_HEALTH_RESTART_SERVICES: front=front-dev,admin=admin-dev,api=back-dev,postgres=postgres,smtp=maildev,adminer=adminer,mail=maildev
+    ports:
+      - "${BACK_BIND_ADDRESS:-127.0.0.1}:${BACK_PORT:-8000}:8000"
+    depends_on:
+      maildev:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8000/actuator/health/readiness | grep UP || exit 1",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+    restart: unless-stopped
+    volumes:
+      - ./back:/workspace
+      - maven_cache:/root/.m2
+      - back_target:/workspace/target
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - portfolio
+
+  postgres:
+    image: postgres:17-alpine
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-portfolio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-portfolio_change_me}
+      POSTGRES_USER: ${POSTGRES_USER:-portfolio}
+    ports:
+      - "${POSTGRES_BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - portfolio
+
+  maildev:
+    profiles:
+      - dev
+    image: maildev/maildev:latest
+    ports:
+      - "${MAILDEV_BIND_ADDRESS:-127.0.0.1}:${MAILDEV_SMTP_PORT:-1025}:1025"
+      - "${MAILDEV_BIND_ADDRESS:-127.0.0.1}:${MAILDEV_WEB_PORT:-1080}:1080"
+    restart: unless-stopped
+    networks:
+      - portfolio
+
+  adminer:
+    profiles:
+      - dev
+    image: adminer:4
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "${ADMINER_BIND_ADDRESS:-127.0.0.1}:${ADMINER_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - portfolio
+
+volumes:
+  postgres_data:
+  front_node_modules:
+  front_next_cache:
+  admin_node_modules:
+  maven_cache:
+  back_target:
+
+networks:
+  portfolio:
+    driver: bridge

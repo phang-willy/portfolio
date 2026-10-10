@@ -1,0 +1,89 @@
+<section class="overflow-hidden rounded-lg border border-primary/30 bg-card shadow-sm" aria-labelledby="contact-reply-heading">
+  <div class="border-b border-border bg-primary/5 px-5 py-4">
+    <h2 id="contact-reply-heading" class="m-0 flex items-center gap-2 text-lg font-semibold">
+      <ng-icon hlm size="sm" name="lucideMail" class="text-primary" /> Reply by email
+    </h2>
+    <p class="mb-0 mt-2 text-sm text-muted-foreground">@if (readOnly()) { Another administrator is already on this enquiry. Replies are disabled. } @else { Your reply includes a formatted summary of the original request. }</p>
+  </div>
+  <form class="grid gap-4 p-5" [formGroup]="replyForm" (ngSubmit)="sendReply()">
+    <app-auth-honeypot-field />
+    <dl class="m-0 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm">
+      <dt class="text-muted-foreground">To</dt><dd class="m-0 wrap-break-word font-semibold">{{ contact().email }}</dd>
+      <dt class="text-muted-foreground">Subject</dt><dd class="m-0 wrap-break-word">{{ replySubject() }}</dd>
+    </dl>
+    <div class="grid gap-2">
+      <label for="contact-reply-message" class="text-sm font-semibold">Your message</label>
+      <div class="relative overflow-hidden rounded-md">
+        @if (overLimit()) {
+          <div #overflowOverlay class="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-md border border-transparent px-2.5 py-2 text-base whitespace-pre-wrap wrap-break-word md:text-sm" aria-hidden="true">
+            <span class="text-transparent">{{ allowedText() }}</span><mark class="rounded-sm bg-destructive/40 text-transparent">{{ overflowText() }}</mark>
+          </div>
+        }
+        <textarea hlmTextarea #replyMessage id="contact-reply-message" formControlName="message" rows="9" class="relative z-10 block! max-h-80 min-h-44 w-full resize-y overflow-x-hidden overflow-y-auto bg-transparent field-sizing-fixed! whitespace-pre-wrap wrap-break-word caret-foreground dark:bg-transparent" placeholder="Write your reply..." aria-describedby="contact-reply-help contact-reply-meter contact-reply-validation" [attr.aria-invalid]="overLimit() || (replyForm.controls.message.touched && replyForm.controls.message.invalid)" [attr.readonly]="readOnly() ? true : null" (scroll)="onDraftScroll()"></textarea>
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <p id="contact-reply-help" class="m-0 text-xs text-muted-foreground">Plain text. Delivery status is shown in the history.</p>
+        <div id="contact-reply-meter" class="flex items-center gap-2" aria-live="polite">
+          @if (showCount()) {
+            <span class="min-w-6 text-right text-sm font-semibold tabular-nums" [class.text-amber-500]="remaining() >= 0" [class.text-destructive]="overLimit()">{{ remaining() }}</span>
+          }
+          <svg class="size-6 shrink-0 -rotate-90" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" class="fill-none stroke-muted" stroke-width="2.5" />
+            <circle cx="12" cy="12" r="10" class="fill-none" [class.stroke-primary]="remaining() > warnAt" [class.stroke-amber-500]="remaining() <= warnAt && remaining() >= 0" [class.stroke-destructive]="overLimit()" stroke-width="2.5" stroke-linecap="round" [attr.stroke-dasharray]="circleLength" [attr.stroke-dashoffset]="circleOffset()" />
+          </svg>
+        </div>
+      </div>
+      <p id="contact-reply-validation" class="m-0 text-sm text-destructive" aria-live="polite">
+        @if (overLimit()) { Shorten your message. The highlighted text is over the limit. }
+        @else if (replyForm.controls.message.touched && replyForm.controls.message.invalid) { Enter a message between 1 and 20,000 characters. }
+      </p>
+    </div>
+    <aside class="overflow-hidden rounded-lg border border-border" aria-label="Recipient email preview">
+      <div class="bg-foreground px-4 py-3 text-background">
+        <p class="m-0 text-sm font-bold">{{ replySubject() }}</p>
+        <p class="mb-0 mt-1 text-[11px] font-extrabold uppercase tracking-widest text-background/70">Votre demande de contact</p>
+      </div>
+      <div class="grid gap-3 bg-muted/20 p-4 text-sm">
+        <p class="m-0 text-muted-foreground">Suite à votre demande de contact du {{ contact().createdAt | adminDate }}.</p>
+        <p class="m-0">Bonjour {{ contact().firstname }},</p>
+        <p class="m-0 min-h-12 whitespace-pre-wrap wrap-break-word">{{ replyForm.controls.message.value || 'Your reply will appear here.' }}</p>
+        <dl class="m-0 grid gap-3 border-t border-border pt-3 text-xs">
+          <div class="grid min-w-0 gap-0.5">
+            <dt class="font-bold">Prénom</dt>
+            <dd class="m-0 wrap-break-word font-normal">{{ contact().firstname }}</dd>
+          </div>
+          <div class="grid min-w-0 gap-0.5">
+            <dt class="font-bold">Nom</dt>
+            <dd class="m-0 wrap-break-word font-normal">{{ contact().lastname }}</dd>
+          </div>
+          <div class="grid min-w-0 gap-0.5">
+            <dt class="font-bold">Email</dt>
+            <dd class="m-0 wrap-break-word font-normal">{{ contact().email }}</dd>
+          </div>
+          <div class="grid min-w-0 gap-0.5">
+            <dt class="font-bold">Téléphone</dt>
+            <dd class="m-0 wrap-break-word font-normal">{{ contact().phone || 'Non renseigné' }}</dd>
+          </div>
+          <div class="grid min-w-0 gap-0.5">
+            <dt class="font-bold">Entreprise</dt>
+            <dd class="m-0 wrap-break-word font-normal">{{ contact().company || 'Non renseigné' }}</dd>
+          </div>
+          <div class="grid min-w-0 gap-0.5">
+            <dt class="font-bold">Objet</dt>
+            <dd class="m-0 wrap-break-word font-normal">{{ contact().subject }}</dd>
+          </div>
+          <div class="grid min-w-0 gap-0.5">
+            <dt class="font-bold">Message</dt>
+            <dd class="m-0 whitespace-pre-wrap wrap-break-word font-normal leading-5">{{ contact().message }}</dd>
+          </div>
+        </dl>
+      </div>
+    </aside>
+    @if (replyError(); as error) { <p role="alert" class="m-0 text-sm text-destructive">{{ error }}</p> }
+    @if (replySuccess()) { <p role="status" class="m-0 rounded-md bg-success/10 p-3 text-sm text-success">Reply saved and queued for delivery. Check its delivery status in the history.</p> }
+    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+      <p class="m-0 max-w-sm text-xs text-muted-foreground">Delivery is attempted immediately. Temporary failures are retried automatically.</p>
+      <button hlmBtn type="submit" [disabled]="isSending() || overLimit() || readOnly()">@if (isSending()) { <hlm-spinner aria-label="Sending reply" /> Sending... } @else { <ng-icon hlm size="sm" name="lucideMail" /> Send reply }</button>
+    </div>
+  </form>
+</section>

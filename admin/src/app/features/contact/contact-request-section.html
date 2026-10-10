@@ -1,0 +1,16 @@
+<section class="overflow-hidden rounded-lg border border-border bg-card shadow-sm" aria-labelledby="contact-request-heading">
+  <div class="flex items-center gap-2 border-b border-border px-5 py-4">
+    <ng-icon hlm size="sm" name="lucideInbox" class="text-primary" />
+    <h2 id="contact-request-heading" class="m-0 text-lg font-semibold">Original request</h2>
+  </div>
+  <dl class="m-0 grid gap-4 border-b border-border bg-muted/20 p-5 text-sm sm:grid-cols-2">
+    <div class="min-w-0"><dt class="font-bold">First name</dt><dd class="m-0 mt-1 wrap-break-word font-normal">{{ contact().firstname }}</dd></div>
+    <div class="min-w-0"><dt class="font-bold">Last name</dt><dd class="m-0 mt-1 wrap-break-word font-normal">{{ contact().lastname }}</dd></div>
+    <div class="min-w-0"><dt class="font-bold">Email</dt><dd class="m-0 mt-1 wrap-break-word font-normal">{{ contact().email }}</dd></div>
+    <div class="min-w-0"><dt class="font-bold">Phone</dt><dd class="m-0 mt-1 wrap-break-word font-normal">{{ contact().phone || 'Not provided' }}</dd></div>
+    <div class="min-w-0"><dt class="font-bold">Company</dt><dd class="m-0 mt-1 wrap-break-word font-normal">{{ contact().company || 'Not provided' }}</dd></div>
+    <div><dt class="font-bold">First read</dt><dd class="m-0 mt-1 font-normal">{{ (contact().firstReadAt | adminDate) || 'Unread' }}</dd></div>
+    <div><dt class="font-bold">Last viewed</dt><dd class="m-0 mt-1 font-normal">{{ (contact().lastReadAt | adminDate) || 'Unread' }}</dd></div>
+  </dl>
+  <p class="m-0 whitespace-pre-wrap wrap-break-word p-5 text-sm leading-7">{{ contact().message }}</p>
+</section>

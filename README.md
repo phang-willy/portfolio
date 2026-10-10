@@ -1,352 +1,213 @@
-# 🚀 Portfolio
+# Portfolio
 
-Un espace vivant pour raconter mon parcours, partager mes projets et montrer
-ma façon de concevoir le web.
+Monorepo du portfolio avec un front Next.js, un backend Java/Spring Boot et une base PostgreSQL orchestrés par Docker Compose.
 
-## 🧭 Présentation du projet
+## Structure
 
-Ce portfolio est mon terrain d'expression : un mélange de design, de code et
-d'intention. Je l'ai construit avec Next.js et TypeScript pour présenter qui je
-suis, ce que je crée, et comment j'accompagne des projets de A à Z.
-
-Il met en avant :
-
-- une section de présentation avec animations progressives
-- mes services en développement Full Stack, FrontEnd, BackEnd et E-commerce
-- mon parcours professionnel avec une timeline d'expériences
-- une galerie de projets avec interactions au survol
-- un message personnel et des points de contact rapides
-
-Mon objectif : proposer une vitrine personnelle, claire et soignée, qui reflète
-autant ma sensibilité produit que ma rigueur technique.
-
-## 📦 Stack technique
-
-- ⚡ Next
-- ⚛️ React
-- 🟦 TypeScript
-- 🎨 Tailwind CSS
-- 🎯 ESLint + Prettier
-- 🔒 Git hooks (signature obligatoire des commits)
-- 😊 Icons via React Icons
-
----
-
-## 🎯 Objectif
-
-Ce starter a pour but de :
-
-- accélérer la création de nouveaux projets
-- garantir une base de code cohérente
-- imposer des standards de qualité
-- faciliter la maintenabilité et l’évolution
-
----
-
-## 📁 Structure du projet
-
-```
+```text
 .
-├─ .github/
-│  ├─ scripts/
-│  └─ workflows/
-├─ .githooks/
-├─ public/                 # assets statiques (images projets dans public/project/, etc.)
-├─ scripts/
-│  ├─ next-with-server-port.mjs
-│  ├─ github-token-expiry-reminder.mjs   # rappel e-mail (Brevo) avant expiration du PAT GitHub
-│  └─ generate-sitemap-xml.ts            # génère public/sitemap.xml (via npm run generate:sitemap)
-├─ src/
-│  ├─ app/
-│  │  └─ api/contact/     # Route Handlers minces → ré-exportent lib/server/*-route-handlers
-│  ├─ components/
-│  ├─ data/
-│  ├─ features/
-│  ├─ lib/
-│  │  ├─ server/           # logique HTTP contact/captcha (TS)
-│  │  └─ …                 # schémas, Brevo, captcha, rate-limit, github-stats…
-│  └─ …
-├─ .editorconfig
-├─ .env.exemple
-├─ .gitignore
-├─ .nvmrc
-├─ package.json
-└─ next.config.ts
+├─ front/          # Application Next.js existante
+├─ admin/          # Panel admin Angular
+├─ back/           # API Java 21 / Spring Boot
+├─ compose.yml     # Docker Compose avec profiles dev/prod
+├─ .env            # Valeurs locales, non versionnees
+└─ .env.exemple    # Exemple de configuration
 ```
 
----
+## Ports
 
-## ⚙️ Installation
+| Service | Port |
+| --- | ---: |
+| Front Next.js | 3000 |
+| Admin Angular | 3001 |
+| Backend Java | 8000 |
+| PostgreSQL | 5432 |
+| Adminer | 8080 |
+| MailDev UI | 1080 |
+| MailDev SMTP | 1025 |
+
+Par defaut, tous les services exposes par Docker sont lies a `127.0.0.1`, l'adresse loopback de `localhost`, pour rester accessibles uniquement depuis la machine locale.
+
+## Docker production-like
+
+Dans `.env`, utilise le profile `prod` :
+
+```env
+COMPOSE_PROFILES=prod
+```
+
+Puis lance Docker Compose :
 
 ```bash
-git clone <repo-url>
-cd <project-name>
+docker compose up -d --build
+```
+
+URLs locales :
+
+- Front : http://localhost:3000
+- Admin : http://localhost:3001
+- API : http://localhost:8000/api/health
+- Actuator : http://localhost:8000/actuator/health
+
+## Docker developpement
+
+Le projet utilise un seul fichier `compose.yml` avec des profiles Docker Compose.
+Le profile `dev` demarre les variantes hot reload des services, plus MailDev et Adminer.
+Les profiles `prod` et un deploiement pre-prod ne lancent ni MailDev ni Adminer.
+
+Dans `.env`, utilise le profile `dev` :
+
+```env
+COMPOSE_PROFILES=dev
+```
+
+Puis lance Docker Compose :
+
+```bash
+docker compose up -d --build
+```
+
+Ensuite, garde les conteneurs ouverts :
+
+- les changements dans `front/` sont repris par `next dev --turbo` ;
+- les changements dans `admin/` sont repris par `ng serve` sur le port 3001 avec polling Docker (`--poll 1000`) ;
+- les changements Java dans `back/` sont recompiles dans le conteneur, puis relancent Spring Boot via DevTools ;
+- au demarrage, `front-dev` et `admin-dev` synchronisent les dependances npm dans leurs volumes `node_modules` ;
+- MailDev est disponible sur http://localhost:1080 et son SMTP sur `localhost:1025` ;
+- Adminer est disponible sur http://localhost:8080 ;
+- `down` n'est utile que si tu veux supprimer/recreer les conteneurs ou repartir d'un etat propre.
+
+Ne lance pas `dev` et `prod` en meme temps : les deux profiles exposent les memes ports publics (`3000`, `3001`, `8000`).
+Avant de changer de mode, arrete l'autre profile :
+
+```bash
+docker compose down
+```
+
+Si tu ajoutes ou retires une dependance Maven dans `back/pom.xml`, relance le service `back` pour repartir avec un classpath propre.
+Si tu ajoutes ou retires une dependance npm dans `front/package.json` ou `admin/package.json`, relance le service concerne : la commande dev relancera `npm install` dans le volume `node_modules`.
+
+Pour relancer seulement un service :
+
+```bash
+docker compose --profile dev restart front-dev
+docker compose --profile dev restart admin-dev
+docker compose --profile dev restart back-dev
+```
+
+Pour les logs dev :
+
+```bash
+docker compose logs -f
+```
+
+## Developpement local
+
+Front :
+
+```bash
+cd front
 npm install
-```
-
----
-
-## 🚀 Lancement
-
-```bash
 npm run dev
 ```
 
----
-
-## 🧪 Scripts disponibles
+Admin :
 
 ```bash
-npm run dev            # dev (port via scripts/next-with-server-port.mjs)
-npm run build          # pré-génère le sitemap puis next build (voir ci-dessous)
-npm run start          # serveur Next après build (hors export pur FTP)
-npm run lint           # ESLint
-npm run type-check     # tsc --noEmit
-npm run format:check   # Prettier en lecture seule
-npm run format:write   # Prettier en écriture
-npm run generate:sitemap              # écrit public/sitemap.xml (tsx)
-npm run remind:github-token           # e-mail de rappel PAT GitHub (node)
-```
-
----
-
-## ⏰ Tâches planifiées sur le VPS (cron)
-
-Deux scripts utiles en production : **rappel d’expiration du token GitHub** (e-mail via Brevo) et **régénération du fichier `public/sitemap.xml`**. Ils lisent le **`.env`** à la racine du dépôt (comme l’app Next), donc le cron doit **`cd` dans le répertoire du projet** avant de lancer les commandes.
-
-### Prérequis
-
-- Node et les dépendances installés sur le VPS : `npm install` dans le clone du repo.
-- Fichier **`.env`** présent à la racine avec au minimum :
-  - **Rappel token** : `GITHUB_TOKEN`, `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `CONTACT_TO_EMAIL` (voir `.env.exemple`).
-  - **Sitemap** : `NEXT_PUBLIC_SITE_URL` ou `SITE_URL` (URL canonique du site, sans slash final de préférence).
-
-### Commandes à lancer à la main (test)
-
-```bash
-cd /chemin/vers/portfolio
-npm run generate:sitemap
-node scripts/github-token-expiry-reminder.mjs
-```
-
-### Exemple crontab (tous les jours à 2h00)
-
-Éditer la crontab : `crontab -e`.
-
-**Option A — deux lignes (logs séparés)** :
-
-```cron
-0 2 * * * cd /chemin/vers/portfolio && /usr/bin/npm run generate:sitemap >> /var/log/portfolio-sitemap.log 2>&1
-5 2 * * * cd /chemin/vers/portfolio && /usr/bin/node scripts/github-token-expiry-reminder.mjs >> /var/log/portfolio-github-token-reminder.log 2>&1
-```
-
-**Option B — une seule ligne (enchaînement)** :
-
-```cron
-0 2 * * * cd /chemin/vers/portfolio && /usr/bin/npm run generate:sitemap && /usr/bin/node scripts/github-token-expiry-reminder.mjs >> /var/log/portfolio-cron.log 2>&1
-```
-
-Remplace `/chemin/vers/portfolio` par le chemin réel du clone sur le serveur. Adapte les chemins vers **`npm`** et **`node`** si ton installation n’est pas dans `/usr/bin` (souvent le cas avec **nvm** : préfixer avec `bash -lc 'source ~/.nvm/nvm.sh && nvm use && cd ... && ...'` ou utiliser le chemin absolu vers le binaire Node, par ex. `~/.nvm/versions/node/v22/bin/npm`).
-
-### Après le sitemap
-
-`generate:sitemap` met à jour **`public/sitemap.xml`** sur disque. Avec **`next start`**, ce fichier est généralement pris en compte sans redémarrer PM2 ; en cas de doute, un **`pm2 restart`** du processus suffit.
-
-### Rappel token GitHub
-
-Le script n’envoie un e-mail **que** le **jour calendaire précédant** l’expiration du PAT (logique détaillée dans le fichier du script). Les autres jours, il se termine sans envoi (code de sortie 0).
-
----
-
-## 🔐 Signature des commits (obligatoire)
-
-Tous les commits doivent être signés.
-
-Un hook Git bloque automatiquement les `push` si un commit n’est pas signé.
-
-### Configuration rapide
-
-```bash
-git config --global gpg.format ssh
-git config --global user.signingkey ~/.ssh/id_ed25519.pub
-git config --global commit.gpgsign true
-```
-
----
-
-## 🪝 Git Hooks
-
-Les hooks sont automatiquement installés via :
-
-```bash
+cd admin
 npm install
+npm run dev
 ```
 
-Sinon :
+Backend :
 
 ```bash
-bash .github/scripts/setup-hooks.sh
+cd back
+mvn spring-boot:run
 ```
 
----
+Pour lancer uniquement PostgreSQL et Adminer pendant le dev :
 
-## 🌿 Workflow Git
-
-Branches principales :
-
-- `dev`
-- `pre-prod`
-- `main`
-
-Branches de travail :
-
-- `feat/...`
-- `fix/...`
-- `chore/...`
-
----
-
-## 📝 Convention de commits
-
-Format obligatoire :
-
-```
-feat: description
-fix: description
-chore: description
+```bash
+docker compose up postgres adminer
 ```
 
-Exemples :
+## Configuration
 
-```
-feat: add authentication page
-fix: resolve navbar overflow
-```
+Le fichier `.env` reste a la racine et n'est pas versionne. Les valeurs attendues sont documentees dans `.env.exemple`.
 
----
+Pour un VPS, garde de preference les variables `*_BIND_ADDRESS` sur `127.0.0.1`, puis expose le front et/ou l'API via Nginx, Caddy ou Traefik avec HTTPS.
 
-## 🔄 CI/CD
+## Validation
 
-Le projet inclut des workflows GitHub Actions :
+Ces commandes ont ete executees. `mvn` n'est pas dans le PATH de cette machine : les tests backend passent par l'image `maven:3.9.16-eclipse-temurin-21-noble`. Avec Maven installe, les memes goals marchent depuis `back/`.
 
-- vérification qualité (lint, type-check, build)
-- validation des conventions
-- gestion des releases (versioning automatique)
+Front :
 
----
-
-## 🌱 Variables d’environnement
-
-Le fichier **`.env`** (non versionné) reprend les variables nécessaires au build et au dev. Un modèle est fourni dans **`.env.exemple`**.
-
-Pour le **formulaire de contact** : **`npm run dev`** utilise les routes **`/api/contact`** du même serveur Next (**`NEXT_PUBLIC_CONTACT_API_ORIGIN` est ignoré en développement** pour éviter d’appeler la prod par erreur). La logique métier est dans **`src/lib/server/*`**, exposée via **`src/app/api/contact/`**. En **production**, si l’API n’est pas sur le même hôte que le front, définir **`NEXT_PUBLIC_CONTACT_API_ORIGIN`** au **build** (voir section suivante).
-
----
-
-## 🗂️ Données projets via branche `content` (sans rebuild du code)
-
-Le portfolio peut charger les projets depuis un JSON distant au runtime, pour éviter de merger dans `main` à chaque mise à jour de contenu.
-
-### Variable utilisée
-
-- **`PROJECTS_JSON_URL`** : URL RAW du fichier JSON des projets (ex: branche `content`).
-
-Exemple :
-
-```env
-PROJECTS_JSON_URL=https://raw.githubusercontent.com/phang-willy/portfolio/content/data/project.json
+```bash
+cd front
+npm test
+npm run lint
+npm run type-check
+npm run build
 ```
 
-### Fonctionnement
+Admin :
 
-- si **`PROJECTS_JSON_URL`** est défini et valide, l’app lit ce JSON (revalidation ISR: ~5 min) ;
-- si l’URL est absente/invalide/indisponible, fallback automatique vers **`src/data/project.json`** ;
-- le code continue donc de fonctionner même si la source distante échoue.
+```bash
+cd admin
+npm test
+npm run build
+```
 
-### Workflow conseillé
+Backend, sans PostgreSQL. `ContactIntegrationTest` reste ignore :
 
-1. créer/mettre à jour une branche **`content`** ;
-2. y modifier **`data/project.json`** ;
-3. pousser la branche `content` ;
-4. attendre la fenêtre de revalidation (ou redéployer pour prise en compte immédiate côté cache).
+```bash
+docker run --rm -v "$(pwd)/back:/workspace" -w /workspace maven:3.9.16-eclipse-temurin-21-noble mvn -B test
+```
 
-Pour les changements de **contenu uniquement** (même schéma JSON), pas besoin de PR vers `main`.
+PostgreSQL isole, sans toucher au volume du projet `portfolio` :
 
----
+```bash
+docker compose -p portfolio-d5 up -d postgres
+```
 
-## 🔧 Particularités du build et du déploiement
+Si le port 5432 est deja pris, prefixe avec `POSTGRES_PORT=5433`. Le test cree une base jetable, applique les migrations Flyway dans `public`, puis supprime cette base. Le role PostgreSQL doit pouvoir faire `CREATE DATABASE`.
 
-### Export statique (`output: "export"`)
+```bash
+docker run --rm --network portfolio-d5_portfolio \
+  -e CONTACT_INTEGRATION_TEST=true \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/portfolio \
+  -e SPRING_DATASOURCE_USERNAME=portfolio \
+  -e SPRING_DATASOURCE_PASSWORD=portfolio \
+  -v "$(pwd)/back:/workspace" -w /workspace \
+  maven:3.9.16-eclipse-temurin-21-noble \
+  mvn -B -Dtest=ContactIntegrationTest test
+```
 
-Le site est généré en **HTML/CSS/JS statiques** dans **`out/`**, adaptés à un hébergement **Apache** (FTP) sans runtime Node.
+Arret de cet environnement de test, sans `-v` :
 
-### Build : `npm run build` = `next build`
+```bash
+docker compose -p portfolio-d5 down
+```
 
-**`package.json`** utilise **`"build": "next build"`**. Les endpoints contact sont les **`app/api/contact/*`** qui ré-exportent **`src/lib/server/contact-route-handlers.ts`** et **`contact-captcha-route-handlers.ts`**. Si tu actives un jour **`output: "export"`** dans **`next.config`**, ces routes ne seront pas dans **`out/`** : il faudra alors une API externe et **`NEXT_PUBLIC_CONTACT_API_ORIGIN`**.
+Ne lance jamais `docker compose down -v` sur le projet qui contient les donnees reelles.
 
-### Contact : site statique + API TypeScript
+## Pre-production
 
-| Contexte                     | Backend                                                                                                                                                                                                                                             |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Export statique (`out/`)** | Le navigateur appelle **`NEXT_PUBLIC_CONTACT_API_ORIGIN`** + `/api/contact` et `/api/contact/captcha` (`src/lib/contact-api-url.ts`). L’origine doit exécuter la **même** logique que **`src/lib/server/*-route-handlers.ts`** (même contrat JSON). |
-| **Développement local**      | **`NEXT_PUBLIC_CONTACT_API_ORIGIN` ignoré** : **`fetch`** vers **`/api/contact`** sur la même origine que **`next dev`** (localhost ou IP du réseau, selon comment tu ouvres le site).                                                              |
+Aucun deploiement distant n'a ete fait. Variables indispensables, sans valeurs secretes :
 
-### Apache : fichier `.htaccess`
+| Variable | Attendu |
+| --- | --- |
+| `SPRING_PROFILES_ACTIVE` | `prod`. Ce profil refuse les secrets JWT placeholder. |
+| `APP_AUTH_JWT_SECRET` | Secret unique, 32 caracteres minimum, different du placeholder de dev. |
+| `APP_AUTH_TOKEN_HASH_SECRET` | Autre secret unique, 32 caracteres minimum. |
+| `APP_AUTH_COOKIE_SECURE` | `true`. Compose prod le force. |
+| `APP_AUTH_COOKIE_SAME_SITE` | `Lax`. L'admin nginx proxifie `/api` sur le meme hote. |
+| `APP_CORS_ALLOWED_ORIGINS` | Origines HTTPS exactes du front et de l'admin. Pas de wildcard. |
+| `SITE_NOINDEX` | `true` en pre-prod. `robots.txt` et `X-Robots-Tag` ne remplacent pas un controle d'acces. |
+| `SITE_URL` | URL HTTPS publique du front. |
+| SMTP / Brevo | Hote, port, identifiants et expediteur reels. MailDev n'est pas lance en prod. |
+| PostgreSQL | Base persistante, mot de passe propre, volume conserve. |
 
-Sur un hébergement **Apache**, un **`.htaccess`** à la **racine** du site déployé (à côté de `index.html`) peut gérer notamment :
-
-- les **payloads RSC** (fichiers `.txt` dont l’URL utilise des **points** alors que les fichiers sont dans des **sous-dossiers**, ex. noms **`$d$id.txt`**) ;
-- la résolution **`/contact` → `contact.html`**, etc.
-
-Sans ces règles, la navigation client (prefetch, transitions) peut renvoyer des **404** sur des URLs du type `__next.*.txt`.
-
-### Stats GitHub (`src/lib/github-stats.ts`)
-
-La page d’accueil affiche des stats GitHub via l’API GraphQL. Comportement :
-
-- en **développement** : données **rafraîchies** (`unstable_noStore`, `fetch` en `no-store`) ;
-- en **build production / export statique** : valeurs **figées au moment du build** (`force-cache`, pas de `noStore`), pour permettre le prérendu statique.
-
----
-
-## 📬 Contact en production (export statique + API Next en TypeScript)
-
-Le dossier **`out/`** ne contient **pas** d’API HTTP. Le formulaire du site statique doit appeler une **URL** qui exécute la logique des **`src/lib/server/*-route-handlers.ts`** (Brevo, captcha signé, rate limiting côté serveur).
-
-**Étapes typiques**
-
-1. **Déployer l’API** : ce dépôt inclut déjà **`app/api/contact/route.ts`** et **`captcha/route.ts`** (ré-export des handlers **`src/lib/server/…`**). Variables Brevo / contact : **`.env.exemple`**. **`CONTACT_ALLOWED_ORIGINS`** : URL exacte du site statique (CORS sur POST).
-2. **Build statique** : définir **`NEXT_PUBLIC_CONTACT_API_ORIGIN`** (sans slash final), puis **`npm run build`** → dossier **`out/`**.
-3. **Héberger `out/`** : FTP, S3, GitHub Pages, etc.
-
-**Vérifications** : `GET {origine}/api/contact` → JSON avec `canSubmit` ; `GET {origine}/api/contact/captcha` → `code` et `captchaToken`.
-
-**Références** : **`src/lib/contact-api-url.ts`**, **`src/app/api/contact/route.ts`**, **`src/app/api/contact/captcha/route.ts`**, **`src/lib/server/*-route-handlers.ts`**.
-
-### Déployer le site statique (FTP / Apache)
-
-1. Définir **`NEXT_PUBLIC_CONTACT_API_ORIGIN`** dans l’environnement du **`npm run build`**.
-2. Lancer **`npm run build`** puis uploader le contenu de **`out/`**.
-3. Si tu utilises Apache, configurer un **`.htaccess`** à la racine (réécritures RSC, **`/contact` → `contact.html`**, etc.) et vérifier que les fichiers dont le nom contient **`$`** ne sont pas altérés par le client FTP.
-
----
-
-## 🧠 Bonnes pratiques
-
-- privilégier TypeScript strict
-- composants réutilisables
-- séparation par features
-- éviter la duplication de code
-- respecter les conventions définies
-
----
-
-## 👤 Auteur
-
-[GitHub – phang-willy](https://github.com/phang-willy)
-
----
-
-## 📄 Licence
-
-Aucune
+Le demarrage prod a ete verifie sur une base vide : les 20 migrations s'appliquent, un second demarrage ne les rejoue pas, et le placeholder JWT empeche le demarrage.

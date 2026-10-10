@@ -1,0 +1,11 @@
+spring:
+  devtools:
+    restart:
+      enabled: true
+      poll-interval: 4s
+      quiet-period: 3s
+
+app:
+  auth:
+    cookie-secure: false
+    cookie-same-site: Lax
