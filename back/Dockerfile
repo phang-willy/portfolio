@@ -22,6 +22,9 @@ WORKDIR /app
 
 COPY --from=build /workspace/target/*.jar /app/app.jar
 
+RUN mkdir -p /app/uploads/projects \
+  && chown -R spring:spring /app
+
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
 EXPOSE 8000

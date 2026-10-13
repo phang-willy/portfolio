@@ -1,5 +1,6 @@
 package com.phangwilly.portfolio.service;
 
+import com.phangwilly.portfolio.config.SchedulingConfig;
 import com.phangwilly.portfolio.dto.ProjectGithubSyncResponse;
 import com.phangwilly.portfolio.model.Project;
 import com.phangwilly.portfolio.repository.ProjectRepository;
@@ -45,7 +46,11 @@ public class ProjectGithubSyncService {
     this.currentUserService = currentUserService;
   }
 
-  @Scheduled(cron = "${app.github-project-dates.cron:0 30 3 * * *}", zone = "UTC")
+  @Scheduled(
+    cron = "${app.github-project-dates.cron:0 30 3 * * *}",
+    zone = "UTC",
+    scheduler = SchedulingConfig.GITHUB_PROJECT_SYNC_SCHEDULER
+  )
   @Transactional
   public void syncDaily() {
     try {
