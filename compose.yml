@@ -144,6 +144,7 @@ services:
       APP_SERVICE_HEALTH_FRONT_URL: http://front:3000
       SITEMAP_GENERATE_TOKEN: ${SITEMAP_GENERATE_TOKEN:-}
       APP_SERVICE_HEALTH_ADMIN_URL: http://admin:3001
+      APP_PROJECT_IMAGE_UPLOAD_DIR: /app/uploads/projects
       APP_SERVICE_HEALTH_COMPOSE_PROJECT: portfolio
       APP_SERVICE_HEALTH_RESTART_SERVICES: front=front,admin=admin,api=back,postgres=postgres
     ports:
@@ -166,6 +167,7 @@ services:
       - "${DOCKER_GID:-0}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - project_uploads:/app/uploads
     networks:
       - portfolio
 
@@ -297,6 +299,7 @@ services:
 
 volumes:
   postgres_data:
+  project_uploads:
   front_node_modules:
   front_next_cache:
   admin_node_modules:

@@ -8,7 +8,8 @@ name: Deploy pre-prod
 # Optional:
 #   PREPROD_SSH_PORT (default 22), PREPROD_KNOWN_HOSTS
 # The SSH user must be able to run Docker. Create .env once in PREPROD_PATH
-# before the first deploy. That file and the database volume are not replaced.
+# before the first deploy. That file, the database volume, and uploaded project
+# images are not replaced.
 
 on:
   push:
@@ -136,6 +137,7 @@ jobs:
           chmod 600 ~/.ssh/known_hosts
 
           quoted_path="$(printf '%q' "$PREPROD_PATH")"
+          quoted_sha="$(printf '%q' "$GITHUB_SHA")"
           ssh \
             -i "$HOME/.ssh/preprod" \
             -p "$port" \
@@ -145,5 +147,5 @@ jobs:
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=40 \
             "${PREPROD_USER}@${PREPROD_HOST}" \
-            "DEPLOY_PATH=${quoted_path} DEPLOY_BRANCH=pre-prod bash -s" \
+            "DEPLOY_PATH=${quoted_path} DEPLOY_BRANCH=pre-prod DEPLOY_SHA=${quoted_sha} bash -s" \
             < .github/scripts/deploy-preprod.sh
