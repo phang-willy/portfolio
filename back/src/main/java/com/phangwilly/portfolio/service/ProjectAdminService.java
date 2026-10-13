@@ -1,6 +1,8 @@
 package com.phangwilly.portfolio.service;
 
+import com.phangwilly.portfolio.dto.Localized;
 import com.phangwilly.portfolio.dto.PageResponse;
+import com.phangwilly.portfolio.dto.ProjectAdminListLocale;
 import com.phangwilly.portfolio.dto.PaginationRequest;
 import com.phangwilly.portfolio.dto.ProjectAdminDetail;
 import com.phangwilly.portfolio.dto.ProjectAdminListItem;
@@ -53,19 +55,22 @@ public class ProjectAdminService {
   private final StackRepository stackRepository;
   private final CurrentUserService currentUserService;
   private final ProjectImageService projectImageService;
+  private final ProjectGithubSyncService projectGithubSyncService;
 
   public ProjectAdminService(
     ProjectRepository projectRepository,
     ProjectStackRepository projectStackRepository,
     StackRepository stackRepository,
     CurrentUserService currentUserService,
-    ProjectImageService projectImageService
+    ProjectImageService projectImageService,
+    ProjectGithubSyncService projectGithubSyncService
   ) {
     this.projectRepository = projectRepository;
     this.projectStackRepository = projectStackRepository;
     this.stackRepository = stackRepository;
     this.currentUserService = currentUserService;
     this.projectImageService = projectImageService;
+    this.projectGithubSyncService = projectGithubSyncService;
   }
 
   @Transactional(readOnly = true)
@@ -110,10 +115,11 @@ public class ProjectAdminService {
     }
 
     List<Stack> stacks = resolveStacks(request.stackIds());
-    Project frProject = createLocaleProject(slug, request, LANG_FR, request.fr());
-    Project enProject = createLocaleProject(slug, request, LANG_EN, request.en());
+    Project frProject = createLocaleProject(slug, request, LANG_FR, request.lang().fr());
+    Project enProject = createLocaleProject(slug, request, LANG_EN, request.lang().en());
     syncStacks(frProject, stacks);
     syncStacks(enProject, stacks);
+    projectGithubSyncService.refresh(List.of(frProject, enProject));
 
     return toDetail(List.of(frProject, enProject));
   }
@@ -137,13 +143,14 @@ public class ProjectAdminService {
     Project frProject = findByLang(existing, LANG_FR);
     Project enProject = findByLang(existing, LANG_EN);
 
-    updateLocaleProject(frProject, nextSlug, request, LANG_FR, request.fr());
-    updateLocaleProject(enProject, nextSlug, request, LANG_EN, request.en());
+    updateLocaleProject(frProject, nextSlug, request, LANG_FR, request.lang().fr());
+    updateLocaleProject(enProject, nextSlug, request, LANG_EN, request.lang().en());
     syncStacks(frProject, stacks);
     syncStacks(enProject, stacks);
 
     projectRepository.saveAndFlush(frProject);
     projectRepository.saveAndFlush(enProject);
+    projectGithubSyncService.refresh(List.of(frProject, enProject));
 
     return toDetail(List.of(frProject, enProject));
   }
@@ -228,12 +235,14 @@ public class ProjectAdminService {
     return new ProjectAdminListItem(
       id,
       slug,
-      fr != null ? fr.getTitle() : "",
-      en != null ? en.getTitle() : "",
       stackNames,
       createdAt,
       updatedAt,
-      fr != null ? fr.getDeactivatedAt() : en != null ? en.getDeactivatedAt() : null
+      fr != null ? fr.getDeactivatedAt() : en != null ? en.getDeactivatedAt() : null,
+      new Localized<>(
+        new ProjectAdminListLocale(fr != null && fr.getTitle() != null ? fr.getTitle() : ""),
+        new ProjectAdminListLocale(en != null && en.getTitle() != null ? en.getTitle() : "")
+      )
     );
   }
 
@@ -253,8 +262,9 @@ public class ProjectAdminService {
       fr.getProductionLink(),
       fr.getSourceCodeLink(),
       fr.getImageLink(),
-      toLocaleRequest(fr),
-      toLocaleRequest(en)
+      new Localized<>(toLocaleRequest(fr), toLocaleRequest(en)),
+      fr.getGithubCreatedAt(),
+      fr.getGithubUpdatedAt()
     );
   }
 

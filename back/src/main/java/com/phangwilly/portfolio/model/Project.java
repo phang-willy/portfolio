@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Table(name = "project")
@@ -45,6 +46,12 @@ public class Project extends AuditableEntity {
 
   @Column(name = "deactivated_at")
   private Instant deactivatedAt;
+
+  @Column(name = "github_created_at")
+  private Instant githubCreatedAt;
+
+  @Column(name = "github_updated_at")
+  private Instant githubUpdatedAt;
 
   protected Project() {
   }
@@ -109,6 +116,32 @@ public class Project extends AuditableEntity {
 
   public Instant getDeactivatedAt() {
     return deactivatedAt;
+  }
+
+  public Instant getGithubCreatedAt() {
+    return githubCreatedAt;
+  }
+
+  public Instant getGithubUpdatedAt() {
+    return githubUpdatedAt;
+  }
+
+  public boolean applyGithubDates(Instant createdAt, Instant updatedAt) {
+    if (Objects.equals(githubCreatedAt, createdAt) && Objects.equals(githubUpdatedAt, updatedAt)) {
+      return false;
+    }
+    githubCreatedAt = createdAt;
+    githubUpdatedAt = updatedAt;
+    return true;
+  }
+
+  public boolean clearGithubDates() {
+    if (githubCreatedAt == null && githubUpdatedAt == null) {
+      return false;
+    }
+    githubCreatedAt = null;
+    githubUpdatedAt = null;
+    return true;
   }
 
   public void markDeactivated() {

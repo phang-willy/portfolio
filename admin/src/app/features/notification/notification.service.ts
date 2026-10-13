@@ -10,6 +10,7 @@ import { isAdminRole } from '@/app/shared/models/user-role';
 import { environment } from '@/environments/environment';
 
 const API_URL = `${environment.apiUrl.replace(/\/+$/, '')}/admin/notification`;
+const READ_PAGE_SIZE = 10;
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
@@ -20,11 +21,15 @@ export class NotificationService {
   private stream: EventSource | null = null;
   private started = false;
   private countRevision = 0;
+  private loadGeneration = 0;
+  private readPage = 0;
 
   readonly notifications = signal<readonly AdminNotification[]>([]);
   readonly unreadCount = signal(0);
   readonly isLoading = signal(false);
+  readonly isLoadingMore = signal(false);
   readonly loadError = signal<string | null>(null);
+  readonly nextReadCount = signal(0);
 
   constructor() {
     this.authState.currentUser$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
@@ -51,41 +56,59 @@ export class NotificationService {
     this.stream?.close();
     this.stream = null;
     this.countRevision++;
+    this.loadGeneration++;
+    this.readPage = 0;
     this.notifications.set([]);
     this.unreadCount.set(0);
+    this.nextReadCount.set(0);
+    this.isLoadingMore.set(false);
   }
 
   load(): void {
     if (!isAdminRole(this.authState.getCurrentUser()?.role)) {
       return;
     }
+    const generation = ++this.loadGeneration;
     this.isLoading.set(this.notifications().length === 0);
+    this.isLoadingMore.set(false);
     this.loadError.set(null);
-    this.fetchPage(0, []);
+    this.fetchPage(0, generation, false);
   }
 
-  private fetchPage(page: number, accumulated: readonly AdminNotification[]): void {
+  loadMore(): void {
+    if (this.nextReadCount() === 0 || this.isLoading() || this.isLoadingMore()) {
+      return;
+    }
+    const generation = this.loadGeneration;
+    this.isLoadingMore.set(true);
+    this.loadError.set(null);
+    this.fetchPage(this.readPage + 1, generation, true);
+  }
+
+  private fetchPage(page: number, generation: number, append: boolean): void {
     this.http
       .get<PaginatedApiResponse<AdminNotification>>(API_URL, {
-        params: { page, size: 50 },
+        params: { page, size: READ_PAGE_SIZE },
         withCredentials: true,
       })
       .subscribe({
         next: (response) => {
-          const items = accumulated.concat(response.data ?? []);
-          const totalPages = response.pagination?.totalPages ?? 0;
-          if (page + 1 < totalPages) {
-            this.fetchPage(page + 1, items);
+          if (generation !== this.loadGeneration) {
+            return;
+          }
+          const incoming = response.data ?? [];
+          this.readPage = response.pagination?.page ?? page;
+          this.nextReadCount.set(nextReadBatchSize(response.pagination));
+          this.notifications.update((items) => (append ? appendUnique(items, incoming) : incoming));
+          this.isLoading.set(false);
+          this.isLoadingMore.set(false);
+        },
+        error: () => {
+          if (generation !== this.loadGeneration) {
             return;
           }
           this.isLoading.set(false);
-          this.notifications.set(items);
-        },
-        error: () => {
-          this.isLoading.set(false);
-          if (accumulated.length > 0) {
-            this.notifications.set(accumulated);
-          }
+          this.isLoadingMore.set(false);
           this.loadError.set('Unable to load notifications.');
         },
       });
@@ -179,6 +202,26 @@ export class NotificationService {
       this.unreadCount.update((count) => count + 1);
     }
   }
+}
+
+function nextReadBatchSize(
+  pagination: PaginatedApiResponse<AdminNotification>['pagination'] | undefined,
+): number {
+  if (!pagination) {
+    return 0;
+  }
+  const loadedRead = (pagination.page + 1) * pagination.size;
+  const remaining = Math.max(0, pagination.totalItems - loadedRead);
+  return Math.min(pagination.size, remaining);
+}
+
+function appendUnique(
+  current: readonly AdminNotification[],
+  incoming: readonly AdminNotification[],
+): readonly AdminNotification[] {
+  const seen = new Set(current.map((item) => item.id));
+  const next = incoming.filter((item) => !seen.has(item.id));
+  return next.length === 0 ? current : current.concat(next);
 }
 
 function parseNotification(raw: string): AdminNotification | null {

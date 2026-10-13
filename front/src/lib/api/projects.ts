@@ -19,14 +19,19 @@ const backendProjectSchema = z.object({
   imageLink: z.string().nullable(),
   createdAt: z.string().nullable(),
   updatedAt: z.string().nullable(),
+  githubCreatedAt: z.string().nullable().optional(),
+  githubUpdatedAt: z.string().nullable().optional(),
   stacks: z.array(
     z.object({
       id: z.string(),
       name: z.string(),
+      image: z.string().nullable().optional(),
     }),
   ),
-  fr: projectLocaleSchema,
-  en: projectLocaleSchema,
+  lang: z.object({
+    fr: projectLocaleSchema,
+    en: projectLocaleSchema,
+  }),
 });
 
 export type BackendProject = z.infer<typeof backendProjectSchema>;
@@ -38,6 +43,12 @@ export type ProjectLocaleContent = {
   content: string;
 };
 
+export type ProjectStack = {
+  id: string;
+  name: string;
+  image: string | null;
+};
+
 export type PortfolioProject = {
   id: string;
   image: string;
@@ -45,9 +56,11 @@ export type PortfolioProject = {
     url?: string;
     github?: string;
   };
-  stacks: string[];
+  stacks: ProjectStack[];
   createdAt: string;
   updatedAt: string;
+  /** Full ISO timestamp used to order projects. Null when the repo has no GitHub date yet. */
+  githubUpdatedAt: string | null;
   language: {
     fr: ProjectLocaleContent;
     en: ProjectLocaleContent;
@@ -72,6 +85,8 @@ export async function loadPublicProjects(): Promise<PortfolioProject[]> {
 export function mapPortfolioProject(project: BackendProject): PortfolioProject {
   const createdAt = toIsoDate(project.createdAt);
   const updatedAt = toIsoDate(project.updatedAt ?? project.createdAt);
+  const githubCreatedAt = optionalInstant(project.githubCreatedAt);
+  const githubUpdatedAt = optionalInstant(project.githubUpdatedAt);
 
   return {
     id: project.slug,
@@ -80,17 +95,27 @@ export function mapPortfolioProject(project: BackendProject): PortfolioProject {
       url: optionalUrl(project.productionLink),
       github: optionalUrl(project.sourceCodeLink),
     },
-    stacks: project.stacks.map((stack) => stack.name).filter((name) => name.trim()),
-    createdAt,
-    updatedAt,
+    stacks: project.stacks.flatMap((stack) => {
+      const name = stack.name.trim();
+      if (!name) {
+        return [];
+      }
+      const image = stack.image?.trim();
+      return [{ id: stack.id, name, image: image ? image : null }];
+    }),
+    createdAt: githubCreatedAt ? githubCreatedAt.slice(0, 10) : createdAt,
+    updatedAt: githubUpdatedAt ? githubUpdatedAt.slice(0, 10) : updatedAt,
+    githubUpdatedAt,
     language: {
-      fr: toLocaleContent(project.fr),
-      en: toLocaleContent(project.en),
+      fr: toLocaleContent(project.lang.fr),
+      en: toLocaleContent(project.lang.en),
     },
   };
 }
 
-export function toProjectImageSrc(imageLink: string | null | undefined): string {
+export function toProjectImageSrc(
+  imageLink: string | null | undefined,
+): string {
   const value = imageLink?.trim();
   if (!value) {
     return PROJECT_IMAGE_FALLBACK_PATH;
@@ -114,9 +139,7 @@ export function toProjectImageSrc(imageLink: string | null | undefined): string 
   return PROJECT_IMAGE_FALLBACK_PATH;
 }
 
-function toLocaleContent(
-  locale: BackendProject["fr"],
-): ProjectLocaleContent {
+function toLocaleContent(locale: BackendProject["lang"]["fr"]): ProjectLocaleContent {
   return {
     name: locale.title,
     description: locale.description,
@@ -128,6 +151,17 @@ function toLocaleContent(
 function optionalUrl(value: string | null | undefined): string | undefined {
   const trimmed = value?.trim();
   return trimmed ? trimmed : undefined;
+}
+
+function optionalInstant(value: string | null | undefined): string | null {
+  if (!value?.trim()) {
+    return null;
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  return date.toISOString();
 }
 
 function toIsoDate(value: string | null | undefined): string {

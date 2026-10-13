@@ -43,8 +43,10 @@ describe('ExperienceContractTypeService', () => {
 
   it('creates a contract type with credentials', () => {
     const payload = {
-      fr: { title: 'Alternance' },
-      en: { title: 'Work-study' },
+      lang: {
+        fr: { title: 'Alternance' },
+        en: { title: 'Work-study' },
+      },
       website: '',
     };
 
@@ -64,10 +66,10 @@ describe('ExperienceContractTypeService', () => {
       data: {
         id: 'ct-id',
         slug: 'alternance',
-        codeFr: 'alternance-fr',
-        codeEn: 'work-study-en',
-        fr: payload.fr,
-        en: payload.en,
+        lang: {
+          fr: { code: 'alternance-fr', title: payload.lang.fr.title },
+          en: { code: 'work-study-en', title: payload.lang.en.title },
+        },
       },
     });
   });

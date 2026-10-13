@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ExperienceContractTypeAdminRequest(
-  @NotNull @Valid ExperienceContractTypeLocaleRequest fr,
-  @NotNull @Valid ExperienceContractTypeLocaleRequest en,
+  @NotNull @Valid Localized<ExperienceContractTypeLocaleRequest> lang,
   @Size(max = 500) String website
 ) {}

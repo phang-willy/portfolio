@@ -7,9 +7,11 @@ import com.phangwilly.portfolio.dto.ProjectAdminDetail;
 import com.phangwilly.portfolio.dto.ProjectAdminListItem;
 import com.phangwilly.portfolio.dto.ProjectAdminRequest;
 import com.phangwilly.portfolio.dto.ProjectDeleteRequest;
+import com.phangwilly.portfolio.dto.ProjectGithubSyncResponse;
 import com.phangwilly.portfolio.dto.ProjectImageUploadResponse;
 import com.phangwilly.portfolio.security.Honeypot;
 import com.phangwilly.portfolio.service.ProjectAdminService;
+import com.phangwilly.portfolio.service.ProjectGithubSyncService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.http.MediaType;
@@ -32,9 +34,14 @@ public class ProjectAdminController {
   private static final String PROJECT_DELETED_MESSAGE = "Project deleted";
 
   private final ProjectAdminService projectAdminService;
+  private final ProjectGithubSyncService projectGithubSyncService;
 
-  public ProjectAdminController(ProjectAdminService projectAdminService) {
+  public ProjectAdminController(
+    ProjectAdminService projectAdminService,
+    ProjectGithubSyncService projectGithubSyncService
+  ) {
     this.projectAdminService = projectAdminService;
+    this.projectGithubSyncService = projectGithubSyncService;
   }
 
   @GetMapping
@@ -110,6 +117,17 @@ public class ProjectAdminController {
 
     projectAdminService.reactivateProject(id);
     return ApiResponses.okMessage("Project reactivated");
+  }
+
+  @PostMapping("/github-date")
+  public ResponseEntity<ApiResponse<ProjectGithubSyncResponse>> syncGithubDates(
+    @Valid @RequestBody ProjectDeleteRequest request
+  ) {
+    if (Honeypot.isFilled(request.website())) {
+      return ApiResponses.ok(new ProjectGithubSyncResponse(0, 0));
+    }
+
+    return ApiResponses.ok(projectGithubSyncService.syncForAdmin());
   }
 
   @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

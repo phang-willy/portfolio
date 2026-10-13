@@ -4,7 +4,7 @@ import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { projectRecordForLocale } from "@/features/i18n/lib/localized-site-data";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { appName } from "@/lib/app-name";
-import { getProjectsByCreatedAtDesc } from "@/lib/projects";
+import { getProjectsByUpdatedAtDesc } from "@/lib/projects";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 
@@ -23,7 +23,7 @@ export function buildProjectsListMetadata(locale: AppLocale): Metadata {
 
 export async function ProjectsListPage({ locale }: { locale: AppLocale }) {
   await connection();
-  const projects = (await getProjectsByCreatedAtDesc()).map((p) =>
+  const projects = (await getProjectsByUpdatedAtDesc()).map((p) =>
     projectRecordForLocale(p, locale),
   );
   const d = getDictionary(locale);

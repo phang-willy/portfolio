@@ -92,9 +92,10 @@ export class ExperiencesListPage {
       rows = rows.filter((item) => {
         const haystack = [
           item.company,
-          item.roleFr,
-          item.contractTypeFr,
-          item.contractTypeEn,
+          item.lang.fr.role,
+          item.lang.en.role,
+          item.lang.fr.contractType,
+          item.lang.en.contractType,
           String(item.yearStart),
           item.yearEnd == null ? '' : String(item.yearEnd),
         ]
@@ -113,8 +114,8 @@ export class ExperiencesListPage {
         return direction === 'asc' ? comparison : -comparison;
       }
 
-      const leftValue = left[field] ?? '';
-      const rightValue = right[field] ?? '';
+      const leftValue = this.sortValue(left, field);
+      const rightValue = this.sortValue(right, field);
       const comparison = String(leftValue).localeCompare(String(rightValue));
       return direction === 'asc' ? comparison : -comparison;
     });
@@ -165,6 +166,22 @@ export class ExperiencesListPage {
     this.loadItems();
   }
 
+  private sortValue(
+    item: ExperienceAdminListItem,
+    field: Exclude<SortField, 'yearStart'>,
+  ): string {
+    switch (field) {
+      case 'company':
+        return item.company;
+      case 'roleFr':
+        return item.lang.fr.role;
+      case 'createdAt':
+        return item.createdAt;
+      case 'updatedAt':
+        return item.updatedAt;
+    }
+  }
+
   protected yearsLabel(item: ExperienceAdminListItem): string {
     if (item.yearEnd === null) {
       return String(item.yearStart);
@@ -174,8 +191,8 @@ export class ExperiencesListPage {
   }
 
   protected contractTypeLabel(item: ExperienceAdminListItem): string {
-    const fr = item.contractTypeFr?.trim() ?? '';
-    const en = item.contractTypeEn?.trim() ?? '';
+    const fr = item.lang.fr.contractType?.trim() ?? '';
+    const en = item.lang.en.contractType?.trim() ?? '';
     if (fr && en) {
       return `${fr} / ${en}`;
     }

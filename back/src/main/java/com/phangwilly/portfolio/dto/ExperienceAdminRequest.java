@@ -13,7 +13,6 @@ public record ExperienceAdminRequest(
   @NotNull @Min(1900) @Max(2100) Short yearStart,
   @Min(1900) @Max(2100) Short yearEnd,
   UUID contractTypeId,
-  @NotNull @Valid ExperienceLocaleRequest fr,
-  @NotNull @Valid ExperienceLocaleRequest en,
+  @NotNull @Valid Localized<ExperienceLocaleRequest> lang,
   @Size(max = 500) String website
 ) {}

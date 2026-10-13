@@ -6,9 +6,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.phangwilly.portfolio.dto.ExperienceAdminDetail;
+import com.phangwilly.portfolio.dto.ExperienceAdminDetailLocale;
 import com.phangwilly.portfolio.dto.ExperienceAdminRequest;
 import com.phangwilly.portfolio.dto.ExperienceDeleteRequest;
 import com.phangwilly.portfolio.dto.ExperienceLocaleRequest;
+import com.phangwilly.portfolio.dto.Localized;
 import com.phangwilly.portfolio.service.ExperienceAdminService;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,10 +30,20 @@ class ExperienceAdminControllerTest {
     (short) 2020,
     (short) 2022,
     null,
-    "logistib-integrateur-web-2020-2022-fr",
-    "logistib-web-integrator-2020-2022-en",
-    new ExperienceLocaleRequest("Intégrateur Web", "Résumé", "<p>FR</p>"),
-    new ExperienceLocaleRequest("Web integrator", "Summary", "<p>EN</p>")
+    new Localized<>(
+      new ExperienceAdminDetailLocale(
+        "logistib-integrateur-web-2020-2022-fr",
+        "Intégrateur Web",
+        "Résumé",
+        "<p>FR</p>"
+      ),
+      new ExperienceAdminDetailLocale(
+        "logistib-web-integrator-2020-2022-en",
+        "Web integrator",
+        "Summary",
+        "<p>EN</p>"
+      )
+    )
   );
 
   @Mock
@@ -146,8 +158,10 @@ class ExperienceAdminControllerTest {
       (short) 2020,
       (short) 2022,
       null,
-      new ExperienceLocaleRequest("Intégrateur Web", "Résumé", "<p>FR</p>"),
-      new ExperienceLocaleRequest("Web integrator", "Summary", "<p>EN</p>"),
+      new Localized<>(
+        new ExperienceLocaleRequest("Intégrateur Web", "Résumé", "<p>FR</p>"),
+        new ExperienceLocaleRequest("Web integrator", "Summary", "<p>EN</p>")
+      ),
       website
     );
   }

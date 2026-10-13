@@ -9,10 +9,26 @@ import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
 import { useScrollRevealGroup } from "@/features/animations/hooks/use-scroll-reveal-group";
 import { formatDateForLocale } from "@/lib/date-format";
 import type { ProjectRecord } from "@/lib/projects";
+import { safeInlineSvg } from "@/lib/stack-icon";
 
 type ProjectDetailContentProps = {
   project: ProjectRecord;
 };
+
+function StackIcon({ image }: { image: string | null }) {
+  const markup = safeInlineSvg(image);
+  if (!markup) {
+    return null;
+  }
+
+  return (
+    <span
+      aria-hidden
+      className="grid size-4 shrink-0 place-items-center **:fill-current **:stroke-current [&_svg]:size-full"
+      dangerouslySetInnerHTML={{ __html: markup }}
+    />
+  );
+}
 
 export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
   const { locale, t } = useI18n();
@@ -33,7 +49,7 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
   const sortedStacks = useMemo(
     () =>
       [...project.stacks].sort((a, b) =>
-        a.localeCompare(b, collatorLocale, { sensitivity: "base" }),
+        a.name.localeCompare(b.name, collatorLocale, { sensitivity: "base" }),
       ),
     [collatorLocale, project.stacks],
   );
@@ -140,16 +156,17 @@ export function ProjectDetailContent({ project }: ProjectDetailContentProps) {
           <ul className="flex list-none flex-wrap gap-2 p-0">
             {sortedStacks.map((stack, i) => (
               <li
-                key={stack}
+                key={stack.id}
                 ref={setBlockRef(idxStackChip(i))}
                 style={getBlockStyle(idxStackChip(i))}
                 className={getBlockShellClassName(
                   idxStackChip(i),
-                  "rounded-full bg-main hover:bg-main/80 focus-visible:bg-main/80 transition-colors text-white px-4 py-1.5 text-sm",
+                  "inline-flex items-center gap-2 rounded-full bg-main hover:bg-main/80 focus-visible:bg-main/80 transition-colors text-white px-4 py-1.5 text-sm",
                 )}
                 data-reveal-index={idxStackChip(i)}
               >
-                {stack}
+                <StackIcon image={stack.image} />
+                {stack.name}
               </li>
             ))}
           </ul>

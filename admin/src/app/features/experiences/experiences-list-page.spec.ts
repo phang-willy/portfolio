@@ -24,14 +24,15 @@ type ExperiencesListPageHarness = ExperiencesListPage & {
 const ITEM: ExperienceAdminListItem = {
   id: 'exp-id',
   company: 'Logistib',
-  roleFr: 'Intégrateur Web',
-  contractTypeFr: 'Alternance',
-  contractTypeEn: 'Work-study',
   yearStart: 2020,
   yearEnd: 2022,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   deactivatedAt: null,
+  lang: {
+    fr: { role: 'Intégrateur Web', contractType: 'Alternance' },
+    en: { role: 'Web integrator', contractType: 'Work-study' },
+  },
 };
 
 const EMPTY_PAGE = {

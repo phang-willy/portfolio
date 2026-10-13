@@ -8,7 +8,7 @@ const body: ContactSubmissionBody = {
   lastName: "Contact",
   email: "test@example.com",
   phone: "0600000000",
-  company: undefined,
+  company: "",
   title: "Test Day 2",
   message: "Contact end-to-end test",
   website: "",

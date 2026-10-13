@@ -24,6 +24,7 @@ import { resolveAuthErrorMessage } from '@/app/core/auth/auth-error-message';
 import { AuthHoneypotFieldComponent } from '@/app/shared/components/auth-honeypot-field/auth-honeypot-field.component';
 import {
   ExperienceContractTypeAdminDetail,
+  ExperienceContractTypeInput,
   ExperienceLocale,
 } from '@/app/shared/models/experience-contract-type.model';
 import {
@@ -134,8 +135,8 @@ export class ExperienceContractTypeFormComponent implements OnInit {
     }
 
     this.isSaving.set(true);
-    const body = {
-      ...parsed.data,
+    const body: ExperienceContractTypeInput = {
+      lang: parsed.data,
       website: raw.website,
     };
 
@@ -221,13 +222,13 @@ export class ExperienceContractTypeFormComponent implements OnInit {
 
   private applyDetail(detail: ExperienceContractTypeAdminDetail): void {
     this.form.patchValue({
-      fr: { title: detail.fr.title },
-      en: { title: detail.en.title },
+      fr: { title: detail.lang.fr.title },
+      en: { title: detail.lang.en.title },
       [HONEYPOT_FIELD_NAME]: '',
     });
     this.previewSlug.set(detail.slug);
-    this.previewCodeFr.set(detail.codeFr);
-    this.previewCodeEn.set(detail.codeEn);
+    this.previewCodeFr.set(detail.lang.fr.code);
+    this.previewCodeEn.set(detail.lang.en.code);
   }
 
   private refreshPreviews(): void {
