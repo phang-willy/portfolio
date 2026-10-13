@@ -51,7 +51,7 @@ describe("contactBrevoParams", () => {
   });
 
   it("switches the template copy when the form language is English", () => {
-    const params = contactBrevoParams("en", { ...payload, company: undefined });
+    const params = contactBrevoParams("en", { ...payload, company: "" });
 
     expect(params.OBJECT).toBe(en.contact.email_brevo.OBJECT);
     expect(params.BODY_LINE1).toBe("Hello, good evening");

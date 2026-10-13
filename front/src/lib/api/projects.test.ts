@@ -19,20 +19,26 @@ const projectWithStacks: BackendProject = {
   createdAt: "2025-04-20T08:00:00Z",
   updatedAt: "2026-03-01T08:00:00Z",
   stacks: [
-    { id: "s1", name: "React" },
-    { id: "s2", name: "PostgreSQL" },
+    {
+      id: "s1",
+      name: "React",
+      image: '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
+    },
+    { id: "s2", name: "PostgreSQL", image: null },
   ],
-  fr: {
-    title: "Geolock",
-    description: "Suivi de véhicules",
-    content: "<p>Contenu FR</p>",
-    imageAlt: "Aperçu Geolock",
-  },
-  en: {
-    title: "Geolock",
-    description: "Vehicle tracking",
-    content: "<p>EN content</p>",
-    imageAlt: "Geolock preview",
+  lang: {
+    fr: {
+      title: "Geolock",
+      description: "Suivi de véhicules",
+      content: "<p>Contenu FR</p>",
+      imageAlt: "Aperçu Geolock",
+    },
+    en: {
+      title: "Geolock",
+      description: "Vehicle tracking",
+      content: "<p>EN content</p>",
+      imageAlt: "Geolock preview",
+    },
   },
 };
 
@@ -67,13 +73,21 @@ describe("project API mapping", () => {
     const project = mapPortfolioProject(projectWithStacks);
 
     expect(project.id).toBe("geolock");
-    expect(project.stacks).toEqual(["React", "PostgreSQL"]);
+    expect(project.stacks).toEqual([
+      {
+        id: "s1",
+        name: "React",
+        image: '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
+      },
+      { id: "s2", name: "PostgreSQL", image: null },
+    ]);
     expect(project.image).toBe("/api/project/image/geolock.webp");
     expect(project.links).toEqual({
       url: "https://geolock.example",
       github: "https://github.com/example/geolock",
     });
     expect(project.createdAt).toBe("2025-04-20");
+    expect(project.githubUpdatedAt).toBeNull();
     expect(project.language.fr.content).toBe("Contenu FR");
 
     expect(projectRecordForLocale(project, "fr")).toMatchObject({
@@ -96,6 +110,18 @@ describe("project API mapping", () => {
     expect(project.image).toBe(PROJECT_IMAGE_FALLBACK_PATH);
     expect(project.links.github).toBeUndefined();
     expect(project.links.url).toBeUndefined();
+  });
+
+  it("shows GitHub dates and keeps the full update instant for sorting", () => {
+    const project = mapPortfolioProject({
+      ...projectWithStacks,
+      githubCreatedAt: "2020-02-03T10:00:00Z",
+      githubUpdatedAt: "2026-07-08T15:30:00Z",
+    });
+
+    expect(project.createdAt).toBe("2020-02-03");
+    expect(project.updatedAt).toBe("2026-07-08");
+    expect(project.githubUpdatedAt).toBe("2026-07-08T15:30:00.000Z");
   });
 
   it("keeps a same-origin image path from an absolute backend URL", () => {
@@ -163,7 +189,9 @@ describe("project API mapping", () => {
       vi.fn(async () => new Response("nope", { status: 503 })),
     );
 
-    await expect(loadPublicProjects()).rejects.toBeInstanceOf(PortfolioApiError);
+    await expect(loadPublicProjects()).rejects.toBeInstanceOf(
+      PortfolioApiError,
+    );
     await expect(loadPublicProjects()).rejects.toMatchObject({ status: 503 });
   });
 

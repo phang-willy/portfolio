@@ -6,9 +6,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.phangwilly.portfolio.dto.ExperienceContractTypeAdminDetail;
+import com.phangwilly.portfolio.dto.ExperienceContractTypeAdminLocale;
 import com.phangwilly.portfolio.dto.ExperienceContractTypeAdminRequest;
 import com.phangwilly.portfolio.dto.ExperienceContractTypeDeleteRequest;
 import com.phangwilly.portfolio.dto.ExperienceContractTypeLocaleRequest;
+import com.phangwilly.portfolio.dto.Localized;
 import com.phangwilly.portfolio.service.ExperienceContractTypeAdminService;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,10 +27,10 @@ class ExperienceContractTypeAdminControllerTest {
   private static final ExperienceContractTypeAdminDetail DETAIL = new ExperienceContractTypeAdminDetail(
     CONTRACT_TYPE_ID,
     "alternance",
-    "alternance-fr",
-    "work-study-en",
-    new ExperienceContractTypeLocaleRequest("Alternance"),
-    new ExperienceContractTypeLocaleRequest("Work-study")
+    new Localized<>(
+      new ExperienceContractTypeAdminLocale("alternance-fr", "Alternance"),
+      new ExperienceContractTypeAdminLocale("work-study-en", "Work-study")
+    )
   );
 
   @Mock
@@ -139,8 +141,10 @@ class ExperienceContractTypeAdminControllerTest {
 
   private static ExperienceContractTypeAdminRequest sampleRequest(String website) {
     return new ExperienceContractTypeAdminRequest(
-      new ExperienceContractTypeLocaleRequest("Alternance"),
-      new ExperienceContractTypeLocaleRequest("Work-study"),
+      new Localized<>(
+        new ExperienceContractTypeLocaleRequest("Alternance"),
+        new ExperienceContractTypeLocaleRequest("Work-study")
+      ),
       website
     );
   }

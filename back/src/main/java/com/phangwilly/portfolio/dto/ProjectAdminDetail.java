@@ -1,5 +1,6 @@
 package com.phangwilly.portfolio.dto;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ public record ProjectAdminDetail(
   String productionLink,
   String sourceCodeLink,
   String imageLink,
-  ProjectLocaleRequest fr,
-  ProjectLocaleRequest en
+  Localized<ProjectLocaleRequest> lang,
+  Instant githubCreatedAt,
+  Instant githubUpdatedAt
 ) {}

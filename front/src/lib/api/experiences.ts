@@ -15,8 +15,10 @@ const backendExperienceSchema = z.object({
   company: z.string(),
   yearStart: z.number().int(),
   yearEnd: z.number().int().nullable(),
-  fr: experienceLocaleSchema,
-  en: experienceLocaleSchema,
+  lang: z.object({
+    fr: experienceLocaleSchema,
+    en: experienceLocaleSchema,
+  }),
 });
 
 export type BackendExperience = z.infer<typeof backendExperienceSchema>;
@@ -56,14 +58,14 @@ export function mapPortfolioExperience(
     yearStart: experience.yearStart,
     yearEnd: experience.yearEnd,
     language: {
-      fr: toLocaleContent(experience.fr),
-      en: toLocaleContent(experience.en),
+      fr: toLocaleContent(experience.lang.fr),
+      en: toLocaleContent(experience.lang.en),
     },
   };
 }
 
 function toLocaleContent(
-  locale: BackendExperience["fr"],
+  locale: BackendExperience["lang"]["fr"],
 ): ExperienceLocaleContent {
   const summary = locale.summary.trim() || plainTextFromHtml(locale.content);
   return {

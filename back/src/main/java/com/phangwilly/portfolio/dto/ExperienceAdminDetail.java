@@ -8,8 +8,5 @@ public record ExperienceAdminDetail(
   Short yearStart,
   Short yearEnd,
   UUID contractTypeId,
-  String slugFr,
-  String slugEn,
-  ExperienceLocaleRequest fr,
-  ExperienceLocaleRequest en
+  Localized<ExperienceAdminDetailLocale> lang
 ) {}

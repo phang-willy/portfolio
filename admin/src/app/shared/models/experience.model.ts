@@ -1,3 +1,5 @@
+import { Localized } from '@/app/shared/models/localized.model';
+
 export type ExperienceLocale = 'fr' | 'en';
 
 export interface ExperienceLocaleInput {
@@ -11,8 +13,7 @@ export interface ExperienceInput {
   readonly yearStart: number;
   readonly yearEnd: number | null;
   readonly contractTypeId: string | null;
-  readonly fr: ExperienceLocaleInput;
-  readonly en: ExperienceLocaleInput;
+  readonly lang: Localized<ExperienceLocaleInput>;
   readonly website?: string;
 }
 
@@ -20,17 +21,27 @@ export interface ExperienceDeleteInput {
   readonly website?: string;
 }
 
+export interface ExperienceAdminListLocale {
+  readonly role: string;
+  readonly contractType: string;
+}
+
 export interface ExperienceAdminListItem {
   readonly id: string;
   readonly company: string;
-  readonly roleFr: string;
-  readonly contractTypeFr: string;
-  readonly contractTypeEn: string;
   readonly yearStart: number;
   readonly yearEnd: number | null;
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly deactivatedAt: string | null;
+  readonly lang: Localized<ExperienceAdminListLocale>;
+}
+
+export interface ExperienceAdminDetailLocale {
+  readonly slug: string;
+  readonly role: string;
+  readonly summary: string;
+  readonly content: string;
 }
 
 export interface ExperienceAdminDetail {
@@ -39,10 +50,7 @@ export interface ExperienceAdminDetail {
   readonly yearStart: number;
   readonly yearEnd: number | null;
   readonly contractTypeId: string | null;
-  readonly slugFr: string;
-  readonly slugEn: string;
-  readonly fr: ExperienceLocaleInput;
-  readonly en: ExperienceLocaleInput;
+  readonly lang: Localized<ExperienceAdminDetailLocale>;
 }
 
 export type { PageResponse } from '@/app/shared/models/stack.model';

@@ -40,7 +40,7 @@ export async function submitContactToBackend(
         lastName: data.lastName,
         email: data.email,
         phone: data.phone,
-        company: data.company ?? null,
+        company: data.company || null,
         title: data.title,
         message: data.message,
         website: "",

@@ -13,17 +13,19 @@ const finished: BackendExperience = {
   company: "DIT",
   yearStart: 2023,
   yearEnd: 2025,
-  fr: {
-    role: "Développeur Full Stack",
-    summary: "Applications métier",
-    content: "",
-    contractType: "Contrat en alternance",
-  },
-  en: {
-    role: "Full Stack Developer",
-    summary: "Business applications",
-    content: "",
-    contractType: "Work-study contract",
+  lang: {
+    fr: {
+      role: "Développeur Full Stack",
+      summary: "Applications métier",
+      content: "",
+      contractType: "Contrat en alternance",
+    },
+    en: {
+      role: "Full Stack Developer",
+      summary: "Business applications",
+      content: "",
+      contractType: "Work-study contract",
+    },
   },
 };
 
@@ -32,17 +34,19 @@ const ongoing: BackendExperience = {
   company: "Studio",
   yearStart: 2026,
   yearEnd: null,
-  fr: {
-    role: "Développeur",
-    summary: "",
-    content: "<p>Mission en cours</p>",
-    contractType: "CDI",
-  },
-  en: {
-    role: "Developer",
-    summary: "",
-    content: "<p>Current mission</p>",
-    contractType: "Permanent",
+  lang: {
+    fr: {
+      role: "Développeur",
+      summary: "",
+      content: "<p>Mission en cours</p>",
+      contractType: "CDI",
+    },
+    en: {
+      role: "Developer",
+      summary: "",
+      content: "<p>Current mission</p>",
+      contractType: "Permanent",
+    },
   },
 };
 

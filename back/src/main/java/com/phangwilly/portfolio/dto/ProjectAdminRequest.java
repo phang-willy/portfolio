@@ -13,8 +13,7 @@ public record ProjectAdminRequest(
   @Size(max = 255)
   @Pattern(regexp = "^[a-z0-9]+(?:-[a-z0-9]+)*$", message = "Slug must be lowercase alphanumeric with hyphens")
   String slug,
-  @NotNull @Valid ProjectLocaleRequest fr,
-  @NotNull @Valid ProjectLocaleRequest en,
+  @NotNull @Valid Localized<ProjectLocaleRequest> lang,
   List<UUID> stackIds,
   @Size(max = 500) String productionLink,
   @Size(max = 500) String sourceCodeLink,

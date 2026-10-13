@@ -7,6 +7,5 @@ public record ExperienceResponse(
   String company,
   Short yearStart,
   Short yearEnd,
-  ExperiencePublicLocale fr,
-  ExperiencePublicLocale en
+  Localized<ExperiencePublicLocale> lang
 ) {}

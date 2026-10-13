@@ -89,6 +89,7 @@ export function projectRecordForLocale(
     stacks: project.stacks,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
+    githubUpdatedAt: project.githubUpdatedAt,
     name: tr.name,
     description: tr.description,
     imageAlt: tr.imageAlt,

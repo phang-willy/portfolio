@@ -24,6 +24,8 @@ export class NotificationPage {
 
   protected readonly unreadItems = computed(() => this.items().filter((item) => !item.read));
   protected readonly readItems = computed(() => this.items().filter((item) => item.read));
+  protected readonly nextReadCount = this.notifications.nextReadCount;
+  protected readonly isLoadingMore = this.notifications.isLoadingMore;
   protected readonly selectedUnreadIds = computed(() =>
     this.unreadItems()
       .filter((item) => this.selectedIds().has(item.id))
@@ -65,6 +67,10 @@ export class NotificationPage {
 
   protected markSelected(): void {
     this.mark(this.selectedUnreadIds());
+  }
+
+  protected showMoreRead(): void {
+    this.notifications.loadMore();
   }
 
   protected markAll(): void {

@@ -107,6 +107,34 @@
             }
           </div>
 
+          <div class="grid gap-2">
+            <label class="text-sm font-bold" for="githubCreatedAt">GitHub created</label>
+            <input
+              hlmInput
+              id="githubCreatedAt"
+              type="text"
+              readonly
+              tabindex="-1"
+              class="bg-muted"
+              [value]="(githubCreatedAt() | adminDate) || ''"
+              placeholder="Not synced yet"
+            />
+          </div>
+
+          <div class="grid gap-2">
+            <label class="text-sm font-bold" for="githubUpdatedAt">GitHub updated</label>
+            <input
+              hlmInput
+              id="githubUpdatedAt"
+              type="text"
+              readonly
+              tabindex="-1"
+              class="bg-muted"
+              [value]="(githubUpdatedAt() | adminDate) || ''"
+              placeholder="Not synced yet"
+            />
+          </div>
+
           <div class="grid gap-2 md:col-span-2">
             <label class="text-sm font-bold" for="imageLink">Image</label>
             <div class="flex flex-wrap items-center gap-2">

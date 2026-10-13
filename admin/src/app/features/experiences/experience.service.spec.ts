@@ -47,8 +47,10 @@ describe('ExperienceService', () => {
       yearStart: 2020,
       yearEnd: 2022,
       contractTypeId: null,
-      fr: { role: 'Intégrateur Web', summary: '', content: '' },
-      en: { role: 'Web integrator', summary: '', content: '' },
+      lang: {
+        fr: { role: 'Intégrateur Web', summary: '', content: '' },
+        en: { role: 'Web integrator', summary: '', content: '' },
+      },
       website: '',
     };
 
@@ -71,10 +73,16 @@ describe('ExperienceService', () => {
         yearStart: 2020,
         yearEnd: 2022,
         contractTypeId: null,
-        slugFr: 'logistib-integrateur-web-2020-2022-fr',
-        slugEn: 'logistib-web-integrator-2020-2022-en',
-        fr: payload.fr,
-        en: payload.en,
+        lang: {
+          fr: {
+            slug: 'logistib-integrateur-web-2020-2022-fr',
+            ...payload.lang.fr,
+          },
+          en: {
+            slug: 'logistib-web-integrator-2020-2022-en',
+            ...payload.lang.en,
+          },
+        },
       },
     });
   });

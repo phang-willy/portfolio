@@ -23,13 +23,13 @@ type ContractTypesListPageHarness = ExperienceContractTypesListPage & {
 const ITEM: ExperienceContractTypeAdminListItem = {
   id: 'ct-id',
   slug: 'alternance',
-  codeFr: 'alternance-fr',
-  codeEn: 'work-study-en',
-  titleFr: 'Alternance',
-  titleEn: 'Work-study',
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   deactivatedAt: null,
+  lang: {
+    fr: { code: 'alternance-fr', title: 'Alternance' },
+    en: { code: 'work-study-en', title: 'Work-study' },
+  },
 };
 
 const EMPTY_PAGE = {

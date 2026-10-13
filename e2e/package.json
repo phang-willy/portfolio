@@ -1,0 +1,11 @@
+{
+  "name": "portfolio-e2e",
+  "private": true,
+  "scripts": {
+    "test": "playwright test --project=setup --project=chromium",
+    "test:infra": "playwright test --project=infra"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}

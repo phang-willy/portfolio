@@ -216,7 +216,7 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
     }
 
     const suffix = contractType.deactivatedAt === null ? '' : ' (inactive)';
-    return `${contractType.titleFr} / ${contractType.titleEn}${suffix}`;
+    return `${contractType.lang.fr.title} / ${contractType.lang.en.title}${suffix}`;
   };
 
   protected requestTab(tab: ExperienceLocale, event: Event): void {
@@ -357,8 +357,10 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
       yearStart: parsed.data.yearStart,
       yearEnd: parsed.data.yearEnd ?? null,
       contractTypeId: parsed.data.contractTypeId ?? null,
-      fr: parsed.data.fr,
-      en: parsed.data.en,
+      lang: {
+        fr: parsed.data.fr,
+        en: parsed.data.en,
+      },
       website: raw.website,
     };
 
@@ -414,7 +416,7 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
             return leftActive - rightActive;
           }
 
-          return left.titleFr.localeCompare(right.titleFr);
+          return left.lang.fr.title.localeCompare(right.lang.fr.title);
         });
         this.contractTypes.set(sorted);
       });
@@ -446,14 +448,14 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
       yearStart: detail.yearStart,
       yearEnd: detail.yearEnd ?? '',
       contractTypeId: detail.contractTypeId ?? '',
-      fr: this.toLocaleGroup(detail.fr),
-      en: this.toLocaleGroup(detail.en),
+      fr: this.toLocaleGroup(detail.lang.fr),
+      en: this.toLocaleGroup(detail.lang.en),
       [HONEYPOT_FIELD_NAME]: '',
     });
-    this.previewSlugFr.set(detail.slugFr);
-    this.previewSlugEn.set(detail.slugEn);
-    this.frEditor.commands.setContent(detail.fr.content || '', { emitUpdate: false });
-    this.enEditor.commands.setContent(detail.en.content || '', { emitUpdate: false });
+    this.previewSlugFr.set(detail.lang.fr.slug);
+    this.previewSlugEn.set(detail.lang.en.slug);
+    this.frEditor.commands.setContent(detail.lang.fr.content || '', { emitUpdate: false });
+    this.enEditor.commands.setContent(detail.lang.en.content || '', { emitUpdate: false });
   }
 
   private toLocaleGroup(locale: ExperienceLocaleInput): LocaleFormGroup {

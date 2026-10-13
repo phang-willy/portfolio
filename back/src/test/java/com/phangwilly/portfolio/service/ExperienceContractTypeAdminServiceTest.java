@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.phangwilly.portfolio.dto.ExperienceContractTypeAdminDetail;
 import com.phangwilly.portfolio.dto.ExperienceContractTypeAdminRequest;
 import com.phangwilly.portfolio.dto.ExperienceContractTypeLocaleRequest;
+import com.phangwilly.portfolio.dto.Localized;
 import com.phangwilly.portfolio.enums.UserRole;
 import com.phangwilly.portfolio.exception.ApiException;
 import com.phangwilly.portfolio.model.AuditableEntity;
@@ -82,10 +83,10 @@ class ExperienceContractTypeAdminServiceTest {
     ExperienceContractTypeAdminDetail detail = service.createContractType(sampleRequest());
 
     assertThat(detail.slug()).isEqualTo("alternance");
-    assertThat(detail.codeFr()).isEqualTo("alternance-fr");
-    assertThat(detail.codeEn()).isEqualTo("work-study-en");
-    assertThat(detail.fr().title()).isEqualTo("Alternance");
-    assertThat(detail.en().title()).isEqualTo("Work-study");
+    assertThat(detail.lang().fr().code()).isEqualTo("alternance-fr");
+    assertThat(detail.lang().en().code()).isEqualTo("work-study-en");
+    assertThat(detail.lang().fr().title()).isEqualTo("Alternance");
+    assertThat(detail.lang().en().title()).isEqualTo("Work-study");
     verify(repository, org.mockito.Mockito.times(2)).saveAndFlush(any(ExperienceContractType.class));
   }
 
@@ -182,8 +183,10 @@ class ExperienceContractTypeAdminServiceTest {
 
   private static ExperienceContractTypeAdminRequest sampleRequest() {
     return new ExperienceContractTypeAdminRequest(
-      new ExperienceContractTypeLocaleRequest("Alternance"),
-      new ExperienceContractTypeLocaleRequest("Work-study"),
+      new Localized<>(
+        new ExperienceContractTypeLocaleRequest("Alternance"),
+        new ExperienceContractTypeLocaleRequest("Work-study")
+      ),
       null
     );
   }

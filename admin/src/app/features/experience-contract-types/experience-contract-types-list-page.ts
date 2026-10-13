@@ -90,7 +90,13 @@ export class ExperienceContractTypesListPage {
 
     if (query) {
       rows = rows.filter((item) => {
-        const haystack = [item.slug, item.codeFr, item.codeEn, item.titleFr, item.titleEn]
+        const haystack = [
+          item.slug,
+          item.lang.fr.code,
+          item.lang.en.code,
+          item.lang.fr.title,
+          item.lang.en.title,
+        ]
           .join(' ')
           .toLowerCase();
         return haystack.includes(query);
@@ -101,8 +107,8 @@ export class ExperienceContractTypesListPage {
     const direction = this.sortDirection();
 
     rows.sort((left, right) => {
-      const leftValue = left[field] ?? '';
-      const rightValue = right[field] ?? '';
+      const leftValue = this.sortValue(left, field);
+      const rightValue = this.sortValue(right, field);
       const comparison = String(leftValue).localeCompare(String(rightValue));
       return direction === 'asc' ? comparison : -comparison;
     });
@@ -151,6 +157,19 @@ export class ExperienceContractTypesListPage {
 
   constructor() {
     this.loadItems();
+  }
+
+  private sortValue(item: ExperienceContractTypeAdminListItem, field: SortField): string {
+    switch (field) {
+      case 'slug':
+        return item.slug;
+      case 'titleFr':
+        return item.lang.fr.title;
+      case 'createdAt':
+        return item.createdAt;
+      case 'updatedAt':
+        return item.updatedAt;
+    }
   }
 
   protected deleteDialogState(): BrnDialogState {
