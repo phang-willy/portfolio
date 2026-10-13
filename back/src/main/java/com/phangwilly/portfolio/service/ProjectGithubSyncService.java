@@ -90,8 +90,10 @@ public class ProjectGithubSyncService {
   }
 
   /**
-   * Fetches the GitHub dates for this locale pair and keeps the newer timestamp.
-   * Returns true when the stored update date moved forward.
+   * Fetches the GitHub dates for this locale pair.
+   * The same repository keeps the newer timestamp. When the stored repository
+   * identity differs from the current link, both dates are replaced.
+   * Returns true when the update date moved forward on the same repository.
    */
   public boolean refresh(List<Project> projects) {
     if (projects == null || projects.isEmpty()) {
@@ -125,12 +127,19 @@ public class ProjectGithubSyncService {
     Instant storedCreated = newest(projects, Project::getGithubCreatedAt);
     Instant storedUpdated = newest(projects, Project::getGithubUpdatedAt);
     GithubRepoDates incoming = fetched.get();
-    Instant nextCreated = GithubDateSelection.newer(storedCreated, incoming.createdAt());
-    Instant nextUpdated = GithubDateSelection.newer(storedUpdated, incoming.updatedAt());
-    boolean movedForward = GithubDateSelection.movedForward(storedUpdated, incoming.updatedAt());
+    String incomingKey = repo.get().key();
+    boolean repositoryChanged = repositoryChanged(projects, incomingKey);
+    Instant nextCreated = repositoryChanged
+      ? incoming.createdAt()
+      : GithubDateSelection.newer(storedCreated, incoming.createdAt());
+    Instant nextUpdated = repositoryChanged
+      ? incoming.updatedAt()
+      : GithubDateSelection.newer(storedUpdated, incoming.updatedAt());
+    boolean movedForward =
+      !repositoryChanged && GithubDateSelection.movedForward(storedUpdated, incoming.updatedAt());
 
     for (Project project : projects) {
-      if (project.applyGithubDates(nextCreated, nextUpdated)) {
+      if (project.applyGithubSnapshot(incomingKey, nextCreated, nextUpdated)) {
         projectRepository.save(project);
       }
     }
@@ -174,6 +183,16 @@ public class ProjectGithubSyncService {
 
   private static String formatDate(Instant instant) {
     return instant == null ? "-" : instant.atZone(ZoneOffset.UTC).toLocalDate().toString();
+  }
+
+  private static boolean repositoryChanged(List<Project> projects, String incomingKey) {
+    for (Project project : projects) {
+      String stored = project.getGithubRepo();
+      if (stored != null && !stored.isBlank() && !incomingKey.equals(stored)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static Instant newest(List<Project> projects, Function<Project, Instant> reader) {

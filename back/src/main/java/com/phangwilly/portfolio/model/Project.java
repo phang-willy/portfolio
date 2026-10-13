@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Objects;
 
 @Entity
@@ -52,6 +53,9 @@ public class Project extends AuditableEntity {
 
   @Column(name = "github_updated_at")
   private Instant githubUpdatedAt;
+
+  @Column(name = "github_repo", length = 200)
+  private String githubRepo;
 
   protected Project() {
   }
@@ -126,6 +130,10 @@ public class Project extends AuditableEntity {
     return githubUpdatedAt;
   }
 
+  public String getGithubRepo() {
+    return githubRepo;
+  }
+
   public boolean applyGithubDates(Instant createdAt, Instant updatedAt) {
     if (Objects.equals(githubCreatedAt, createdAt) && Objects.equals(githubUpdatedAt, updatedAt)) {
       return false;
@@ -135,13 +143,36 @@ public class Project extends AuditableEntity {
     return true;
   }
 
+  public boolean applyGithubSnapshot(String repoKey, Instant createdAt, Instant updatedAt) {
+    String normalizedRepo = normalizeRepoKey(repoKey);
+    if (
+      Objects.equals(githubRepo, normalizedRepo) &&
+      Objects.equals(githubCreatedAt, createdAt) &&
+      Objects.equals(githubUpdatedAt, updatedAt)
+    ) {
+      return false;
+    }
+    githubRepo = normalizedRepo;
+    githubCreatedAt = createdAt;
+    githubUpdatedAt = updatedAt;
+    return true;
+  }
+
   public boolean clearGithubDates() {
-    if (githubCreatedAt == null && githubUpdatedAt == null) {
+    if (githubCreatedAt == null && githubUpdatedAt == null && githubRepo == null) {
       return false;
     }
     githubCreatedAt = null;
     githubUpdatedAt = null;
+    githubRepo = null;
     return true;
+  }
+
+  private static String normalizeRepoKey(String repoKey) {
+    if (repoKey == null || repoKey.isBlank()) {
+      return null;
+    }
+    return repoKey.trim().toLowerCase(Locale.ROOT);
   }
 
   public void markDeactivated() {

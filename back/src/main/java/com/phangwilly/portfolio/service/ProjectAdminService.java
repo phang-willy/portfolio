@@ -304,17 +304,31 @@ public class ProjectAdminService {
     String lang,
     ProjectLocaleRequest locale
   ) {
+    String nextProductionLink = normalizeOptional(request.productionLink());
+    String nextSourceLink = normalizeOptional(request.sourceCodeLink());
+    String previousRepo = repoKey(project.getSourceCodeLink(), project.getProductionLink());
+    String nextRepo = repoKey(nextSourceLink, nextProductionLink);
     project.updateDetails(
       locale.title().trim(),
       slug,
       normalizeOptional(locale.description()),
       normalizeOptional(locale.content()),
-      normalizeOptional(request.productionLink()),
-      normalizeOptional(request.sourceCodeLink()),
+      nextProductionLink,
+      nextSourceLink,
       normalizeOptional(request.imageLink()),
       normalizeOptional(locale.imageAlt()),
       lang
     );
+    if (!Objects.equals(previousRepo, nextRepo)) {
+      project.clearGithubDates();
+    }
+  }
+
+  private static String repoKey(String sourceCodeLink, String productionLink) {
+    return GithubRepoUrls
+      .fromLinks(sourceCodeLink, productionLink)
+      .map(GithubRepoRef::key)
+      .orElse(null);
   }
 
   private void syncStacks(Project project, List<Stack> stacks) {

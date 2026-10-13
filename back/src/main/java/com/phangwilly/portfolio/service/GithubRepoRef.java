@@ -1,3 +1,10 @@
 package com.phangwilly.portfolio.service;
 
-public record GithubRepoRef(String owner, String repo) {}
+import java.util.Locale;
+
+public record GithubRepoRef(String owner, String repo) {
+
+  public String key() {
+    return owner.toLowerCase(Locale.ROOT) + "/" + repo.toLowerCase(Locale.ROOT);
+  }
+}

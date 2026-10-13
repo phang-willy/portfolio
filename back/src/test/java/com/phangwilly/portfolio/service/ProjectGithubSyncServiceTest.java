@@ -25,9 +25,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 class ProjectGithubSyncServiceTest {
 
   private static final Instant CREATED = Instant.parse("2024-01-01T00:00:00Z");
+  private static final Instant OLDER_CREATED = Instant.parse("2020-01-01T00:00:00Z");
   private static final Instant STORED_UPDATED = Instant.parse("2026-01-01T00:00:00Z");
   private static final Instant NEWER_UPDATED = Instant.parse("2026-06-01T00:00:00Z");
   private static final Instant OLDER_UPDATED = Instant.parse("2025-06-01T00:00:00Z");
+  private static final String REPO_KEY = "example/geolock";
 
   @Mock
   private ProjectRepository projectRepository;
@@ -56,7 +58,7 @@ class ProjectGithubSyncServiceTest {
   @Test
   void refreshKeepsTheNewerDateAndNotifiesWhenGithubMovedForward() {
     Project project = project();
-    project.applyGithubDates(CREATED, STORED_UPDATED);
+    project.applyGithubSnapshot(REPO_KEY, CREATED, STORED_UPDATED);
     when(githubRepoDatesClient.fetch(new GithubRepoRef("example", "geolock")))
       .thenReturn(Optional.of(new GithubRepoDates(CREATED, NEWER_UPDATED)));
 
@@ -74,7 +76,7 @@ class ProjectGithubSyncServiceTest {
   @Test
   void refreshKeepsTheStoredDateWhenGithubIsOlder() {
     Project project = project();
-    project.applyGithubDates(CREATED, STORED_UPDATED);
+    project.applyGithubSnapshot(REPO_KEY, CREATED, STORED_UPDATED);
     when(githubRepoDatesClient.fetch(any()))
       .thenReturn(Optional.of(new GithubRepoDates(CREATED, OLDER_UPDATED)));
 
@@ -82,6 +84,39 @@ class ProjectGithubSyncServiceTest {
 
     assertThat(updated).isFalse();
     assertThat(project.getGithubUpdatedAt()).isEqualTo(STORED_UPDATED);
+    assertThat(project.getGithubRepo()).isEqualTo(REPO_KEY);
+    verify(notificationService, never()).notify(any(), any(), any());
+  }
+
+  @Test
+  void refreshReplacesDatesWhenTheLinkedRepositoryChanges() {
+    Project project = project();
+    project.applyGithubSnapshot("example/old-app", CREATED, STORED_UPDATED);
+    when(githubRepoDatesClient.fetch(new GithubRepoRef("example", "geolock")))
+      .thenReturn(Optional.of(new GithubRepoDates(OLDER_CREATED, OLDER_UPDATED)));
+
+    boolean updated = service.refresh(List.of(project));
+
+    assertThat(updated).isFalse();
+    assertThat(project.getGithubCreatedAt()).isEqualTo(OLDER_CREATED);
+    assertThat(project.getGithubUpdatedAt()).isEqualTo(OLDER_UPDATED);
+    assertThat(project.getGithubRepo()).isEqualTo(REPO_KEY);
+    verify(notificationService, never()).notify(any(), any(), any());
+  }
+
+  @Test
+  void refreshRecordsTheRepositoryWithoutRewindingAnExistingSnapshot() {
+    Project project = project();
+    project.applyGithubDates(CREATED, STORED_UPDATED);
+    when(githubRepoDatesClient.fetch(any()))
+      .thenReturn(Optional.of(new GithubRepoDates(OLDER_CREATED, OLDER_UPDATED)));
+
+    boolean updated = service.refresh(List.of(project));
+
+    assertThat(updated).isFalse();
+    assertThat(project.getGithubCreatedAt()).isEqualTo(CREATED);
+    assertThat(project.getGithubUpdatedAt()).isEqualTo(STORED_UPDATED);
+    assertThat(project.getGithubRepo()).isEqualTo(REPO_KEY);
     verify(notificationService, never()).notify(any(), any(), any());
   }
 
@@ -96,19 +131,21 @@ class ProjectGithubSyncServiceTest {
     assertThat(updated).isFalse();
     assertThat(project.getGithubCreatedAt()).isEqualTo(CREATED);
     assertThat(project.getGithubUpdatedAt()).isEqualTo(NEWER_UPDATED);
+    assertThat(project.getGithubRepo()).isEqualTo(REPO_KEY);
     verify(notificationService, never()).notify(any(), any(), any());
   }
 
   @Test
   void refreshClearsDatesWhenTheGithubLinkIsRemoved() {
     Project project = projectWithoutLink();
-    project.applyGithubDates(CREATED, STORED_UPDATED);
+    project.applyGithubSnapshot("example/notes", CREATED, STORED_UPDATED);
 
     boolean updated = service.refresh(List.of(project));
 
     assertThat(updated).isFalse();
     assertThat(project.getGithubCreatedAt()).isNull();
     assertThat(project.getGithubUpdatedAt()).isNull();
+    assertThat(project.getGithubRepo()).isNull();
     verify(githubRepoDatesClient, never()).fetch(any());
     verify(notificationService, never()).notify(any(), any(), any());
   }
