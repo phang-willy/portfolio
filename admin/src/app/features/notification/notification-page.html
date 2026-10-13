@@ -111,6 +111,20 @@
             </div>
           </article>
         }
+        @if (nextReadCount() > 0) {
+          <div>
+            <button
+              hlmBtn
+              type="button"
+              variant="outline"
+              size="sm"
+              [disabled]="isLoadingMore()"
+              (click)="showMoreRead()"
+            >
+              Show next {{ nextReadCount() }}
+            </button>
+          </div>
+        }
       }
     </section>
   }

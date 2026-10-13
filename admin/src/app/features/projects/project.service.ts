@@ -7,6 +7,7 @@ import {
   ProjectAdminDetail,
   ProjectAdminListItem,
   ProjectDeleteInput,
+  ProjectGithubSyncResult,
   ProjectInput,
 } from '@/app/shared/models/project.model';
 import { ApiResponse, PaginatedApiResponse } from '@/app/shared/models/api-response.model';
@@ -74,6 +75,14 @@ export class ProjectService {
         withCredentials: true,
       })
       .pipe(map(() => void 0));
+  }
+
+  syncGithubDates(): Observable<ProjectGithubSyncResult> {
+    return this.http
+      .post<ApiResponse<ProjectGithubSyncResult>>(`${API_URL}/admin/project/github-date`, { website: '' }, {
+        withCredentials: true,
+      })
+      .pipe(map((response) => response.data));
   }
 
   uploadImage(file: File): Observable<string> {

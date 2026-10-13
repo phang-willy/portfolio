@@ -1,10 +1,12 @@
 package com.phangwilly.portfolio.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
 import com.phangwilly.portfolio.dto.PageResponse;
 import com.phangwilly.portfolio.dto.ProjectResponse;
+import com.phangwilly.portfolio.dto.ProjectStackItem;
 import com.phangwilly.portfolio.model.Project;
 import com.phangwilly.portfolio.model.ProjectStack;
 import com.phangwilly.portfolio.model.Stack;
@@ -44,7 +46,8 @@ class ProjectServiceTest {
     Instant updatedAt = Instant.parse("2026-04-01T10:00:00Z");
     Project fr = project(frId, "geolock", "fr", "Geolock", "Suivi", createdAt, updatedAt);
     Project en = project(enId, "geolock", "en", "Geolock", "Tracking", createdAt, updatedAt.plusSeconds(30));
-    Stack react = stack(UUID.randomUUID(), "React");
+    String reactLogo = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 8 8\"></svg>";
+    Stack react = stack(UUID.randomUUID(), "React", reactLogo);
     Stack next = stack(UUID.randomUUID(), "Next.js");
 
     when(projectRepository.findPublicProjects()).thenReturn(List.of(fr, en));
@@ -60,10 +63,12 @@ class ProjectServiceTest {
     ProjectResponse response = page.data().getFirst();
     assertThat(response.slug()).isEqualTo("geolock");
     assertThat(response.id()).isEqualTo(frId);
-    assertThat(response.fr().title()).isEqualTo("Geolock");
-    assertThat(response.fr().description()).isEqualTo("Suivi");
-    assertThat(response.en().description()).isEqualTo("Tracking");
-    assertThat(response.stacks()).extracting(item -> item.name()).containsExactly("Next.js", "React");
+    assertThat(response.lang().fr().title()).isEqualTo("Geolock");
+    assertThat(response.lang().fr().description()).isEqualTo("Suivi");
+    assertThat(response.lang().en().description()).isEqualTo("Tracking");
+    assertThat(response.stacks())
+      .extracting(ProjectStackItem::name, ProjectStackItem::image)
+      .containsExactly(tuple("Next.js", null), tuple("React", reactLogo));
     assertThat(response.createdAt()).isEqualTo(createdAt);
     assertThat(response.updatedAt()).isEqualTo(updatedAt.plusSeconds(30));
     assertThat(page.pagination().totalItems()).isEqualTo(1);
@@ -101,7 +106,7 @@ class ProjectServiceTest {
   }
 
   @Test
-  void getProjectsSortsByCreatedAtDescending() {
+  void getProjectsSortsByGithubUpdatedAtDescending() {
     Project older = project(
       UUID.randomUUID(),
       "older",
@@ -111,7 +116,11 @@ class ProjectServiceTest {
       Instant.parse("2024-01-01T00:00:00Z"),
       Instant.parse("2024-01-01T00:00:00Z")
     );
-    Project newer = project(
+    older.applyGithubDates(
+      Instant.parse("2020-01-01T00:00:00Z"),
+      Instant.parse("2026-08-01T00:00:00Z")
+    );
+    Project newerCreated = project(
       UUID.randomUUID(),
       "newer",
       "fr",
@@ -120,13 +129,27 @@ class ProjectServiceTest {
       Instant.parse("2026-01-01T00:00:00Z"),
       Instant.parse("2026-01-01T00:00:00Z")
     );
+    newerCreated.applyGithubDates(
+      Instant.parse("2020-01-01T00:00:00Z"),
+      Instant.parse("2025-01-01T00:00:00Z")
+    );
+    Project withoutGithub = project(
+      UUID.randomUUID(),
+      "plain",
+      "fr",
+      "Plain",
+      "",
+      Instant.parse("2026-09-01T00:00:00Z"),
+      Instant.parse("2026-09-01T00:00:00Z")
+    );
 
-    when(projectRepository.findPublicProjects()).thenReturn(List.of(older, newer));
+    when(projectRepository.findPublicProjects()).thenReturn(List.of(withoutGithub, newerCreated, older));
     when(projectStackRepository.findPublicProjectStacks()).thenReturn(List.of());
 
     PageResponse<ProjectResponse> page = service.getProjects(0, 50);
 
-    assertThat(page.data()).extracting(ProjectResponse::slug).containsExactly("newer", "older");
+    assertThat(page.data()).extracting(ProjectResponse::slug).containsExactly("older", "newer", "plain");
+    assertThat(page.data().getFirst().githubUpdatedAt()).isEqualTo(Instant.parse("2026-08-01T00:00:00Z"));
   }
 
   private static Project project(
@@ -156,7 +179,11 @@ class ProjectServiceTest {
   }
 
   private static Stack stack(UUID id, String name) {
-    Stack stack = new Stack(name, null);
+    return stack(id, name, null);
+  }
+
+  private static Stack stack(UUID id, String name, String image) {
+    Stack stack = new Stack(name, image);
     ReflectionTestUtils.setField(stack, "id", id);
     return stack;
   }

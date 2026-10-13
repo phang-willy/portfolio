@@ -1,6 +1,8 @@
 package com.phangwilly.portfolio.service;
 
 import com.phangwilly.portfolio.dto.ExperienceContractTypeAdminDetail;
+import com.phangwilly.portfolio.dto.ExperienceContractTypeAdminLocale;
+import com.phangwilly.portfolio.dto.Localized;
 import com.phangwilly.portfolio.dto.ExperienceContractTypeAdminListItem;
 import com.phangwilly.portfolio.dto.ExperienceContractTypeAdminRequest;
 import com.phangwilly.portfolio.dto.ExperienceContractTypeLocaleRequest;
@@ -95,16 +97,16 @@ public class ExperienceContractTypeAdminService {
     ExperienceContractTypeAdminRequest request
   ) {
     currentUserService.requireAdmin();
-    String slug = SlugUtils.slugify(request.fr().title());
-    String codeFr = SlugUtils.slugify(request.fr().title(), LANG_FR);
-    String codeEn = SlugUtils.slugify(request.en().title(), LANG_EN);
+    String slug = SlugUtils.slugify(request.lang().fr().title());
+    String codeFr = SlugUtils.slugify(request.lang().fr().title(), LANG_FR);
+    String codeEn = SlugUtils.slugify(request.lang().en().title(), LANG_EN);
 
     assertSlugAvailable(slug);
     assertCodeAvailable(codeFr);
     assertCodeAvailable(codeEn);
 
-    ExperienceContractType fr = createLocale(slug, codeFr, LANG_FR, request.fr());
-    ExperienceContractType en = createLocale(slug, codeEn, LANG_EN, request.en());
+    ExperienceContractType fr = createLocale(slug, codeFr, LANG_FR, request.lang().fr());
+    ExperienceContractType en = createLocale(slug, codeEn, LANG_EN, request.lang().en());
 
     return toDetail(List.of(fr, en));
   }
@@ -119,9 +121,9 @@ public class ExperienceContractTypeAdminService {
     ExperienceContractType en = findByLang(existing, LANG_EN);
 
     String currentSlug = fr.getSlug();
-    String nextSlug = SlugUtils.slugify(request.fr().title());
-    String codeFr = SlugUtils.slugify(request.fr().title(), LANG_FR);
-    String codeEn = SlugUtils.slugify(request.en().title(), LANG_EN);
+    String nextSlug = SlugUtils.slugify(request.lang().fr().title());
+    String codeFr = SlugUtils.slugify(request.lang().fr().title(), LANG_FR);
+    String codeEn = SlugUtils.slugify(request.lang().en().title(), LANG_EN);
 
     if (!currentSlug.equals(nextSlug)) {
       assertSlugAvailable(nextSlug);
@@ -133,8 +135,8 @@ public class ExperienceContractTypeAdminService {
       assertCodeAvailable(codeEn);
     }
 
-    updateLocale(fr, nextSlug, codeFr, LANG_FR, request.fr());
-    updateLocale(en, nextSlug, codeEn, LANG_EN, request.en());
+    updateLocale(fr, nextSlug, codeFr, LANG_FR, request.lang().fr());
+    updateLocale(en, nextSlug, codeEn, LANG_EN, request.lang().en());
     repository.saveAndFlush(fr);
     repository.saveAndFlush(en);
 
@@ -204,13 +206,10 @@ public class ExperienceContractTypeAdminService {
     return new ExperienceContractTypeAdminListItem(
       id,
       slug,
-      fr != null ? fr.getCode() : "",
-      en != null ? en.getCode() : "",
-      fr != null ? fr.getTitle() : "",
-      en != null ? en.getTitle() : "",
       createdAt,
       updatedAt,
-      fr != null ? fr.getDeactivatedAt() : en != null ? en.getDeactivatedAt() : null
+      fr != null ? fr.getDeactivatedAt() : en != null ? en.getDeactivatedAt() : null,
+      new Localized<>(toLocale(fr), toLocale(en))
     );
   }
 
@@ -221,10 +220,18 @@ public class ExperienceContractTypeAdminService {
     return new ExperienceContractTypeAdminDetail(
       fr.getId(),
       fr.getSlug(),
-      fr.getCode(),
-      en.getCode(),
-      new ExperienceContractTypeLocaleRequest(fr.getTitle()),
-      new ExperienceContractTypeLocaleRequest(en.getTitle())
+      new Localized<>(toLocale(fr), toLocale(en))
+    );
+  }
+
+  private static ExperienceContractTypeAdminLocale toLocale(ExperienceContractType item) {
+    if (item == null) {
+      return new ExperienceContractTypeAdminLocale("", "");
+    }
+
+    return new ExperienceContractTypeAdminLocale(
+      item.getCode() != null ? item.getCode() : "",
+      item.getTitle() != null ? item.getTitle() : ""
     );
   }
 

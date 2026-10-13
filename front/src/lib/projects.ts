@@ -1,4 +1,3 @@
-import { resolveProjectDatesFromGithub } from "@/lib/github-repo-dates";
 import {
   loadPublicProjects,
   type PortfolioProject,
@@ -9,16 +8,7 @@ export type { PortfolioProject, ProjectRecord };
 export type RawProjectRecord = PortfolioProject;
 
 async function getProjects(): Promise<PortfolioProject[]> {
-  const projects = await loadPublicProjects();
-  return Promise.all(
-    projects.map(async (project) => {
-      const { createdAt, updatedAt } = await resolveProjectDatesFromGithub(
-        project.links,
-        { createdAt: project.createdAt, updatedAt: project.updatedAt },
-      );
-      return { ...project, createdAt, updatedAt };
-    }),
-  );
+  return loadPublicProjects();
 }
 
 export async function getProjectsByCreatedAtDesc(): Promise<PortfolioProject[]> {
@@ -33,11 +23,24 @@ export async function getProjectById(
   return projects.find((project) => project.id === id);
 }
 
+/** Newest GitHub update first. Projects without a GitHub date stay at the end. */
+export function compareByGithubUpdatedAtDesc(
+  a: PortfolioProject,
+  b: PortfolioProject,
+): number {
+  const left = a.githubUpdatedAt;
+  const right = b.githubUpdatedAt;
+  if (left && right && left !== right) {
+    return right.localeCompare(left);
+  }
+  if (left && !right) return -1;
+  if (!left && right) return 1;
+  const byCreated = b.createdAt.localeCompare(a.createdAt);
+  if (byCreated !== 0) return byCreated;
+  return a.id.localeCompare(b.id);
+}
+
 export async function getProjectsByUpdatedAtDesc(): Promise<PortfolioProject[]> {
   const projects = await getProjects();
-  return [...projects].sort((a, b) => {
-    const byUpdated = b.updatedAt.localeCompare(a.updatedAt);
-    if (byUpdated !== 0) return byUpdated;
-    return b.createdAt.localeCompare(a.createdAt);
-  });
+  return [...projects].sort(compareByGithubUpdatedAtDesc);
 }

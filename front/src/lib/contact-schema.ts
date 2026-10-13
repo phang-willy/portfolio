@@ -25,11 +25,10 @@ export const contactFormSchema = z.object({
     .min(1, "Le téléphone est requis.")
     .max(40, "Le téléphone est trop long.")
     .regex(phoneRegex, "Format de téléphone invalide."),
-  company: z
-    .string()
-    .trim()
-    .max(200, "Le nom de l'entreprise est trop long.")
-    .transform((value) => (value === "" ? undefined : value)),
+  company: z.preprocess(
+    (value) => (typeof value === "string" ? value : ""),
+    z.string().trim().max(200, "Le nom de l'entreprise est trop long."),
+  ),
   title: z
     .string()
     .trim()

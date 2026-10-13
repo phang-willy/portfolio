@@ -13,6 +13,7 @@ public record ProjectResponse(
   Instant createdAt,
   Instant updatedAt,
   List<ProjectStackItem> stacks,
-  ProjectPublicLocale fr,
-  ProjectPublicLocale en
+  Localized<ProjectPublicLocale> lang,
+  Instant githubCreatedAt,
+  Instant githubUpdatedAt
 ) {}

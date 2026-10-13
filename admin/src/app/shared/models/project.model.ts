@@ -1,3 +1,5 @@
+import { Localized } from '@/app/shared/models/localized.model';
+
 export type ProjectLocale = 'fr' | 'en';
 
 export interface ProjectLocaleInput {
@@ -9,8 +11,7 @@ export interface ProjectLocaleInput {
 
 export interface ProjectInput {
   readonly slug: string;
-  readonly fr: ProjectLocaleInput;
-  readonly en: ProjectLocaleInput;
+  readonly lang: Localized<ProjectLocaleInput>;
   readonly stackIds: readonly string[];
   readonly productionLink: string;
   readonly sourceCodeLink: string;
@@ -22,15 +23,18 @@ export interface ProjectDeleteInput {
   readonly website?: string;
 }
 
+export interface ProjectAdminListLocale {
+  readonly title: string;
+}
+
 export interface ProjectAdminListItem {
   readonly id: string;
   readonly slug: string;
-  readonly titleFr: string;
-  readonly titleEn: string;
   readonly stackNames: readonly string[];
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly deactivatedAt: string | null;
+  readonly lang: Localized<ProjectAdminListLocale>;
 }
 
 export interface ProjectAdminDetail {
@@ -40,8 +44,14 @@ export interface ProjectAdminDetail {
   readonly productionLink: string | null;
   readonly sourceCodeLink: string | null;
   readonly imageLink: string | null;
-  readonly fr: ProjectLocaleInput;
-  readonly en: ProjectLocaleInput;
+  readonly lang: Localized<ProjectLocaleInput>;
+  readonly githubCreatedAt: string | null;
+  readonly githubUpdatedAt: string | null;
+}
+
+export interface ProjectGithubSyncResult {
+  readonly checked: number;
+  readonly updated: number;
 }
 
 export type { PageResponse } from '@/app/shared/models/stack.model';

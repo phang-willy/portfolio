@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.phangwilly.portfolio.dto.ExperienceAdminDetail;
 import com.phangwilly.portfolio.dto.ExperienceAdminRequest;
 import com.phangwilly.portfolio.dto.ExperienceLocaleRequest;
+import com.phangwilly.portfolio.dto.Localized;
 import com.phangwilly.portfolio.exception.ApiException;
 import com.phangwilly.portfolio.model.AuditableEntity;
 import com.phangwilly.portfolio.model.Experience;
@@ -105,16 +106,18 @@ class ExperienceAdminServiceTest {
       (short) 2024,
       null,
       null,
-      new ExperienceLocaleRequest("Developer", "", ""),
-      new ExperienceLocaleRequest("Developer", "", ""),
+      new Localized<>(
+        new ExperienceLocaleRequest("Developer", "", ""),
+        new ExperienceLocaleRequest("Developer", "", "")
+      ),
       null
     );
 
     ExperienceAdminDetail detail = service.createExperience(request);
 
-    assertThat(detail.slugFr()).isEqualTo("acme-developer-2024-fr");
-    assertThat(detail.slugEn()).isEqualTo("acme-developer-2024-en");
-    assertThat(detail.slugFr()).isNotEqualTo(detail.slugEn());
+    assertThat(detail.lang().fr().slug()).isEqualTo("acme-developer-2024-fr");
+    assertThat(detail.lang().en().slug()).isEqualTo("acme-developer-2024-en");
+    assertThat(detail.lang().fr().slug()).isNotEqualTo(detail.lang().en().slug());
   }
 
   @Test
@@ -142,10 +145,10 @@ class ExperienceAdminServiceTest {
     ExperienceAdminDetail detail = service.createExperience(sampleRequest());
 
     assertThat(detail.company()).isEqualTo("Logistib");
-    assertThat(detail.slugFr()).isEqualTo("logistib-integrateur-web-2020-2022-fr");
-    assertThat(detail.slugEn()).isEqualTo("logistib-web-integrator-2020-2022-en");
-    assertThat(detail.fr().role()).isEqualTo("Intégrateur Web");
-    assertThat(detail.en().role()).isEqualTo("Web integrator");
+    assertThat(detail.lang().fr().slug()).isEqualTo("logistib-integrateur-web-2020-2022-fr");
+    assertThat(detail.lang().en().slug()).isEqualTo("logistib-web-integrator-2020-2022-en");
+    assertThat(detail.lang().fr().role()).isEqualTo("Intégrateur Web");
+    assertThat(detail.lang().en().role()).isEqualTo("Web integrator");
     verify(experienceRepository, org.mockito.Mockito.times(2)).saveAndFlush(any(Experience.class));
   }
 
@@ -159,8 +162,10 @@ class ExperienceAdminServiceTest {
       (short) 2024,
       (short) 2020,
       null,
-      new ExperienceLocaleRequest("Dev", "", ""),
-      new ExperienceLocaleRequest("Dev", "", ""),
+      new Localized<>(
+        new ExperienceLocaleRequest("Dev", "", ""),
+        new ExperienceLocaleRequest("Dev", "", "")
+      ),
       null
     );
 
@@ -271,8 +276,10 @@ class ExperienceAdminServiceTest {
       (short) 2020,
       (short) 2022,
       null,
-      new ExperienceLocaleRequest("Intégrateur Web", "Résumé", "<p>FR</p>"),
-      new ExperienceLocaleRequest("Web integrator", "Summary", "<p>EN</p>"),
+      new Localized<>(
+        new ExperienceLocaleRequest("Intégrateur Web", "Résumé", "<p>FR</p>"),
+        new ExperienceLocaleRequest("Web integrator", "Summary", "<p>EN</p>")
+      ),
       null
     );
   }

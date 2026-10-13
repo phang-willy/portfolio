@@ -68,10 +68,10 @@ class ExperienceServiceTest {
     assertThat(response.company()).isEqualTo("DIT");
     assertThat(response.yearStart()).isEqualTo((short) 2024);
     assertThat(response.yearEnd()).isNull();
-    assertThat(response.fr().role()).isEqualTo("Développeur");
-    assertThat(response.fr().contractType()).isEqualTo("Contrat en alternance");
-    assertThat(response.en().role()).isEqualTo("Developer");
-    assertThat(response.en().contractType()).isEqualTo("Work-study contract");
+    assertThat(response.lang().fr().role()).isEqualTo("Développeur");
+    assertThat(response.lang().fr().contractType()).isEqualTo("Contrat en alternance");
+    assertThat(response.lang().en().role()).isEqualTo("Developer");
+    assertThat(response.lang().en().contractType()).isEqualTo("Work-study contract");
   }
 
   @Test

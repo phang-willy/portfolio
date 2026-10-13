@@ -16,9 +16,8 @@ import com.phangwilly.portfolio.security.AuthenticatedUser;
 import com.phangwilly.portfolio.security.CurrentUserService;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
@@ -29,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class NotificationService {
 
+  private static final int READ_PAGE_SIZE = 10;
   private static final Sort DEFAULT_SORT = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id"));
 
   private final NotificationRepository notificationRepository;
@@ -49,6 +49,17 @@ public class NotificationService {
     this.currentUserService = currentUserService;
     this.eventPublisher = eventPublisher;
     this.clock = clock;
+  }
+
+  @Transactional
+  public void notify(String serviceCode, String title, String message) {
+    Notification notification = notificationRepository.saveAndFlush(new Notification(
+      serviceCode,
+      title,
+      message,
+      Instant.now(clock)
+    ));
+    eventPublisher.publishEvent(new NotificationCreatedEvent(NotificationResponse.from(notification, false)));
   }
 
   @Transactional
@@ -76,9 +87,27 @@ public class NotificationService {
   @Transactional(readOnly = true)
   public PageResponse<NotificationResponse> list(Integer page, Integer size) {
     AuthenticatedUser user = currentUserService.requireAdmin();
-    var notifications = notificationRepository.findAll(PaginationRequest.of(page, size).toPageable(DEFAULT_SORT));
-    Set<UUID> readIds = readIds(user.id(), notifications.getContent());
-    return PageResponse.from(notifications.map(item -> NotificationResponse.from(item, readIds.contains(item.getId()))));
+    var pagination = PaginationRequest.of(page, size == null ? READ_PAGE_SIZE : size);
+    var readPage = notificationRepository.findRead(user.id(), pagination.toPageable(DEFAULT_SORT));
+    List<NotificationResponse> items = new ArrayList<>();
+    if (pagination.page() == 0) {
+      for (Notification notification : notificationRepository.findUnread(user.id())) {
+        items.add(NotificationResponse.from(notification, false));
+      }
+    }
+    for (Notification notification : readPage.getContent()) {
+      items.add(NotificationResponse.from(notification, true));
+    }
+    // Pagination describes read pages. Page 0 also includes every unread notification.
+    return new PageResponse<>(
+      items,
+      new PageResponse.Pagination(
+        readPage.getNumber(),
+        readPage.getSize(),
+        readPage.getTotalElements(),
+        readPage.getTotalPages()
+      )
+    );
   }
 
   @Transactional(readOnly = true)
@@ -106,14 +135,6 @@ public class NotificationService {
       readRepository.save(new NotificationRead(new NotificationReadId(notification.getId(), user.id()), readAt));
     }
     return new NotificationUnreadCountResponse(0);
-  }
-
-  private Set<UUID> readIds(UUID userId, List<Notification> notifications) {
-    if (notifications.isEmpty()) {
-      return Set.of();
-    }
-    List<UUID> ids = notifications.stream().map(Notification::getId).toList();
-    return new HashSet<>(readRepository.findReadNotificationIds(userId, ids));
   }
 
   private static String title(ServiceHealthCheck check) {

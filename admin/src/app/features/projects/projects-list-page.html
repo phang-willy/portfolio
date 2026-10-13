@@ -6,11 +6,37 @@
       <p class="m-0 text-muted-foreground">Manage portfolio projects in French and English.</p>
     </div>
 
-    <a hlmBtn routerLink="/admin/projects/create">
-      <ng-icon hlm size="sm" name="lucidePlus" />
-      New project
-    </a>
+    <div class="flex flex-wrap items-center gap-2">
+      @if (isAdmin()) {
+        <button
+          hlmBtn
+          type="button"
+          variant="outline"
+          [disabled]="isSyncingGithub()"
+          (click)="syncGithubDates()"
+        >
+          @if (isSyncingGithub()) {
+            <hlm-spinner size="sm" />
+          } @else {
+            <ng-icon hlm size="sm" name="lucideRotateCcw" />
+          }
+          Refresh GitHub dates
+        </button>
+      }
+      <a hlmBtn routerLink="/admin/projects/create">
+        <ng-icon hlm size="sm" name="lucidePlus" />
+        New project
+      </a>
+    </div>
   </section>
+
+  @if (syncMessage(); as message) {
+    <p
+      class="m-0 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
+    >
+      {{ message }}
+    </p>
+  }
 
   @if (errorMessage(); as message) {
     <p
@@ -125,8 +151,8 @@
                 <td hlmTd>
                   <span class="font-semibold">{{ project.slug }}</span>
                 </td>
-                <td hlmTd>{{ project.titleFr }}</td>
-                <td hlmTd>{{ project.titleEn }}</td>
+                <td hlmTd>{{ project.lang.fr.title }}</td>
+                <td hlmTd>{{ project.lang.en.title }}</td>
                 <td hlmTd>{{ project.stackNames.join(', ') || '-' }}</td>
                 <td hlmTd>{{ project.createdAt | adminDate }}</td>
                 <td hlmTd>{{ project.updatedAt | adminDate }}</td>
@@ -192,10 +218,10 @@
               <dd class="m-0 text-end font-semibold">{{ project.slug }}</dd>
 
               <dt class="font-semibold text-foreground">Title (FR):</dt>
-              <dd class="m-0 text-end">{{ project.titleFr }}</dd>
+              <dd class="m-0 text-end">{{ project.lang.fr.title }}</dd>
 
               <dt class="font-semibold text-foreground">Title (EN):</dt>
-              <dd class="m-0 text-end">{{ project.titleEn }}</dd>
+              <dd class="m-0 text-end">{{ project.lang.en.title }}</dd>
 
               <dt class="font-semibold text-foreground">Stacks:</dt>
               <dd class="m-0 text-end">{{ project.stackNames.join(', ') || '-' }}</dd>

@@ -33,10 +33,12 @@ import { ProjectService } from '@/app/features/projects/project.service';
 import { StackNamePipe } from '@/app/features/projects/project-form/stack-name.pipe';
 import { StackService } from '@/app/features/stacks/stack.service';
 import { AdminAccessService } from '@/app/core/auth/admin-access.service';
+import { AdminDatePipe } from '@/app/shared/pipes/admin-date.pipe';
 import { resolveAuthErrorMessage } from '@/app/core/auth/auth-error-message';
 import { AuthHoneypotFieldComponent } from '@/app/shared/components/auth-honeypot-field/auth-honeypot-field.component';
 import {
   ProjectAdminDetail,
+  ProjectInput,
   ProjectLocale,
   ProjectLocaleInput,
 } from '@/app/shared/models/project.model';
@@ -77,6 +79,7 @@ function normalizeEditorHtml(html: string): string {
   host: { class: 'block' },
   imports: [
     AuthHoneypotFieldComponent,
+    AdminDatePipe,
     FormsModule,
     HlmAlertDialogImports,
     HlmButtonImports,
@@ -121,6 +124,8 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   protected readonly loadedProjectId = signal<string | null>(null);
   protected readonly savedSnapshot = signal<string | null>(null);
   protected readonly codeViewByTab = signal<Record<ProjectLocale, boolean>>({ fr: false, en: false });
+  protected readonly githubCreatedAt = signal<string | null>(null);
+  protected readonly githubUpdatedAt = signal<string | null>(null);
 
   protected frEditor!: Editor;
   protected enEditor!: Editor;
@@ -374,8 +379,10 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     }
 
     this.isSaving.set(true);
-    const payload = {
-      ...parsed.data,
+    const { fr, en, ...shared } = parsed.data;
+    const payload: ProjectInput = {
+      ...shared,
+      lang: { fr, en },
       website: raw.website,
     };
 
@@ -447,17 +454,19 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   private applyDetail(detail: ProjectAdminDetail): void {
     this.projectForm.patchValue({
       slug: detail.slug,
-      fr: this.toLocaleGroup(detail.fr),
-      en: this.toLocaleGroup(detail.en),
+      fr: this.toLocaleGroup(detail.lang.fr),
+      en: this.toLocaleGroup(detail.lang.en),
       productionLink: detail.productionLink ?? '',
       sourceCodeLink: detail.sourceCodeLink ?? '',
       imageLink: detail.imageLink ?? '',
       [HONEYPOT_FIELD_NAME]: '',
     });
     this.selectedStackIds.set([...detail.stackIds]);
+    this.githubCreatedAt.set(detail.githubCreatedAt);
+    this.githubUpdatedAt.set(detail.githubUpdatedAt);
     this.slugManuallyEdited.set(true);
-    this.frEditor.commands.setContent(detail.fr.content || '', { emitUpdate: false });
-    this.enEditor.commands.setContent(detail.en.content || '', { emitUpdate: false });
+    this.frEditor.commands.setContent(detail.lang.fr.content || '', { emitUpdate: false });
+    this.enEditor.commands.setContent(detail.lang.en.content || '', { emitUpdate: false });
   }
 
   private toLocaleGroup(locale: ProjectLocaleInput): LocaleFormGroup {

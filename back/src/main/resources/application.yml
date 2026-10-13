@@ -108,6 +108,8 @@ app:
   github-token-reminder:
     token: ${GITHUB_TOKEN:}
     cron: ${APP_GITHUB_TOKEN_REMINDER_CRON:0 5 2 * * *}
+  github-project-dates:
+    cron: ${APP_GITHUB_PROJECT_DATES_CRON:0 30 3 * * *}
   service-health:
     interval-millis: ${APP_SERVICE_HEALTH_INTERVAL_MILLIS:15000}
     timeout-millis: ${APP_SERVICE_HEALTH_TIMEOUT_MILLIS:3000}

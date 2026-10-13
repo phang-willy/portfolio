@@ -67,7 +67,10 @@ export async function postContact(
     response = await fetchImpl(getContactApiUrl("/api/contact"), {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        ...body,
+        company: body.company ?? "",
+      }),
     });
   } catch {
     return { type: "network" };

@@ -1,5 +1,6 @@
 package com.phangwilly.portfolio.service;
 
+import com.phangwilly.portfolio.dto.Localized;
 import com.phangwilly.portfolio.dto.PageResponse;
 import com.phangwilly.portfolio.dto.PaginationRequest;
 import com.phangwilly.portfolio.dto.ProjectPublicLocale;
@@ -63,7 +64,8 @@ public class ProjectService {
       .map(locales -> toResponse(locales, stacksByProjectId))
       .sorted(
         Comparator
-          .comparing(ProjectResponse::createdAt, Comparator.nullsLast(Comparator.reverseOrder()))
+          .comparing(ProjectResponse::githubUpdatedAt, Comparator.nullsLast(Comparator.reverseOrder()))
+          .thenComparing(ProjectResponse::createdAt, Comparator.nullsLast(Comparator.reverseOrder()))
           .thenComparing(ProjectResponse::slug, Comparator.nullsLast(String::compareTo))
       )
       .toList();
@@ -88,8 +90,9 @@ public class ProjectService {
       earliest(locales, Project::getCreatedAt),
       latest(locales, Project::getUpdatedAt),
       stacksFor(locales, stacksByProjectId),
-      ProjectPublicLocale.from(fr),
-      ProjectPublicLocale.from(en)
+      new Localized<>(ProjectPublicLocale.from(fr), ProjectPublicLocale.from(en)),
+      latest(locales, Project::getGithubCreatedAt),
+      latest(locales, Project::getGithubUpdatedAt)
     );
   }
 
@@ -104,7 +107,10 @@ public class ProjectService {
         if (stack.getId() == null) {
           continue;
         }
-        unique.putIfAbsent(stack.getId(), new ProjectStackItem(stack.getId(), stack.getName()));
+        unique.putIfAbsent(
+          stack.getId(),
+          new ProjectStackItem(stack.getId(), stack.getName(), stack.getImage())
+        );
       }
     }
 

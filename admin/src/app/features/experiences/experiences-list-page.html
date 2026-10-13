@@ -128,7 +128,7 @@
                 <td hlmTd>
                   <span class="font-semibold">{{ item.company }}</span>
                 </td>
-                <td hlmTd>{{ item.roleFr }}</td>
+                <td hlmTd>{{ item.lang.fr.role }}</td>
                 <td hlmTd>{{ contractTypeLabel(item) }}</td>
                 <td hlmTd>{{ yearsLabel(item) }}</td>
                 <td hlmTd>{{ item.createdAt | adminDate }}</td>
@@ -193,7 +193,7 @@
               <dd class="m-0 text-end font-semibold">{{ item.company }}</dd>
 
               <dt class="font-semibold text-foreground">Role (FR):</dt>
-              <dd class="m-0 text-end">{{ item.roleFr }}</dd>
+              <dd class="m-0 text-end">{{ item.lang.fr.role }}</dd>
 
               <dt class="font-semibold text-foreground">Contract:</dt>
               <dd class="m-0 text-end">{{ contractTypeLabel(item) }}</dd>
@@ -374,7 +374,7 @@
       <h2 hlmAlertDialogTitle>Deactivate experience</h2>
       <p hlmAlertDialogDescription class="whitespace-pre-line">
         This will deactivate <strong>{{ deactivateTarget()?.company }}</strong> -
-        <strong>{{ deactivateTarget()?.roleFr }}</strong
+        <strong>{{ deactivateTarget()?.lang.fr.role }}</strong
         >. You can permanently delete it afterwards.
       </p>
     </hlm-alert-dialog-header>
@@ -397,7 +397,7 @@
       <h2 hlmAlertDialogTitle>Reactivate experience</h2>
       <p hlmAlertDialogDescription>
         <strong>{{ reactivateTarget()?.company }}</strong> -
-        <strong>{{ reactivateTarget()?.roleFr }}</strong> will be reactivated.
+        <strong>{{ reactivateTarget()?.lang.fr.role }}</strong> will be reactivated.
       </p>
     </hlm-alert-dialog-header>
     <form [formGroup]="reactivateForm" (ngSubmit)="acceptReactivate()">
@@ -416,7 +416,7 @@
       <h2 hlmAlertDialogTitle>Delete experience</h2>
       <p hlmAlertDialogDescription>
         <strong>{{ deleteTarget()?.company }}</strong> -
-        <strong>{{ deleteTarget()?.roleFr }}</strong> <br />
+        <strong>{{ deleteTarget()?.lang.fr.role }}</strong> <br />
         will be permanently deleted from the database.
       </p>
     </hlm-alert-dialog-header>

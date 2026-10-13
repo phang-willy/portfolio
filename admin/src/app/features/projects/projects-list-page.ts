@@ -61,6 +61,8 @@ export class ProjectsListPage {
   protected readonly projects = signal<readonly ProjectAdminListItem[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly syncMessage = signal<string | null>(null);
+  protected readonly isSyncingGithub = signal(false);
   protected readonly globalFilterValue = signal('');
   protected readonly rowsPerPage = signal(TABLE_ROWS);
   protected readonly currentPage = signal(1);
@@ -92,8 +94,8 @@ export class ProjectsListPage {
       items = items.filter((project) => {
         const haystack = [
           project.slug,
-          project.titleFr,
-          project.titleEn,
+          project.lang.fr.title,
+          project.lang.en.title,
           ...project.stackNames,
         ]
           .join(' ')
@@ -106,8 +108,8 @@ export class ProjectsListPage {
     const direction = this.sortDirection();
 
     items.sort((left, right) => {
-      const leftValue = left[field] ?? '';
-      const rightValue = right[field] ?? '';
+      const leftValue = this.sortValue(left, field);
+      const rightValue = this.sortValue(right, field);
       const comparison = String(leftValue).localeCompare(String(rightValue));
       return direction === 'asc' ? comparison : -comparison;
     });
@@ -160,6 +162,19 @@ export class ProjectsListPage {
 
   protected deleteDialogState(): BrnDialogState {
     return this.deleteTarget() ? 'open' : 'closed';
+  }
+
+  private sortValue(project: ProjectAdminListItem, field: SortField): string {
+    switch (field) {
+      case 'slug':
+        return project.slug;
+      case 'titleFr':
+        return project.lang.fr.title;
+      case 'createdAt':
+        return project.createdAt;
+      case 'updatedAt':
+        return project.updatedAt;
+    }
   }
 
   protected confirmDelete(project: ProjectAdminListItem): void {
@@ -365,6 +380,36 @@ export class ProjectsListPage {
     }
 
     return this.sortDirection() === 'asc' ? 'lucideArrowUp' : 'lucideArrowDown';
+  }
+
+  protected isAdmin(): boolean {
+    return this.adminAccess.isAdmin();
+  }
+
+  protected syncGithubDates(): void {
+    if (!this.ensureAdminAction()) {
+      return;
+    }
+
+    this.isSyncingGithub.set(true);
+    this.syncMessage.set(null);
+    this.errorMessage.set(null);
+
+    this.projectService
+      .syncGithubDates()
+      .pipe(
+        catchError(() => {
+          this.errorMessage.set('Unable to refresh GitHub dates.');
+          return EMPTY;
+        }),
+        finalize(() => this.isSyncingGithub.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((result) => {
+        this.syncMessage.set(
+          `Checked ${result.checked} projects. ${result.updated} have a newer GitHub update.`,
+        );
+      });
   }
 
   private loadProjects(): void {

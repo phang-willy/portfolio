@@ -41,6 +41,9 @@ class ProjectAdminServiceTest {
   @Mock
   private ProjectImageService projectImageService;
 
+  @Mock
+  private ProjectGithubSyncService projectGithubSyncService;
+
   private ProjectAdminService service;
 
   @BeforeEach
@@ -50,7 +53,8 @@ class ProjectAdminServiceTest {
       projectStackRepository,
       stackRepository,
       currentUserService,
-      projectImageService
+      projectImageService,
+      projectGithubSyncService
     );
   }
 

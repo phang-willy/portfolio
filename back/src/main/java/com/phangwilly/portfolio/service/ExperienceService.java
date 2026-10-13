@@ -2,6 +2,7 @@ package com.phangwilly.portfolio.service;
 
 import com.phangwilly.portfolio.dto.ExperiencePublicLocale;
 import com.phangwilly.portfolio.dto.ExperienceResponse;
+import com.phangwilly.portfolio.dto.Localized;
 import com.phangwilly.portfolio.dto.PageResponse;
 import com.phangwilly.portfolio.dto.PaginationRequest;
 import com.phangwilly.portfolio.model.Experience;
@@ -67,8 +68,7 @@ public class ExperienceService {
       primary.getCompany(),
       primary.getYearStart(),
       primary.getYearEnd(),
-      ExperiencePublicLocale.from(fr),
-      ExperiencePublicLocale.from(en)
+      new Localized<>(ExperiencePublicLocale.from(fr), ExperiencePublicLocale.from(en))
     );
   }
 

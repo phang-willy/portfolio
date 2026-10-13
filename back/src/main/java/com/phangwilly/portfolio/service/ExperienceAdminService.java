@@ -1,9 +1,12 @@
 package com.phangwilly.portfolio.service;
 
 import com.phangwilly.portfolio.dto.ExperienceAdminDetail;
+import com.phangwilly.portfolio.dto.ExperienceAdminDetailLocale;
 import com.phangwilly.portfolio.dto.ExperienceAdminListItem;
+import com.phangwilly.portfolio.dto.ExperienceAdminListLocale;
 import com.phangwilly.portfolio.dto.ExperienceAdminRequest;
 import com.phangwilly.portfolio.dto.ExperienceLocaleRequest;
+import com.phangwilly.portfolio.dto.Localized;
 import com.phangwilly.portfolio.dto.PageResponse;
 import com.phangwilly.portfolio.dto.PaginationRequest;
 import com.phangwilly.portfolio.exception.ApiException;
@@ -95,14 +98,14 @@ public class ExperienceAdminService {
     String company = request.company().trim();
     String slugFr = buildLocaleSlug(
       company,
-      request.fr().role(),
+      request.lang().fr().role(),
       request.yearStart(),
       request.yearEnd(),
       LANG_FR
     );
     String slugEn = buildLocaleSlug(
       company,
-      request.en().role(),
+      request.lang().en().role(),
       request.yearStart(),
       request.yearEnd(),
       LANG_EN
@@ -119,7 +122,7 @@ public class ExperienceAdminService {
       request,
       company,
       LANG_FR,
-      request.fr(),
+      request.lang().fr(),
       findContractType(contractTypes, LANG_FR)
     );
     Experience en = createLocale(
@@ -128,7 +131,7 @@ public class ExperienceAdminService {
       request,
       company,
       LANG_EN,
-      request.en(),
+      request.lang().en(),
       findContractType(contractTypes, LANG_EN)
     );
 
@@ -145,14 +148,14 @@ public class ExperienceAdminService {
     String company = request.company().trim();
     String slugFr = buildLocaleSlug(
       company,
-      request.fr().role(),
+      request.lang().fr().role(),
       request.yearStart(),
       request.yearEnd(),
       LANG_FR
     );
     String slugEn = buildLocaleSlug(
       company,
-      request.en().role(),
+      request.lang().en().role(),
       request.yearStart(),
       request.yearEnd(),
       LANG_EN
@@ -162,8 +165,8 @@ public class ExperienceAdminService {
     assertSlugAvailable(slugEn, en.getId());
 
     List<ExperienceContractType> contractTypes = resolveContractTypes(request.contractTypeId());
-    updateLocale(fr, slugFr, request, company, LANG_FR, request.fr(), findContractType(contractTypes, LANG_FR));
-    updateLocale(en, slugEn, request, company, LANG_EN, request.en(), findContractType(contractTypes, LANG_EN));
+    updateLocale(fr, slugFr, request, company, LANG_FR, request.lang().fr(), findContractType(contractTypes, LANG_FR));
+    updateLocale(en, slugEn, request, company, LANG_EN, request.lang().en(), findContractType(contractTypes, LANG_EN));
     experienceRepository.saveAndFlush(fr);
     experienceRepository.saveAndFlush(en);
 
@@ -230,14 +233,15 @@ public class ExperienceAdminService {
     return new ExperienceAdminListItem(
       id,
       primary != null ? primary.getCompany() : "",
-      fr != null ? fr.getRole() : "",
-      contractTypeTitle(fr),
-      contractTypeTitle(en),
       primary != null ? primary.getYearStart() : null,
       primary != null ? primary.getYearEnd() : null,
       createdAt,
       updatedAt,
-      primary != null ? primary.getDeactivatedAt() : null
+      primary != null ? primary.getDeactivatedAt() : null,
+      new Localized<>(
+        new ExperienceAdminListLocale(roleOf(fr), contractTypeTitle(fr)),
+        new ExperienceAdminListLocale(roleOf(en), contractTypeTitle(en))
+      )
     );
   }
 
@@ -254,19 +258,25 @@ public class ExperienceAdminService {
       fr.getYearStart(),
       fr.getYearEnd(),
       contractTypeId,
-      fr.getSlug(),
-      en.getSlug(),
-      toLocaleRequest(fr),
-      toLocaleRequest(en)
+      new Localized<>(toDetailLocale(fr), toDetailLocale(en))
     );
   }
 
-  private static ExperienceLocaleRequest toLocaleRequest(Experience experience) {
-    return new ExperienceLocaleRequest(
+  private static ExperienceAdminDetailLocale toDetailLocale(Experience experience) {
+    return new ExperienceAdminDetailLocale(
+      experience.getSlug(),
       experience.getRole(),
       experience.getSummary(),
       experience.getContent()
     );
+  }
+
+  private static String roleOf(Experience experience) {
+    if (experience == null || experience.getRole() == null) {
+      return "";
+    }
+
+    return experience.getRole();
   }
 
   private Experience createLocale(

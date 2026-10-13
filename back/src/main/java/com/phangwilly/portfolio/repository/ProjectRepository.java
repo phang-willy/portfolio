@@ -29,6 +29,8 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
 
   List<Project> findBySlugAndDeletedAtIsNull(String slug);
 
+  List<Project> findAllByDeletedAtIsNull();
+
   boolean existsBySlugAndLangAndDeletedAtIsNull(String slug, String lang);
 
   @Query(

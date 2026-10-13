@@ -126,8 +126,8 @@
                 <td hlmTd>
                   <span class="font-semibold">{{ item.slug }}</span>
                 </td>
-                <td hlmTd>{{ item.titleFr }}</td>
-                <td hlmTd>{{ item.titleEn }}</td>
+                <td hlmTd>{{ item.lang.fr.title }}</td>
+                <td hlmTd>{{ item.lang.en.title }}</td>
                 <td hlmTd>{{ item.createdAt | adminDate }}</td>
                 <td hlmTd>{{ item.updatedAt | adminDate }}</td>
                 <td hlmTd class="text-right">
@@ -190,10 +190,10 @@
               <dd class="m-0 text-end font-semibold">{{ item.slug }}</dd>
 
               <dt class="font-semibold text-foreground">Title (FR):</dt>
-              <dd class="m-0 text-end">{{ item.titleFr }}</dd>
+              <dd class="m-0 text-end">{{ item.lang.fr.title }}</dd>
 
               <dt class="font-semibold text-foreground">Title (EN):</dt>
-              <dd class="m-0 text-end">{{ item.titleEn }}</dd>
+              <dd class="m-0 text-end">{{ item.lang.en.title }}</dd>
 
               <dt class="font-semibold text-foreground">Created:</dt>
               <dd class="m-0 text-end">{{ item.createdAt | adminDate }}</dd>

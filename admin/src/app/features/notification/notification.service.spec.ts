@@ -160,7 +160,7 @@ describe('NotificationService', () => {
     expect(service.notifications().every((item) => item.read)).toBe(true);
   });
 
-  it('loads notifications past the first page', () => {
+  it('loads unread notifications with the first read page, then the next read page on demand', () => {
     authState.setUser(ADMIN);
     http.expectOne('/api/admin/notification/unread-count').flush({
       success: true,
@@ -169,25 +169,46 @@ describe('NotificationService', () => {
       data: { count: 0 },
     });
 
+    const unread = Array.from({ length: 5 }, (_, index) => ({
+      ...ALERT,
+      id: `unread-${index}`,
+      title: `Unread ${index}`,
+      read: false,
+    }));
+    const readPage = (start: number, count: number) =>
+      Array.from({ length: count }, (_, index) => ({
+        ...ALERT,
+        id: `read-${start + index}`,
+        title: `Read ${start + index}`,
+        read: true,
+      }));
+
     service.load();
 
-    http.expectOne((request) => request.params.get('page') === '0').flush({
-      success: true,
-      code: 200,
-      message: 'OK',
-      data: [ALERT],
-      pagination: { page: 0, size: 50, totalItems: 2, totalPages: 2 },
-    });
-    const older = { ...ALERT, id: 'older-notification', title: 'Mail is down' };
-    http.expectOne((request) => request.params.get('page') === '1').flush({
-      success: true,
-      code: 200,
-      message: 'OK',
-      data: [older],
-      pagination: { page: 1, size: 50, totalItems: 2, totalPages: 2 },
-    });
+    const first = http.expectOne((request) => request.params.get('page') === '0');
+    expect(first.request.params.get('size')).toBe('10');
+    first.flush(notificationPage([...unread, ...readPage(0, 10)], 0, 22));
+    http.expectNone((request) => request.params.get('page') === '1');
+    expect(service.notifications()).toHaveLength(15);
+    expect(service.nextReadCount()).toBe(10);
 
-    expect(service.notifications().map((item) => item.id)).toEqual([ALERT.id, older.id]);
+    service.loadMore();
+
+    const second = http.expectOne((request) => request.params.get('page') === '1');
+    expect(second.request.params.get('size')).toBe('10');
+    second.flush(notificationPage(readPage(10, 10), 1, 22));
+    expect(service.notifications()).toHaveLength(25);
+    expect(service.nextReadCount()).toBe(2);
+
+    service.loadMore();
+
+    const last = http.expectOne((request) => request.params.get('page') === '2');
+    last.flush(notificationPage(readPage(20, 2), 2, 22));
+    expect(service.notifications().at(-1)?.id).toBe('read-21');
+    expect(service.nextReadCount()).toBe(0);
+
+    service.loadMore();
+    http.expectNone((request) => request.url === '/api/admin/notification');
   });
 
   it('marks every unread notification from the server', () => {
@@ -211,3 +232,19 @@ describe('NotificationService', () => {
     expect(service.notifications()[0]?.read).toBe(true);
   });
 });
+
+function notificationPage(data: AdminNotification[], page: number, totalItems: number) {
+  const size = 10;
+  return {
+    success: true,
+    code: 200,
+    message: 'OK',
+    data,
+    pagination: {
+      page,
+      size,
+      totalItems,
+      totalPages: Math.ceil(totalItems / size),
+    },
+  };
+}
