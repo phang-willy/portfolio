@@ -108,6 +108,16 @@ public class JwtSessionAuthenticationFilter extends OncePerRequestFilter {
     return PublicSecurityPaths.shouldSkipJwtFilter(request);
   }
 
+  /**
+   * SSE heartbeats are async dispatches of the same request. The session is stateless,
+   * so the security context is not stored. Re-read the JWT on that dispatch, otherwise
+   * {@code /api/admin/**} is rejected after the stream has already started.
+   */
+  @Override
+  protected boolean shouldNotFilterAsyncDispatch() {
+    return false;
+  }
+
   private String resolveToken(HttpServletRequest request) {
     return authCookieService
       .resolveToken(request)

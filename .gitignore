@@ -61,6 +61,7 @@ next-env.d.ts
 /editor
 
 /front/public/sitemap.xml
+/front/public/project/
 
 # Local project image uploads (Spring working directory)
 /uploads
