@@ -1,0 +1,41 @@
+<header class="admin-shell-header">
+  <div class="admin-shell-header-control">
+    <button
+      hlmBtn
+      type="button"
+      variant="ghost"
+      size="icon"
+      class="admin-header-icon-btn"
+      [attr.aria-label]="sidebarToggleLabel()"
+      [attr.aria-expanded]="sidebarOpen()"
+      (click)="onToggleSidebar()"
+    >
+      <ng-icon hlm size="sm" [name]="sidebarToggleIcon()" />
+    </button>
+  </div>
+
+  <div class="admin-breadcrumb-shell">
+    <nav hlmBreadcrumb class="admin-breadcrumb">
+      <ol hlmBreadcrumbList>
+        @for (item of breadcrumbItems(); track item.id; let last = $last) {
+          <li hlmBreadcrumbItem>
+            @if (!last && item.link) {
+              <a hlmBreadcrumbLink [link]="item.link">{{ item.label }}</a>
+            } @else {
+              <span hlmBreadcrumbPage>{{ item.label }}</span>
+            }
+          </li>
+          @if (!last) {
+            <li hlmBreadcrumbSeparator></li>
+          }
+        }
+      </ol>
+    </nav>
+  </div>
+
+  <div class="admin-shell-header-actions">
+    <app-theme-toggle />
+    <app-notification-bell />
+    <app-profile-menu />
+  </div>
+</header>

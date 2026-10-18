@@ -1,0 +1,73 @@
+<div class="grid content-start gap-6">
+  <section class="grid gap-2">
+    <p class="m-0 text-xs font-extrabold uppercase text-primary">Admin overview</p>
+    @if (currentUser$ | async; as user) {
+      <h1 class="m-0 text-3xl font-bold leading-tight text-foreground">
+        Welcome, {{ user.firstname }}
+      </h1>
+    } @else {
+      <h1 class="m-0 text-3xl font-bold leading-tight text-foreground">Admin dashboard</h1>
+    }
+  </section>
+
+  <section
+    class="grid grid-cols-4 gap-4 max-lg:grid-cols-2 max-sm:grid-cols-1"
+    aria-label="Admin metrics"
+  >
+    @for (metric of metrics(); track metric.label) {
+      @if (metric.href; as href) {
+        <a
+          class="grid min-h-34 content-between rounded-lg border border-border border-t-4 bg-card p-4.5 text-foreground no-underline shadow-lg hover:bg-muted/30"
+          [class.border-t-primary]="metric.tone === 'primary'"
+          [class.border-t-emerald-500]="metric.tone === 'emerald' || metric.tone === 'green'"
+          [class.border-t-amber-500]="metric.tone === 'amber'"
+          [class.border-t-red-500]="metric.tone === 'red'"
+          [routerLink]="href"
+          [attr.aria-label]="metric.label + ', ' + metric.detail"
+        >
+          <span class="font-bold text-muted-foreground">{{ metric.label }}</span>
+          <strong class="text-3xl leading-none text-foreground">{{ metric.value }}</strong>
+          <small class="font-bold text-muted-foreground">{{ metric.detail }}</small>
+        </a>
+      } @else {
+        <article
+          class="grid min-h-34 content-between rounded-lg border border-border border-t-4 bg-card p-4.5 shadow-lg"
+          [class.border-t-primary]="metric.tone === 'primary'"
+          [class.border-t-emerald-500]="metric.tone === 'emerald' || metric.tone === 'green'"
+          [class.border-t-amber-500]="metric.tone === 'amber'"
+          [class.border-t-red-500]="metric.tone === 'red'"
+        >
+          <span class="font-bold text-muted-foreground">{{ metric.label }}</span>
+          <strong class="text-3xl leading-none text-foreground">{{ metric.value }}</strong>
+          <small class="font-bold text-muted-foreground">{{ metric.detail }}</small>
+        </article>
+      }
+    }
+  </section>
+
+  <app-service-health-panel />
+
+  <section class="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border bg-card p-5 shadow-lg">
+    <div class="grid gap-1">
+      <h2 class="m-0 text-lg font-bold text-foreground">Sitemap</h2>
+      <p class="m-0 max-w-xl text-sm text-muted-foreground">
+        Regenerate sitemap.xml from the published pages and projects.
+      </p>
+    </div>
+    <button
+      hlmBtn
+      type="button"
+      class="gap-2"
+      [disabled]="sitemapPending()"
+      aria-label="Generate sitemap.xml"
+      (click)="generateSitemap()"
+    >
+      @if (sitemapPending()) {
+        <hlm-spinner aria-label="Generating sitemap" />
+        Generating
+      } @else {
+        Generate sitemap
+      }
+    </button>
+  </section>
+</div>

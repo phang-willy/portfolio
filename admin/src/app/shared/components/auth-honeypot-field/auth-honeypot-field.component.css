@@ -1,0 +1,5 @@
+@reference '../../../../styles.css';
+
+.auth-honeypot {
+  @apply absolute left-[-9999px] h-px w-px overflow-hidden opacity-0;
+}

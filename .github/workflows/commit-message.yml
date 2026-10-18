@@ -30,14 +30,14 @@ jobs:
           echo "$COMMITS"
 
           # Regex dans une variable : sinon bash interprète le ")" de [^)] comme fin de [[ ... ]]
-          re='^(feat|fix|chore|docs|refactor|remove)(\([^)]+\))?:\ .+'
+          re='^(feat|fix|chore|docs|refactor|remove|test)(\([^)]+\))?:\ .+'
 
           while IFS= read -r message; do
             [ -z "$message" ] && continue
 
             if [[ ! "$message" =~ $re ]] && [[ ! "$message" =~ ^[iI]nit.* ]]; then
               echo "❌ Invalid commit message: $message"
-              echo "Expected format: feat: ..., fix: ..., chore: ..., chore(scope): ..., docs: ..., refactor: ..."
+              echo "Expected format: feat: ..., fix: ..., chore: ..., chore(scope): ..., docs: ..., refactor: ..., test: ..."
               exit 1
             fi
           done <<< "$COMMITS"

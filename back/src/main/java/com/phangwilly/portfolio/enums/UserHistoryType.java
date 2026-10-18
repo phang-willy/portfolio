@@ -1,0 +1,12 @@
+package com.phangwilly.portfolio.enums;
+
+public enum UserHistoryType {
+  LOGIN,
+  PASSWORD_RESET_REQUESTED,
+  PASSWORD_CHANGED,
+  EMAIL_CHANGED,
+  ROLE_CHANGED,
+  ACCOUNT_ACTIVATED,
+  ACCOUNT_DEACTIVATED,
+  PROFILE_UPDATED
+}

@@ -1,0 +1,151 @@
+name: Deploy pre-prod
+
+# After a merged pull request from dev into pre-prod, wait until CI is green,
+# then update the server checkout and recreate the production Compose stack.
+#
+# Required repository secrets:
+#   PREPROD_HOST, PREPROD_USER, PREPROD_SSH_KEY, PREPROD_PATH
+# Optional:
+#   PREPROD_SSH_PORT (default 22), PREPROD_KNOWN_HOSTS
+# The SSH user must be able to run Docker. Create .env once in PREPROD_PATH
+# before the first deploy. That file, the database volume, and uploaded project
+# images are not replaced.
+
+on:
+  push:
+    branches: [pre-prod]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+concurrency:
+  group: deploy-preprod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Update server
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Accept only a merged pull request from dev
+        id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          count=0
+          for _ in 1 2 3 4 5 6; do
+            count="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls" \
+              --jq '[.[] | select(.merged_at != null and .base.ref == "pre-prod" and .head.ref == "dev")] | length')"
+            if [ "$count" != "0" ]; then
+              break
+            fi
+            sleep 10
+          done
+
+          if [ "$count" = "0" ]; then
+            echo "This push is not a merged pull request from dev to pre-prod. Skipping deploy."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Merged pull request from dev to pre-prod detected."
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for CI
+        if: steps.gate.outputs.deploy == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          deadline=$((SECONDS + 1500))
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            line="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${GITHUB_SHA}&event=push&per_page=1" \
+              --jq '[.workflow_runs[0].status // "", .workflow_runs[0].conclusion // ""] | @tsv')"
+            status="${line%%$'\t'*}"
+            conclusion=""
+            if [[ "$line" == *$'\t'* ]]; then
+              conclusion="${line#*$'\t'}"
+            fi
+
+            if [ "$conclusion" = "success" ]; then
+              echo "CI succeeded."
+              exit 0
+            fi
+            if [ -n "$conclusion" ]; then
+              echo "CI conclusion: ${conclusion}"
+              exit 1
+            fi
+
+            echo "CI status: ${status:-not started yet}"
+            sleep 30
+          done
+
+          echo "Timed out waiting for CI on ${GITHUB_SHA}."
+          exit 1
+
+      - name: Checkout deploy script
+        if: steps.gate.outputs.deploy == 'true'
+        uses: actions/checkout@v6
+
+      - name: Require deploy secrets
+        if: steps.gate.outputs.deploy == 'true'
+        env:
+          PREPROD_HOST: ${{ secrets.PREPROD_HOST }}
+          PREPROD_USER: ${{ secrets.PREPROD_USER }}
+          PREPROD_SSH_KEY: ${{ secrets.PREPROD_SSH_KEY }}
+          PREPROD_PATH: ${{ secrets.PREPROD_PATH }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in PREPROD_HOST PREPROD_USER PREPROD_SSH_KEY PREPROD_PATH; do
+            if [ -z "${!name}" ]; then
+              echo "Missing GitHub secret: ${name}"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Update files and start Docker
+        if: steps.gate.outputs.deploy == 'true'
+        env:
+          PREPROD_HOST: ${{ secrets.PREPROD_HOST }}
+          PREPROD_USER: ${{ secrets.PREPROD_USER }}
+          PREPROD_SSH_KEY: ${{ secrets.PREPROD_SSH_KEY }}
+          PREPROD_PATH: ${{ secrets.PREPROD_PATH }}
+          PREPROD_SSH_PORT: ${{ secrets.PREPROD_SSH_PORT }}
+          PREPROD_KNOWN_HOSTS: ${{ secrets.PREPROD_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          port="${PREPROD_SSH_PORT:-22}"
+          if [ -z "$port" ]; then
+            port=22
+          fi
+
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$PREPROD_SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/preprod
+          chmod 600 ~/.ssh/preprod
+
+          if [ -n "$PREPROD_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$PREPROD_KNOWN_HOSTS" | sed 's/\\n/\n/g' > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -p "$port" -H "$PREPROD_HOST" > ~/.ssh/known_hosts
+          fi
+          chmod 600 ~/.ssh/known_hosts
+
+          quoted_path="$(printf '%q' "$PREPROD_PATH")"
+          quoted_sha="$(printf '%q' "$GITHUB_SHA")"
+          ssh \
+            -i "$HOME/.ssh/preprod" \
+            -p "$port" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=40 \
+            "${PREPROD_USER}@${PREPROD_HOST}" \
+            "DEPLOY_PATH=${quoted_path} DEPLOY_BRANCH=pre-prod DEPLOY_SHA=${quoted_sha} bash -s" \
+            < .github/scripts/deploy-preprod.sh

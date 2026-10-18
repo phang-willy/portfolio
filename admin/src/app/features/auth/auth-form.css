@@ -1,0 +1,50 @@
+@reference '../../../styles.css';
+
+:host .auth-input {
+  @apply border-input bg-background text-foreground shadow-none transition-colors;
+}
+
+:host .auth-input::placeholder {
+  @apply text-muted-foreground;
+}
+
+:host .auth-input:enabled:hover {
+  @apply border-ring/50;
+}
+
+:host .auth-input:enabled:focus {
+  @apply border-primary ring-2 ring-primary/20;
+}
+
+:host .auth-input.ng-invalid.ng-touched,
+:host .auth-input[data-matches-spartan-invalid='true'] {
+  @apply border-destructive;
+}
+
+:host .auth-help {
+  @apply min-h-4 text-xs leading-snug text-red-600;
+}
+
+:host-context(html.dark) .auth-help {
+  @apply text-red-300;
+}
+
+:host .auth-feedback {
+  @apply m-0 rounded-lg border px-3 py-2.5 font-bold leading-snug;
+}
+
+:host .auth-feedback-error {
+  @apply border-red-200 bg-red-50 text-red-700;
+}
+
+:host-context(html.dark) .auth-feedback-error {
+  @apply border-red-900/70 bg-red-950/50 text-red-200;
+}
+
+:host .auth-feedback-success {
+  @apply border-green-200 bg-green-50 text-green-700;
+}
+
+:host-context(html.dark) .auth-feedback-success {
+  @apply border-green-900/70 bg-green-950/50 text-green-200;
+}

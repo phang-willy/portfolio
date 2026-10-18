@@ -1,0 +1,204 @@
+<div class="grid content-start gap-6">
+  @if (errorMessage(); as message) {
+    <p class="m-0 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
+      {{ message }}
+    </p>
+  }
+
+  @if (successMessage(); as message) {
+    <p class="m-0 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+      {{ message }}
+    </p>
+  }
+
+  @if (isLoading()) {
+    <p class="m-0 flex items-center gap-2 text-sm text-muted-foreground">
+      <hlm-spinner aria-label="Loading profile" />
+      Loading profile...
+    </p>
+  } @else if (user(); as account) {
+    <section class="grid gap-2">
+      <p class="m-0 text-xs font-extrabold uppercase text-primary">Account</p>
+      <h1 class="m-0 text-3xl font-bold text-foreground">{{ account.firstname }} {{ account.lastname }}</h1>
+      <p class="m-0 text-muted-foreground">{{ account.email }} · {{ roleLabel(account.role) }}</p>
+    </section>
+
+    <form class="grid gap-4 rounded-lg border border-border bg-card p-4 shadow-lg" [formGroup]="profileForm" (ngSubmit)="submitProfile()">
+      <div class="grid gap-1">
+        <h2 class="m-0 text-xl font-bold">Profile</h2>
+        <p class="m-0 text-sm text-muted-foreground">
+          A new email signs every session out and sends a verification message to the new address.
+        </p>
+      </div>
+      <app-auth-honeypot-field />
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold" for="profile-lastname">Last name</label>
+          <input
+            hlmInput
+            id="profile-lastname"
+            class="w-full"
+            formControlName="lastname"
+            autocomplete="family-name"
+            [forceInvalid]="!!profileFieldError('lastname')"
+            [attr.aria-invalid]="profileFieldError('lastname') ? true : null"
+          />
+          @if (profileFieldError('lastname'); as error) {
+            <small class="text-sm text-red-600">{{ error }}</small>
+          }
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold" for="profile-firstname">First name</label>
+          <input
+            hlmInput
+            id="profile-firstname"
+            class="w-full"
+            formControlName="firstname"
+            autocomplete="given-name"
+            [forceInvalid]="!!profileFieldError('firstname')"
+            [attr.aria-invalid]="profileFieldError('firstname') ? true : null"
+          />
+          @if (profileFieldError('firstname'); as error) {
+            <small class="text-sm text-red-600">{{ error }}</small>
+          }
+        </div>
+      </div>
+      <div class="grid gap-2">
+        <label class="text-sm font-semibold" for="profile-email">Email</label>
+        <input
+          hlmInput
+          id="profile-email"
+          class="w-full"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          [forceInvalid]="!!profileFieldError('email')"
+          [attr.aria-invalid]="profileFieldError('email') ? true : null"
+        />
+        @if (profileFieldError('email'); as error) {
+          <small class="text-sm text-red-600">{{ error }}</small>
+        }
+      </div>
+      <div>
+        <button hlmBtn type="submit" [disabled]="isSavingProfile()">
+          @if (isSavingProfile()) {
+            <hlm-spinner aria-label="Saving profile" />
+          }
+          Save profile
+        </button>
+      </div>
+    </form>
+
+    <form class="grid gap-4 rounded-lg border border-border bg-card p-4 shadow-lg" [formGroup]="passwordForm" (ngSubmit)="submitPassword()">
+      <div class="grid gap-1">
+        <h2 class="m-0 text-xl font-bold">Password</h2>
+        <p class="m-0 text-sm text-muted-foreground">Use at least 8 characters, the same rule as registration.</p>
+      </div>
+      <app-auth-honeypot-field />
+      <div class="grid gap-2">
+        <label class="text-sm font-semibold" for="profile-current-password">Current password</label>
+        <div class="relative">
+          <input
+            hlmInput
+            id="profile-current-password"
+            class="w-full pr-12"
+            [type]="isCurrentPasswordVisible() ? 'text' : 'password'"
+            formControlName="oldPassword"
+            autocomplete="current-password"
+            [forceInvalid]="!!passwordFieldError('oldPassword')"
+            [attr.aria-invalid]="passwordFieldError('oldPassword') ? true : null"
+          />
+          <button
+            type="button"
+            class="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 cursor-pointer place-items-center rounded-full border-0 bg-transparent text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            [attr.aria-label]="isCurrentPasswordVisible() ? 'Hide password' : 'Show password'"
+            (click)="isCurrentPasswordVisible.set(!isCurrentPasswordVisible())"
+          >
+            <ng-icon hlm size="sm" [name]="isCurrentPasswordVisible() ? 'lucideEyeOff' : 'lucideEye'" />
+          </button>
+        </div>
+        @if (passwordFieldError('oldPassword'); as error) {
+          <small class="text-sm text-red-600">{{ error }}</small>
+        }
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold" for="profile-new-password">New password</label>
+          <div class="relative">
+            <input
+              hlmInput
+              id="profile-new-password"
+              class="w-full pr-12"
+              [type]="isNewPasswordVisible() ? 'text' : 'password'"
+              formControlName="newPassword"
+              autocomplete="new-password"
+              [forceInvalid]="!!passwordFieldError('newPassword')"
+              [attr.aria-invalid]="passwordFieldError('newPassword') ? true : null"
+            />
+            <button
+              type="button"
+              class="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 cursor-pointer place-items-center rounded-full border-0 bg-transparent text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              [attr.aria-label]="isNewPasswordVisible() ? 'Hide password' : 'Show password'"
+              (click)="isNewPasswordVisible.set(!isNewPasswordVisible())"
+            >
+              <ng-icon hlm size="sm" [name]="isNewPasswordVisible() ? 'lucideEyeOff' : 'lucideEye'" />
+            </button>
+          </div>
+          @if (passwordFieldError('newPassword'); as error) {
+            <small class="text-sm text-red-600">{{ error }}</small>
+          }
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold" for="profile-confirm-password">Confirm password</label>
+          <div class="relative">
+            <input
+              hlmInput
+              id="profile-confirm-password"
+              class="w-full pr-12"
+              [type]="isConfirmPasswordVisible() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+              [forceInvalid]="!!passwordFieldError('confirmPassword')"
+              [attr.aria-invalid]="passwordFieldError('confirmPassword') ? true : null"
+            />
+            <button
+              type="button"
+              class="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 cursor-pointer place-items-center rounded-full border-0 bg-transparent text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              [attr.aria-label]="isConfirmPasswordVisible() ? 'Hide password' : 'Show password'"
+              (click)="isConfirmPasswordVisible.set(!isConfirmPasswordVisible())"
+            >
+              <ng-icon hlm size="sm" [name]="isConfirmPasswordVisible() ? 'lucideEyeOff' : 'lucideEye'" />
+            </button>
+          </div>
+          @if (passwordFieldError('confirmPassword'); as error) {
+            <small class="text-sm text-red-600">{{ error }}</small>
+          }
+        </div>
+      </div>
+      <div>
+        <button hlmBtn type="submit" variant="outline" [disabled]="isSavingPassword()">
+          @if (isSavingPassword()) {
+            <hlm-spinner aria-label="Changing password" />
+          }
+          Change password
+        </button>
+      </div>
+    </form>
+  }
+</div>
+
+<hlm-alert-dialog [state]="emailDialogState()" (stateChange)="onEmailDialogStateChange($event)">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Confirm email change</h2>
+      <p hlmAlertDialogDescription>
+        Change the email to <strong>{{ pendingEmail() }}</strong>? Every session will be signed out, the address will
+        be marked unverified, and a verification email will be sent.
+      </p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button hlmAlertDialogCancel type="button" (click)="closeEmailConfirm()">Cancel</button>
+      <button hlmAlertDialogAction type="button" (click)="confirmEmailChange()">Confirm email change</button>
+    </hlm-alert-dialog-footer>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>
