@@ -29,6 +29,10 @@ const contactApiOrigin = (() => {
 const connectSources = [
   "'self'",
   "https://api.github.com",
+  "https://www.googletagmanager.com",
+  "https://www.google-analytics.com",
+  "https://*.google-analytics.com",
+  "https://*.analytics.google.com",
   "https://a.basemaps.cartocdn.com",
   "https://b.basemaps.cartocdn.com",
   "https://c.basemaps.cartocdn.com",
@@ -37,16 +41,18 @@ const connectSources = [
 
 /**
  * CSP production : Next (scripts inline, hydration), Tailwind, MapLibre (worker blob,
- * WebGL), next/font (fonts.gstatic.com), tuiles Carto, images HTTPS (projets, tuiles).
- * Pas d’activation en dev : hot reload et eval.
+ * WebGL), next/font (fonts.gstatic.com), tuiles Carto, images HTTPS (projets, tuiles),
+ * Google Tag Manager et Google Analytics 4.
+ * Pas d'activation en dev : hot reload et eval.
  */
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'self'",
+  "frame-src https://www.googletagmanager.com",
   "object-src 'none'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https://fonts.gstatic.com",

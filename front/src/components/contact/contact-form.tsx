@@ -214,7 +214,7 @@ export function ContactForm({ className }: ContactFormProps) {
     setFieldErrors({});
 
     const formData = new FormData(event.currentTarget);
-    const website = String(formData.get("website") ?? "");
+    const website = String(formData.get("hp_field") ?? "");
     const submissionBody = {
       ...values,
       website,
@@ -404,17 +404,20 @@ export function ContactForm({ className }: ContactFormProps) {
           );
         })}
 
-        <div
-          className="absolute -left-2500 top-auto h-px w-px overflow-hidden"
-          aria-hidden="true"
-        >
-          <label htmlFor={`${baseId}-website`}>Website</label>
+        <div className="pointer-events-none absolute -left-2500 h-px w-px overflow-hidden">
+          <label htmlFor={`${baseId}-hp`}>Leave blank</label>
           <input
-            id={`${baseId}-website`}
-            name="website"
+            id={`${baseId}-hp`}
+            name="hp_field"
             type="text"
             tabIndex={-1}
             autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            data-1p-ignore="true"
+            data-lpignore="true"
+            defaultValue=""
           />
         </div>
 
