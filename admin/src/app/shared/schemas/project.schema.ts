@@ -1,11 +1,7 @@
 import { z } from 'zod';
 
 const localeSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, 'Title is required.')
-    .max(160, 'Title is too long.'),
+  title: z.string().trim().min(1, 'Title is required.').max(160, 'Title is too long.'),
   description: z.string().trim().max(255, 'Description is too long.'),
   content: z.string().max(1_000_000, 'Content is too long.'),
   imageAlt: z.string().trim().max(255, 'Image alt is too long.'),
@@ -15,7 +11,7 @@ const optionalUrlSchema = z
   .string()
   .trim()
   .max(500, 'URL is too long.')
-  .refine((value) => value === '' || /^https?:\/\//i.test(value), {
+  .refine((value) => value === '' || /^https?:\/\/\S+$/i.test(value), {
     message: 'Enter a valid http(s) URL or leave empty.',
   });
 
