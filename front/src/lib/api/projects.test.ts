@@ -131,6 +131,12 @@ describe("project API mapping", () => {
     expect(toProjectImageSrc("https://cdn.example/other.webp")).toBe(
       PROJECT_IMAGE_FALLBACK_PATH,
     );
+    expect(toProjectImageSrc("/project/geolock.webp")).toBe(
+      "/project/geolock.webp",
+    );
+    expect(toProjectImageSrc("/project/../secret.webp")).toBe(
+      PROJECT_IMAGE_FALLBACK_PATH,
+    );
   });
 
   it("skips the data cache while developing", async () => {

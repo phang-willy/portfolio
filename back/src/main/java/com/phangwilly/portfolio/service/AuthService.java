@@ -35,6 +35,7 @@ import com.phangwilly.portfolio.security.SecureTokenService;
 import com.phangwilly.portfolio.security.TokenHashService;
 import com.phangwilly.portfolio.security.TwoFactorCodeService;
 import com.phangwilly.portfolio.util.PersonNameFormatter;
+import jakarta.persistence.EntityManager;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -96,6 +97,7 @@ public class AuthService {
   private final JwtService jwtService;
   private final EmailQueueService emailQueueService;
   private final UserHistoryService userHistoryService;
+  private final EntityManager entityManager;
   private final Clock clock;
 
   public AuthService(
@@ -114,6 +116,7 @@ public class AuthService {
     JwtService jwtService,
     EmailQueueService emailQueueService,
     UserHistoryService userHistoryService,
+    EntityManager entityManager,
     Clock clock
   ) {
     this.authProperties = authProperties;
@@ -131,6 +134,7 @@ public class AuthService {
     this.jwtService = jwtService;
     this.emailQueueService = emailQueueService;
     this.userHistoryService = userHistoryService;
+    this.entityManager = entityManager;
     this.clock = clock;
   }
 
@@ -153,6 +157,8 @@ public class AuthService {
         EMAIL_ALREADY_EXISTS_MESSAGE
       );
     }
+
+    lockInitialSuperAdminAssignment();
 
     User user = new User(
       PersonNameFormatter.formatLastname(request.lastname()),
@@ -420,6 +426,16 @@ public class AuthService {
 
   private static AuthenticatedUserResponse authenticatedUserResponse(User user) {
     return new AuthenticatedUserResponse(UserResponse.from(user));
+  }
+
+  /**
+   * Holds a transaction-scoped PostgreSQL lock so two concurrent registrations cannot both
+   * observe an installation with no super-admin.
+   */
+  private void lockInitialSuperAdminAssignment() {
+    entityManager
+      .createNativeQuery("SELECT pg_advisory_xact_lock(8421, 50451)")
+      .getResultList();
   }
 
   private void ensureRegisterEnabled() {

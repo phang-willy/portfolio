@@ -15,8 +15,20 @@ public record ProjectAdminRequest(
   String slug,
   @NotNull @Valid Localized<ProjectLocaleRequest> lang,
   List<UUID> stackIds,
-  @Size(max = 500) String productionLink,
-  @Size(max = 500) String sourceCodeLink,
+  @Size(max = 500)
+  @Pattern(
+    regexp = "^(?:https?://\\S+)?$",
+    flags = Pattern.Flag.CASE_INSENSITIVE,
+    message = "Link must be an http(s) URL"
+  )
+  String productionLink,
+  @Size(max = 500)
+  @Pattern(
+    regexp = "^(?:https?://\\S+)?$",
+    flags = Pattern.Flag.CASE_INSENSITIVE,
+    message = "Link must be an http(s) URL"
+  )
+  String sourceCodeLink,
   @Size(max = 500) String imageLink,
   @Size(max = 500) String website
 ) {}
