@@ -24,6 +24,8 @@ import com.phangwilly.portfolio.repository.TwoFactorAuthRepository;
 import com.phangwilly.portfolio.repository.UserPasswordRepository;
 import com.phangwilly.portfolio.repository.UserRepository;
 import com.phangwilly.portfolio.repository.UserSessionRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -78,6 +80,7 @@ class AuthServiceConfigTest {
 
     fixture.service().register(registrationRequest());
 
+    verify(fixture.entityManager()).createNativeQuery("SELECT pg_advisory_xact_lock(8421, 50451)");
     ArgumentCaptor<User> saved = ArgumentCaptor.forClass(User.class);
     verify(fixture.userRepository()).save(saved.capture());
     assertThat(saved.getValue().getRole()).isEqualTo(UserRole.SUPER_ADMIN);
@@ -93,6 +96,7 @@ class AuthServiceConfigTest {
 
     fixture.service().register(registrationRequest());
 
+    verify(fixture.entityManager()).createNativeQuery("SELECT pg_advisory_xact_lock(8421, 50451)");
     ArgumentCaptor<User> saved = ArgumentCaptor.forClass(User.class);
     verify(fixture.userRepository()).save(saved.capture());
     assertThat(saved.getValue().getRole()).isEqualTo(UserRole.USER);
@@ -118,6 +122,7 @@ class AuthServiceConfigTest {
     TokenHashService tokenHashService = mock(TokenHashService.class);
     when(secureTokenService.generateToken()).thenReturn("token");
     when(tokenHashService.hashToken("token")).thenReturn("token-hash");
+    EntityManager entityManager = lockingEntityManager();
     AuthService service = new AuthService(
       properties,
       mock(CurrentUserService.class),
@@ -134,15 +139,17 @@ class AuthServiceConfigTest {
       mock(JwtService.class),
       mock(EmailQueueService.class),
       mock(UserHistoryService.class),
+      entityManager,
       Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC)
     );
-    return new RegistrationFixture(service, userRepository, passwordEncoder);
+    return new RegistrationFixture(service, userRepository, passwordEncoder, entityManager);
   }
 
   private record RegistrationFixture(
     AuthService service,
     UserRepository userRepository,
-    PasswordEncoder passwordEncoder
+    PasswordEncoder passwordEncoder,
+    EntityManager entityManager
   ) {
   }
 
@@ -163,7 +170,15 @@ class AuthServiceConfigTest {
       mock(JwtService.class),
       mock(EmailQueueService.class),
       mock(UserHistoryService.class),
+      lockingEntityManager(),
       Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC)
     );
+  }
+
+  private static EntityManager lockingEntityManager() {
+    EntityManager entityManager = mock(EntityManager.class);
+    Query query = mock(Query.class);
+    when(entityManager.createNativeQuery(any(String.class))).thenReturn(query);
+    return entityManager;
   }
 }

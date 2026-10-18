@@ -13,7 +13,7 @@ public class Project extends AuditableEntity {
 
   private static final int TITLE_MAX_LENGTH = 160;
   private static final int SLUG_MAX_LENGTH = 255;
-  private static final int DESCRIPTION_MAX_LENGTH = 160;
+  private static final int DESCRIPTION_MAX_LENGTH = 255;
   private static final int LINK_MAX_LENGTH = 500;
   private static final int IMAGE_ALT_MAX_LENGTH = 255;
   private static final int LANG_MAX_LENGTH = 10;
