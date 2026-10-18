@@ -6,7 +6,7 @@ const localeSchema = z.object({
     .trim()
     .min(1, 'Title is required.')
     .max(160, 'Title is too long.'),
-  description: z.string().trim().max(160, 'Description is too long.'),
+  description: z.string().trim().max(255, 'Description is too long.'),
   content: z.string().max(1_000_000, 'Content is too long.'),
   imageAlt: z.string().trim().max(255, 'Image alt is too long.'),
 });

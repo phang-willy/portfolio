@@ -121,7 +121,10 @@ export function toProjectImageSrc(
     return PROJECT_IMAGE_FALLBACK_PATH;
   }
 
-  if (value.startsWith("/api/project/image/")) {
+  if (
+    value.startsWith("/api/project/image/") ||
+    /^\/project\/[a-z0-9]+(?:-[a-z0-9]+)*\.webp$/.test(value)
+  ) {
     return value;
   }
 
@@ -139,7 +142,9 @@ export function toProjectImageSrc(
   return PROJECT_IMAGE_FALLBACK_PATH;
 }
 
-function toLocaleContent(locale: BackendProject["lang"]["fr"]): ProjectLocaleContent {
+function toLocaleContent(
+  locale: BackendProject["lang"]["fr"],
+): ProjectLocaleContent {
   return {
     name: locale.title,
     description: locale.description,
