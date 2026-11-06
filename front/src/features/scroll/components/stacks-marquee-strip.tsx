@@ -34,7 +34,6 @@ export const StacksMarqueeStrip = () => {
     <HorizontalAutoScroll
       className="mask-[linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] py-6"
       speedPxPerSec={42}
-      resumeDelayMs={2200}
     >
       {({ duplicated }) => (
         <ul

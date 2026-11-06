@@ -1,5 +1,6 @@
 import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
+import { localizedAlternates } from "@/features/i18n/lib/localized-alternates";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
 import { appName } from "@/lib/app-name";
@@ -12,6 +13,7 @@ export function buildLegalsMetadata(locale: AppLocale): Metadata {
   return {
     title: `${appName} - ${d.meta.legalsTitle}`,
     description: `${appName} - ${d.meta.legalsDescription}`,
+    alternates: localizedAlternates("/legals", locale),
     openGraph: {
       title: `${appName} - ${d.meta.legalsTitle}`,
       description: `${appName} - ${d.meta.legalsDescription}`,

@@ -2,6 +2,7 @@ import { ProjectDetailContent } from "@/app/(main)/projects/[id]/project-detail-
 import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { projectRecordForLocale } from "@/features/i18n/lib/localized-site-data";
+import { localizedAlternates } from "@/features/i18n/lib/localized-alternates";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { appName } from "@/lib/app-name";
 import { PROJECT_IMAGE_FALLBACK_PATH } from "@/lib/project-image";
@@ -25,9 +26,12 @@ export async function generateProjectMetadata({
   const raw = await getProjectById(id);
   const d = getDictionary(locale);
 
+  const canonicalPath = `/projects/${id}`;
+
   if (!raw) {
     return {
       title: `${appName} - ${d.project.fallbackTitle}`,
+      alternates: localizedAlternates(canonicalPath, locale),
       openGraph: openGraphLocaleFields(locale),
     };
   }
@@ -38,6 +42,7 @@ export async function generateProjectMetadata({
   return {
     title: `${appName} - ${kind} - ${project.name}`,
     description: project.description,
+    alternates: localizedAlternates(canonicalPath, locale),
     openGraph: {
       type: "website",
       title: `${appName} - ${kind} - ${project.name}`,
