@@ -26,9 +26,7 @@ describe("recordsToSitemapXml", () => {
     ]);
 
     expect(xml).not.toContain("xml-stylesheet");
-    expect(xml).toContain(
-      'xmlns:xhtml="http://www.w3.org/1999/xhtml"',
-    );
+    expect(xml).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
     expect(xml).toContain(
       '<xhtml:link rel="alternate" hreflang="fr" href="https://example.com/" />',
     );
@@ -49,7 +47,7 @@ describe("recordsToSitemapXml", () => {
       },
     ]);
 
-    expect(xml).toContain("<lastmod>2026-03-01T00:00:00.000Z</lastmod>");
+    expect(xml).toContain("<lastmod>2026-03-01T01:00:00+01:00</lastmod>");
   });
 });
 
@@ -65,7 +63,7 @@ describe("recordsToSitemapHtml", () => {
     expect(html).toContain("<table>");
     expect(html).toContain('href="https://example.com/"');
     expect(html).toContain("fr, en");
-    expect(html).toContain("2026-03-01");
+    expect(html).toContain("2026-03-01T01:00:00+01:00");
     expect(html).not.toContain("x-default");
     expect(html).not.toContain("xsl");
   });

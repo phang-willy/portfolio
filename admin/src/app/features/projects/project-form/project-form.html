@@ -147,21 +147,28 @@
                 placeholder="URL or upload a file"
                 [class.ring-destructive/20]="hasFieldError('imageLink')"
               />
-              <label hlmBtn variant="outline" class="cursor-pointer">
-                <input
-                  class="sr-only"
-                  type="file"
-                  accept="image/*"
-                  [disabled]="isUploadingImage()"
-                  (change)="onImageSelected($event)"
-                />
+              <button
+                hlmBtn
+                type="button"
+                variant="outline"
+                [disabled]="isUploadingImage()"
+                (click)="openImagePicker(imageFileInput)"
+              >
                 @if (isUploadingImage()) {
                   <hlm-spinner size="sm" />
                 } @else {
                   <ng-icon hlm size="sm" name="lucideUpload" />
                 }
                 Upload
-              </label>
+              </button>
+              <input
+                #imageFileInput
+                class="hidden"
+                type="file"
+                accept="image/*"
+                tabindex="-1"
+                (change)="onImageSelected($event)"
+              />
               <button hlmBtn type="button" variant="ghost" (click)="clearImage()">Clear</button>
             </div>
             @if (projectForm.controls.imageLink.value) {
