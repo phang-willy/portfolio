@@ -7,7 +7,8 @@ import {
 } from "@/features/i18n/lib/locale-cookie";
 
 /**
- * Persiste le choix de langue pour les prochaines visites sur `/` (priorité middleware).
+ * Persiste le choix de langue. La page d'accueil le relit dans le navigateur
+ * et ouvre `/en` seulement si la valeur est `en`.
  */
 export function writeLocaleCookie(locale: AppLocale): void {
   if (typeof document === "undefined") return;

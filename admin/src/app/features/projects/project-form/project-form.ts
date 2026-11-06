@@ -274,6 +274,10 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  protected openImagePicker(input: HTMLInputElement): void {
+    input.click();
+  }
+
   protected onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];

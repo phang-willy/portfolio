@@ -2,6 +2,7 @@ import { ProjectsPageGrid } from "@/app/(main)/projects/projects-page-grid";
 import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
 import { projectRecordForLocale } from "@/features/i18n/lib/localized-site-data";
+import { localizedAlternates } from "@/features/i18n/lib/localized-alternates";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { appName } from "@/lib/app-name";
 import { getProjectsByUpdatedAtDesc } from "@/lib/projects";
@@ -13,6 +14,7 @@ export function buildProjectsListMetadata(locale: AppLocale): Metadata {
   return {
     title: `${appName} - ${d.project.metaTitle}`,
     description: `${appName} - ${d.project.metaDescription}`,
+    alternates: localizedAlternates("/projects", locale),
     openGraph: {
       title: `${appName} - ${d.project.metaTitle}`,
       description: `${appName} - ${d.project.metaDescription}`,

@@ -1,6 +1,7 @@
 import { ContactForm } from "@/components/contact/contact-form";
 import type { AppLocale } from "@/features/i18n/config/locales";
 import { getDictionary } from "@/features/i18n/dictionaries/get-dictionary";
+import { localizedAlternates } from "@/features/i18n/lib/localized-alternates";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
 import { appName } from "@/lib/app-name";
@@ -12,6 +13,7 @@ export function buildContactMetadata(locale: AppLocale): Metadata {
   return {
     title: `${appName} - ${d.contact.metaTitle}`,
     description: `${appName} - ${d.contact.metaDescription}`,
+    alternates: localizedAlternates("/contact", locale),
     openGraph: {
       title: `${appName} - ${d.contact.metaTitle}`,
       description: `${appName} - ${d.contact.metaDescription}`,

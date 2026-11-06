@@ -16,6 +16,7 @@ import {
   servicesForLocale,
   socialLinksForLocale,
 } from "@/features/i18n/lib/localized-site-data";
+import { localizedAlternates } from "@/features/i18n/lib/localized-alternates";
 import { openGraphLocaleFields } from "@/features/i18n/lib/opengraph-locale";
 import { appName } from "@/lib/app-name";
 import { loadPublicExperiences } from "@/lib/api/experiences";
@@ -29,6 +30,7 @@ export function buildHomeMetadata(locale: AppLocale): Metadata {
   return {
     title: `${appName} - ${d.meta.homeTitle}`,
     description: `${appName} - ${d.meta.homeDescription}`,
+    alternates: localizedAlternates("/", locale),
     openGraph: {
       title: `${appName} - ${d.meta.homeTitle}`,
       description: `${appName} - ${d.meta.homeDescription}`,
