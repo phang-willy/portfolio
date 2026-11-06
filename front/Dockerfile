@@ -1,11 +1,12 @@
-FROM node:22-alpine AS deps
+FROM node:22.23.4-alpine AS deps
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
+RUN apk add --no-cache git
 
-FROM node:22-alpine AS build
+FROM node:22.23.4-alpine AS build
 
 WORKDIR /app
 
@@ -16,6 +17,7 @@ ARG NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ARG SITE_URL=http://localhost:3000
 ARG CARTO_API_KEY=
 ARG SITE_NOINDEX=false
+ARG SITEMAP_COMMIT_DATE=
 
 ENV APP_TITLE=$APP_TITLE
 ENV NEXT_PUBLIC_CONTACT_API_ORIGIN=$NEXT_PUBLIC_CONTACT_API_ORIGIN
@@ -24,19 +26,23 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV SITE_URL=$SITE_URL
 ENV CARTO_API_KEY=$CARTO_API_KEY
 ENV SITE_NOINDEX=$SITE_NOINDEX
+ENV SITEMAP_COMMIT_DATE=$SITEMAP_COMMIT_DATE
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-FROM node:22-alpine AS runtime
+FROM node:22.23.4-alpine AS runtime
 
 WORKDIR /app
+
+ARG SITEMAP_COMMIT_DATE=
 
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV SERVER_PORT=3000
 ENV SITE_NOINDEX=false
+ENV SITEMAP_COMMIT_DATE=$SITEMAP_COMMIT_DATE
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force

@@ -4,8 +4,14 @@ import {
   type AppLocale,
 } from "@/features/i18n/config/locales";
 import { buildLocalizedPathname } from "@/features/i18n/lib/pathname-locale";
-import { getSiteBaseUrl } from "@/lib/site-base-url";
 import { getProjectsByCreatedAtDesc } from "@/lib/projects";
+import { getSiteBaseUrl } from "@/lib/site-base-url";
+import { readLastCommitDate } from "@/lib/sitemap-commit-date";
+import {
+  formatSitemapLastmod,
+  latestProjectUpdate,
+  projectSitemapInstant,
+} from "@/lib/sitemap-lastmod";
 
 export const SITEMAP_STATIC_CANONICAL = [
   "/",
@@ -55,11 +61,6 @@ function localizedRecords(
   }));
 }
 
-function projectLastModified(updatedAt: string): Date | undefined {
-  const date = new Date(`${updatedAt}T00:00:00.000Z`);
-  return Number.isNaN(date.getTime()) ? undefined : date;
-}
-
 /** Utilisé par le script `generate-sitemap-xml` et par POST /api/sitemap. */
 export async function getSitemapRecords(): Promise<SitemapRecord[]> {
   let projects: Awaited<ReturnType<typeof getProjectsByCreatedAtDesc>> = [];
@@ -72,14 +73,23 @@ export async function getSitemapRecords(): Promise<SitemapRecord[]> {
     );
   }
 
+  const commitDate = readLastCommitDate();
+  const projectsDate = latestProjectUpdate(projects) ?? commitDate;
+  const staticLastModified: Record<string, Date | undefined> = {
+    "/": commitDate,
+    "/projects": projectsDate,
+    "/contact": commitDate,
+    "/legals": commitDate,
+  };
+
   return [
     ...SITEMAP_STATIC_CANONICAL.flatMap((canonical) =>
-      localizedRecords(canonical),
+      localizedRecords(canonical, staticLastModified[canonical]),
     ),
     ...projects.flatMap((project) =>
       localizedRecords(
         `/projects/${project.id}`,
-        projectLastModified(project.updatedAt),
+        projectSitemapInstant(project),
       ),
     ),
   ];
@@ -103,7 +113,7 @@ export function recordsToSitemapHtml(records: SitemapRecord[]): string {
         .map((alternate) => escapeXml(alternate.hreflang))
         .join(", ");
       const updated = record.lastModified
-        ? escapeXml(record.lastModified.toISOString().slice(0, 10))
+        ? escapeXml(formatSitemapLastmod(record.lastModified))
         : "";
       const url = escapeXml(record.url);
       return `<tr><td><a href="${url}">${url}</a></td><td class="langs">${languages}</td><td class="date">${updated}</td></tr>`;
@@ -160,7 +170,9 @@ export function recordsToSitemapXml(records: SitemapRecord[]): string {
       );
     }
     if (lastModified) {
-      lines.push(`    <lastmod>${escapeXml(lastModified.toISOString())}</lastmod>`);
+      lines.push(
+        `    <lastmod>${escapeXml(formatSitemapLastmod(lastModified))}</lastmod>`,
+      );
     }
     lines.push(`  </url>`);
   }

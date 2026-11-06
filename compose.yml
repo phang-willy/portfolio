@@ -15,6 +15,7 @@ services:
         SITE_URL: ${SITE_URL:-http://localhost:3000}
         CARTO_API_KEY: ${CARTO_API_KEY:-}
         SITE_NOINDEX: ${SITE_NOINDEX:-false}
+        SITEMAP_COMMIT_DATE: ${SITEMAP_COMMIT_DATE:-}
     env_file:
       - .env
     environment:
@@ -66,6 +67,7 @@ services:
       SITEMAP_GENERATE_TOKEN: ${SITEMAP_GENERATE_TOKEN:-}
       SITE_NOINDEX: ${SITE_NOINDEX:-false}
       WATCHPACK_POLLING: "true"
+      GIT_DIR: /repo.git
     ports:
       - "${FRONT_BIND_ADDRESS:-127.0.0.1}:${FRONT_PORT:-3000}:3000"
     depends_on:
@@ -74,6 +76,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./front:/app
+      - ./.git:/repo.git:ro
       - front_node_modules:/app/node_modules
       - front_next_cache:/app/.next
     networks:
