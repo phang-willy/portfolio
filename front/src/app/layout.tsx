@@ -13,11 +13,15 @@ import { GoogleTagManager } from "@/components/analytics/google-tag-manager";
 
 const roboto = Roboto({
   subsets: ["latin"],
+  display: "swap",
+  preload: false,
   variable: "--font-roboto",
 });
 
 const oswald = Oswald({
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
   variable: "--font-oswald",
 });
 
