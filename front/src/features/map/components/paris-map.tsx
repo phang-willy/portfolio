@@ -134,7 +134,7 @@ export const ParisMap = () => {
 
   return (
     <div className="relative w-full">
-      <article
+      <div
         ref={containerRef}
         className="h-[min(50vh,420px)] w-full md:h-[min(55vh,480px)]"
         role="img"

@@ -17,7 +17,7 @@ type PresentationSectionProps = {
   socialLinks: Array<SocialLink>;
 };
 
-type AnimatedBlock = "title" | "paragraph" | "image" | "links";
+type AnimatedBlock = "paragraph" | "links";
 
 const APPEAR_STAGGER_MS = 400;
 const APPEAR_DURATION_CLASS = "duration-[1000ms]";
@@ -38,9 +38,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
   const [visibleBlocks, setVisibleBlocks] = useState<
     Record<AnimatedBlock, boolean>
   >({
-    title: false,
     paragraph: false,
-    image: false,
     links: false,
   });
 
@@ -54,8 +52,8 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
 
     const isDesktop = window.matchMedia("(min-width: 768px)").matches;
     const orderedBlocks: Array<AnimatedBlock> = isDesktop
-      ? ["title", "links", "image", "paragraph"] // Mobile first
-      : ["title", "paragraph", "image", "links"];
+      ? ["links", "paragraph"]
+      : ["paragraph", "links"];
 
     const sequence =
       scrollDirectionRef.current === "up"
@@ -63,9 +61,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
         : orderedBlocks;
 
     setVisibleBlocks({
-      title: false,
       paragraph: false,
-      image: false,
       links: false,
     });
 
@@ -121,9 +117,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
         if (!isIntersecting) {
           clearAnimationTimeouts();
           setVisibleBlocks({
-            title: false,
             paragraph: false,
-            image: false,
             links: false,
           });
           return;
@@ -149,13 +143,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
       className="container mx-auto p-4 relative flex flex-col gap-2 md:h-[calc(100vh-128px)] overflow-x-clip"
     >
       <div className="flex grow flex-col gap-8 pt-2 md:grid md:h-full md:grid-cols-4 md:grid-rows-2 md:gap-x-8 md:gap-y-6 md:pt-8 xl:pt-8 xl:gap-x-8 xl:gap-y-6">
-        <div
-          className={`order-1 md:col-span-2 xl:col-span-3 md:col-start-1 md:row-start-1 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
-            visibleBlocks.title
-              ? "opacity-100 translate-x-0"
-              : "opacity-0 -translate-x-8"
-          }`}
-        >
+        <div className="order-1 md:col-span-2 xl:col-span-3 md:col-start-1 md:row-start-1">
           <h1
             id="presentation-heading"
             className="text-5xl md:text-7xl xl:text-[10rem] uppercase w-full whitespace-nowrap font-bold"
@@ -179,14 +167,8 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
           <p>{t.presentation.greeting2}</p>
         </div>
 
-        <div
-          className={`order-3 md:col-start-4 md:row-start-1 md:justify-self-end transition-all ${APPEAR_DURATION_CLASS} ease-out ${
-            visibleBlocks.image
-              ? "opacity-100 translate-x-0"
-              : "opacity-0 translate-x-8"
-          }`}
-        >
-          <div className="relative aspect-square w-full max-w-[350px] md:aspect-auto md:h-[350px] md:w-[350px] md:shrink-0">
+        <div className="order-3 md:col-start-4 md:row-start-1 md:justify-self-end">
+          <div className="relative aspect-square w-full max-w-87.5 md:aspect-auto md:h-87.5 md:w-87.5 md:shrink-0">
             <Image
               src="/profile.webp"
               alt={t.presentation.profileImageAlt}
@@ -194,7 +176,7 @@ export function PresentationSection({ socialLinks }: PresentationSectionProps) {
               preload
               loading="eager"
               fetchPriority="high"
-              sizes="(max-width: 767px) min(100vw - 2rem, 350px), 350px border"
+              sizes="(max-width: 767px) min(100vw - 2rem, 350px), 350px"
               className="rounded-4xl object-cover"
             />
           </div>

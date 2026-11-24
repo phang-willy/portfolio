@@ -2,7 +2,7 @@
 
 import { useI18n } from "@/features/i18n/hooks/use-i18n";
 import dynamic from "next/dynamic";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GithubAnimatedStats } from "@/features/github/components/github-animated-stats";
 import {
   APPEAR_DURATION_CLASS,
@@ -40,6 +40,8 @@ export function AboutSection({
 }: AboutSectionProps) {
   const { t } = useI18n();
   const sectionRef = useRef<HTMLElement>(null);
+  const mapSlotRef = useRef<HTMLDivElement>(null);
+  const [mapReady, setMapReady] = useState(false);
   const visibleMap = useAppearSequence({
     sectionRef,
     keys: ["heading", "text", "map"],
@@ -48,6 +50,22 @@ export function AboutSection({
     staggerMs: APPEAR_STAGGER_MS,
     threshold: APPEAR_THRESHOLD,
   });
+
+  useEffect(() => {
+    const slot = mapSlotRef.current;
+    if (!slot) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setMapReady(true);
+        observer.disconnect();
+      },
+      { rootMargin: "200px 0px" },
+    );
+    observer.observe(slot);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section
@@ -81,13 +99,21 @@ export function AboutSection({
       </div>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
         <div
+          ref={mapSlotRef}
           className={`col-span-12 xl:col-span-8 transition-all ${APPEAR_DURATION_CLASS} ease-out ${
             visibleMap.map
               ? "opacity-100 translate-x-0"
               : "opacity-0 -translate-x-8"
           }`}
         >
-          <ParisMap />
+          {mapReady ? (
+            <ParisMap />
+          ) : (
+            <div
+              className="h-[min(50vh,420px)] w-full rounded-2xl bg-gray-200 md:h-[min(55vh,480px)] dark:bg-gray-800"
+              aria-hidden
+            />
+          )}
         </div>
         <div className="col-span-12 xl:col-span-4 grid grid-cols-1 gap-4">
           <GithubAnimatedStats
