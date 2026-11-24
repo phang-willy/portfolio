@@ -112,6 +112,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
 
   protected readonly stacks = signal<readonly Stack[]>([]);
   protected readonly selectedStackIds = signal<string[]>([]);
+  protected readonly stackLabel = (stackId: string | null | undefined): string => {
+    if (!stackId) {
+      return '';
+    }
+
+    return this.stacks().find((stack) => stack.id === stackId)?.name ?? stackId;
+  };
   protected readonly activeTab = signal<ProjectLocale>('fr');
   protected readonly pendingTab = signal<ProjectLocale | null>(null);
   protected readonly isLoading = signal(false);
