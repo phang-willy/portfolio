@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
-import styles from "./horizontal-auto-scroll.module.css";
 
 type HorizontalAutoScrollProps = {
   /** Vitesse du défilement auto (px/s). */
@@ -55,13 +54,13 @@ export const HorizontalAutoScroll = ({
     <div
       role="region"
       aria-label="Technologies - défilement horizontal"
-      className={[styles.viewport, "select-none", className]
+      className={["overflow-hidden select-none", className]
         .filter(Boolean)
         .join(" ")}
     >
       <div
         ref={innerRef}
-        className={`${styles.track} flex w-max items-stretch`}
+        className="flex w-max animate-marquee items-stretch will-change-transform"
       >
         {children({ duplicated: false })}
         {children({ duplicated: true })}

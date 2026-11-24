@@ -182,7 +182,7 @@
 
           <div class="grid gap-2 md:col-span-2">
             <label class="text-sm font-bold">Stacks</label>
-            <hlm-combobox-multiple [(value)]="selectedStackIds">
+            <hlm-combobox-multiple [(value)]="selectedStackIds" [itemToString]="stackLabel">
               <hlm-combobox-chips class="w-full max-w-none">
                 <ng-template hlmComboboxValues let-values>
                   @for (stackId of values; track stackId) {

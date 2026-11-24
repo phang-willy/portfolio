@@ -112,8 +112,7 @@ export function MessageSection() {
                 alt={t.message.profileAlt}
                 fill
                 sizes="64px"
-                loading="eager"
-                fetchPriority="high"
+                loading="lazy"
                 className="object-cover"
               />
             </span>

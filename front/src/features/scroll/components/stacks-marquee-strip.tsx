@@ -47,8 +47,8 @@ export const StacksMarqueeStrip = () => {
                 key={duplicated ? `${stack.name}-dup` : stack.name}
                 className="flex shrink-0 items-center gap-2 rounded-full border px-8 py-3 text-sm font-semibold text-black transition-colors duration-200 hover:text-main dark:text-white"
               >
-                <Icon className="h-5 w-5" />
-                <span>{stack.name}</span>
+                <Icon className="h-5 w-5" title={stack.name} />
+                <span aria-hidden="true">{stack.name}</span>
               </li>
             );
           })}

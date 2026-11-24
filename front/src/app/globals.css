@@ -10,6 +10,17 @@
   --color-border-dark: oklch(1 0 129.63 / 15%);
   --font-oswald: "Oswald", sans-serif;
   --font-roboto: "Roboto", sans-serif;
+  --animate-marquee: marquee linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
 @layer fonts {
